@@ -1,7 +1,6 @@
-import { Suspense } from 'react'
-
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { redirect, RedirectType } from 'next/navigation'
+import { RedirectType, redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
 import { Logo } from '~/client/components/logo'
 import { ThemeSelect } from '~/client/components/theme-select'

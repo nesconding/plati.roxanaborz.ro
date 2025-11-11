@@ -1,5 +1,5 @@
-import * as React from 'react'
 import { CheckIcon, ChevronsUpDown } from 'lucide-react'
+import * as React from 'react'
 import * as RPNInput from 'react-phone-number-input'
 import flags from 'react-phone-number-input/flags'
 
@@ -41,13 +41,13 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
     return (
       <InputGroup className={className}>
         <RPNInput.default
-          ref={ref}
           className='flex w-full'
-          flagComponent={FlagComponent}
           countrySelectComponent={CountrySelect}
+          flagComponent={FlagComponent}
           inputComponent={InputComponent}
+          onChange={(value) => onChange?.(value || ('' as RPNInput.Value))}
+          ref={ref}
           smartCaret={false}
-          value={value || undefined}
           /**
            * Handles the onChange event.
            *
@@ -57,7 +57,7 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
            *
            * @param {E164Number | undefined} value - The entered value
            */
-          onChange={(value) => onChange?.(value || ('' as RPNInput.Value))}
+          value={value || undefined}
           {...props}
         />
       </InputGroup>
@@ -94,21 +94,21 @@ const CountrySelect = ({
 
   return (
     <Popover
-      open={isOpen}
       modal
       onOpenChange={(open: boolean) => {
         setIsOpen(open)
         open && setSearchValue('')
       }}
+      open={isOpen}
     >
       <InputGroupAddon align='inline-start'>
         <PopoverTrigger asChild>
           <InputGroupButton
-            type='button'
-            variant='ghost'
-            // size="icon"
             className='flex gap-1 px-3'
             disabled={disabled}
+            // size="icon"
+            type='button'
+            variant='ghost'
           >
             <FlagComponent
               country={selectedCountry}
@@ -123,10 +123,9 @@ const CountrySelect = ({
           </InputGroupButton>
         </PopoverTrigger>
       </InputGroupAddon>
-      <PopoverContent className='w-xs p-0' align='start'>
+      <PopoverContent align='start' className='w-xs p-0'>
         <Command>
           <CommandInput
-            value={searchValue}
             onValueChange={(value: string) => {
               setSearchValue(value)
               setTimeout(() => {
@@ -141,20 +140,21 @@ const CountrySelect = ({
               }, 0)
             }}
             placeholder='Search country...'
+            value={searchValue}
           />
           <CommandList>
-            <ScrollArea ref={scrollAreaRef} className='h-72'>
+            <ScrollArea className='h-72' ref={scrollAreaRef}>
               <CommandEmpty>No country found.</CommandEmpty>
               <CommandGroup>
                 {countryList.map(({ value, label }) =>
                   value ? (
                     <CountrySelectOption
-                      key={value}
                       country={value}
                       countryName={label}
-                      selectedCountry={selectedCountry}
+                      key={value}
                       onChange={onChange}
                       onSelectComplete={() => setIsOpen(false)}
+                      selectedCountry={selectedCountry}
                     />
                   ) : null
                 )}

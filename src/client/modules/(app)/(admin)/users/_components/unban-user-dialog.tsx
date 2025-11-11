@@ -23,7 +23,7 @@ import {
 } from '~/client/components/ui/field'
 import { Spinner } from '~/client/components/ui/spinner'
 import { useTRPC } from '~/client/trpc/react'
-import { UsersTableValidators } from '~/shared/validation/tables/index'
+import type { UsersTableValidators } from '~/shared/validation/tables/index'
 
 interface UnbanUserDialogProps {
   user?: typeof UsersTableValidators.$types.select | null
@@ -52,6 +52,28 @@ export function UnbanUserDialog({ user, onCloseDialog }: UnbanUserDialogProps) {
     unbanUser.mutate(
       { userId: user.id },
       {
+        onError: (error) => {
+          console.error(error)
+          toast.error(
+            t(
+              'modules.(app).(admin).users._components.unban-user-dialog.response.error.title'
+            ),
+            {
+              className: '!text-destructive-foreground',
+              classNames: {
+                description: '!text-muted-foreground',
+                icon: 'text-destructive',
+                title: '!text-destructive'
+              },
+              description:
+                error instanceof Error
+                  ? error.message
+                  : t(
+                      'modules.(app).(admin).users._components.unban-user-dialog.response.error.description'
+                    )
+            }
+          )
+        },
         onSuccess: async () => {
           await queryClient.invalidateQueries({
             queryKey: trpc.admin.authentication.listUsers.queryKey()
@@ -61,45 +83,23 @@ export function UnbanUserDialog({ user, onCloseDialog }: UnbanUserDialogProps) {
               'modules.(app).(admin).users._components.unban-user-dialog.response.success.title'
             ),
             {
+              classNames: {
+                description: '!text-muted-foreground',
+                icon: 'text-primary'
+              },
               description: t(
                 'modules.(app).(admin).users._components.unban-user-dialog.response.success.description'
-              ),
-              classNames: {
-                icon: 'text-primary',
-                description: '!text-muted-foreground'
-              }
+              )
             }
           )
           handleOnCloseDialog?.()
-        },
-        onError: (error) => {
-          console.error(error)
-          toast.error(
-            t(
-              'modules.(app).(admin).users._components.unban-user-dialog.response.error.title'
-            ),
-            {
-              description:
-                error instanceof Error
-                  ? error.message
-                  : t(
-                      'modules.(app).(admin).users._components.unban-user-dialog.response.error.description'
-                    ),
-              className: '!text-destructive-foreground',
-              classNames: {
-                icon: 'text-destructive',
-                title: '!text-destructive',
-                description: '!text-muted-foreground'
-              }
-            }
-          )
         }
       }
     )
   }
 
   return (
-    <Dialog open={!!user} onOpenChange={handleOnCloseDialog}>
+    <Dialog onOpenChange={handleOnCloseDialog} open={!!user}>
       <DialogContent>
         <FieldGroup>
           <DialogHeader>

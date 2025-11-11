@@ -11,8 +11,8 @@ export const users_sessions = authentication.table(
     ...id,
 
     expiresAt: timestamp('expires_at', {
-      withTimezone: true,
-      mode: 'date'
+      mode: 'date',
+      withTimezone: true
     }).notNull(),
     ipAddress: text('ip_address'),
     token: text('token').notNull().unique(),

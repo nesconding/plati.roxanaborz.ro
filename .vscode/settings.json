@@ -5,5 +5,5 @@
     "src/client/lib/i18n",
     "src/client/lib/i18n/dictionaries"
   ],
-  "i18n-ally.sourceLanguage": "ro",
+  "i18n-ally.sourceLanguage": "ro"
 }

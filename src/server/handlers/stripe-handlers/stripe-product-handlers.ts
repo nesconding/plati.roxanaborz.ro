@@ -63,14 +63,16 @@ export class StripeProductHandlers {
 
       // Filter to only plain Deposit types (exclude Installments types)
       const depositSubscriptions = subscriptionsDue.filter(
-        (sub) => sub.parentOrder.productPaymentLink.type === PaymentLinkType.Deposit
+        (sub) =>
+          sub.parentOrder.productPaymentLink.type === PaymentLinkType.Deposit
       )
 
       const productPayments = await Promise.all(
         depositSubscriptions.map(async (subscription) => {
-          const depositPaymentIntent = await StripeService.findPaymentIntentById(
-            subscription.parentOrder.stripePaymentIntentId
-          )
+          const depositPaymentIntent =
+            await StripeService.findPaymentIntentById(
+              subscription.parentOrder.stripePaymentIntentId
+            )
 
           const metadata =
             depositPaymentIntent.metadata as unknown as PaymentIntentProductDepositMetadata

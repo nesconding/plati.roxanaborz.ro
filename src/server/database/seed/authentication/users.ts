@@ -102,7 +102,6 @@ export async function seedUsers() {
       .where(eq(users.email, adminData.email))
       .returning()
 
-
     await database
       .update(users)
       .set({

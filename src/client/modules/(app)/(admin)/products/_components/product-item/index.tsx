@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-
 import {
   BanknoteArrowDown,
   CalendarClock,
@@ -10,8 +8,9 @@ import {
   Pencil,
   Trash
 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { useState } from 'react'
 
 import { Button } from '~/client/components/ui/button'
 import {
@@ -29,7 +28,7 @@ import {
   ItemTitle
 } from '~/client/components/ui/item'
 import { DeleteProductDialog } from '~/client/modules/(app)/(admin)/products/_components/delete-product-dialog'
-import { TRPCRouterOutput } from '~/client/trpc/react'
+import type { TRPCRouterOutput } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
 
 type Product = TRPCRouterOutput['protected']['products']['findAll'][number]
@@ -53,14 +52,14 @@ export function ProductItem({ product }: ProductItemProps) {
 
   return (
     <>
-      <Item variant='outline' asChild>
-        <Link href={`/products/${product.id}`} className='relative pr-12'>
+      <Item asChild variant='outline'>
+        <Link className='relative pr-12' href={`/products/${product.id}`}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant='ghost'
-                size='icon-sm'
                 className='absolute top-4 right-4'
+                size='icon-sm'
+                variant='ghost'
               >
                 <EllipsisVertical />
               </Button>
@@ -78,8 +77,8 @@ export function ProductItem({ product }: ProductItemProps) {
                 </Link>
 
                 <DropdownMenuItem
-                  variant='destructive'
                   onClick={handleOnDeleteProduct}
+                  variant='destructive'
                 >
                   <Trash />
                   {t(
@@ -137,8 +136,8 @@ export function ProductItem({ product }: ProductItemProps) {
 
       <DeleteProductDialog
         isOpen={isDeleteProductDialogOpen}
-        product={product}
         onClose={() => setIsDeleteProductDialogOpen(false)}
+        product={product}
       />
     </>
   )

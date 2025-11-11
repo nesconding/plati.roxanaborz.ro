@@ -1,9 +1,9 @@
 'use client'
 
 import { AlertCircle } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { FallbackProps } from 'react-error-boundary'
+import { useTranslations } from 'next-intl'
+import type { FallbackProps } from 'react-error-boundary'
 
 import { Button } from '~/client/components/ui/button'
 import { cn } from '~/client/lib/utils'

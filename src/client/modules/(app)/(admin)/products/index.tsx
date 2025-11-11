@@ -2,8 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { PackagePlus } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 import { Button } from '~/client/components/ui/button'
 import { ProductItem } from '~/client/modules/(app)/(admin)/products/_components/product-item'
@@ -22,7 +22,7 @@ export function ProductsPageModule() {
         <ProductItem key={product.id} product={product} />
       ))}
 
-      <Button variant='outline' className='size-full' size='lg' asChild>
+      <Button asChild className='size-full' size='lg' variant='outline'>
         <Link href='/products/create'>
           <PackagePlus />
           {t('modules.(app).(admin).products.create-product')}

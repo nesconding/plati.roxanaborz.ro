@@ -6,13 +6,13 @@ import { adminProcedure } from '~/server/trpc/config'
 import { UserRoles } from '~/shared/enums/user-roles'
 
 const input = z.object({
-  userId: z.string(),
   email: z.email(),
   firstName: z.string().min(3),
   lastName: z.string().min(3),
   phoneNumber: z.optional(
     z.string().refine((phoneNumber) => isValidPhoneNumber(phoneNumber))
-  )
+  ),
+  userId: z.string()
 })
 const output = z.void()
 
@@ -66,16 +66,16 @@ export const editUserProcedure = adminProcedure
 
       await ctx.authentication.api.adminUpdateUser({
         body: {
-          userId: input.userId,
-          data: { ...input, name: `${input.firstName} ${input.lastName}` }
+          data: { ...input, name: `${input.firstName} ${input.lastName}` },
+          userId: input.userId
         },
         headers: ctx.headers
       })
     } catch (cause) {
       throw new TRPCError({
+        cause,
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to edit user',
-        cause
+        message: 'Failed to edit user'
       })
     }
   })

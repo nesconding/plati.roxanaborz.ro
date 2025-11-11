@@ -33,9 +33,9 @@ export const unbanUserProcedure = adminProcedure
       })
     } catch (cause) {
       throw new TRPCError({
+        cause,
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to unban user',
-        cause
+        message: 'Failed to unban user'
       })
     }
   })

@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { createId } from '@paralleldrive/cuid2'
 import Decimal from 'decimal.js-light'
 
-import {
+import type {
   products_extensions,
   products_extensions_installments
 } from '~/server/database/schema'
@@ -26,22 +26,22 @@ export async function createProductsExtensionsInstallmentsData(
 
   for (const productExtension of dynamicProductsExtensions) {
     let latestPrice = new Decimal(productExtension.price)
-    const installmentCount = faker.number.int({ min: 1, max: 3 })
+    const installmentCount = faker.number.int({ max: 3, min: 1 })
 
     for (let i = 1; i <= installmentCount; i++) {
       latestPrice = latestPrice.add(
         latestPrice.mul(
           new Decimal(
-            faker.number.int({ min: 10, max: 30, multipleOf: 5 })
+            faker.number.int({ max: 30, min: 10, multipleOf: 5 })
           ).div(100)
         )
       )
 
       data.push({
-        id: createId(),
         count: i + 1,
-        pricePerInstallment: latestPrice.toString(),
-        extensionId: productExtension.id
+        extensionId: productExtension.id,
+        id: createId(),
+        pricePerInstallment: latestPrice.toString()
       })
     }
   }

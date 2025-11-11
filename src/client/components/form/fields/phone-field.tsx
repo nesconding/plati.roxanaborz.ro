@@ -1,4 +1,5 @@
 import { useFieldContext } from '~/client/components/form/config'
+import { RequiredMarker } from '~/client/components/form/fields/utils'
 import {
   Field,
   FieldDescription,
@@ -7,7 +8,6 @@ import {
 } from '~/client/components/ui/field'
 import { PhoneInput } from '~/client/components/ui/phone-input'
 import { cn } from '~/client/lib/utils'
-import { RequiredMarker } from '~/client/components/form/fields/utils'
 
 interface PhoneFieldProps {
   label: string

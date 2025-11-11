@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-
-import { DateArg, format } from 'date-fns'
+import { type DateArg, format } from 'date-fns'
 import { ro } from 'date-fns/locale'
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import { CircleX, Download, FilePenLine } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { Button } from '~/client/components/ui/button'
@@ -27,7 +26,7 @@ import {
 } from '~/client/components/ui/input-group'
 import { Spinner } from '~/client/components/ui/spinner'
 import { createXLSXFile } from '~/client/lib/xlsx'
-import { TRPCRouterOutput } from '~/client/trpc/react'
+import type { TRPCRouterOutput } from '~/client/trpc/react'
 
 type User = TRPCRouterOutput['admin']['authentication']['listUsers'][number]
 
@@ -130,13 +129,13 @@ export function ExportUsersDialog({
           'modules.(app).(admin).users._components.export-users-dialog.response.success.title'
         ),
         {
+          classNames: {
+            description: '!text-muted-foreground',
+            icon: 'text-primary'
+          },
           description: t(
             'modules.(app).(admin).users._components.export-users-dialog.response.success.description'
-          ),
-          classNames: {
-            icon: 'text-primary',
-            description: '!text-muted-foreground'
-          }
+          )
         }
       )
       handleOnOpenChange(false)
@@ -147,18 +146,18 @@ export function ExportUsersDialog({
           'modules.(app).(admin).users._components.export-users-dialog.response.error.title'
         ),
         {
+          className: '!text-destructive-foreground',
+          classNames: {
+            description: '!text-muted-foreground',
+            icon: 'text-destructive',
+            title: '!text-destructive'
+          },
           description:
             error instanceof Error
               ? error.message
               : t(
                   'modules.(app).(admin).users._components.export-users-dialog.response.error.description'
-                ),
-          className: '!text-destructive-foreground',
-          classNames: {
-            icon: 'text-destructive',
-            title: '!text-destructive',
-            description: '!text-muted-foreground'
-          }
+                )
         }
       )
     } finally {
@@ -172,7 +171,7 @@ export function ExportUsersDialog({
   }
 
   return (
-    <Dialog open={!!users} onOpenChange={handleOnOpenChange}>
+    <Dialog onOpenChange={handleOnOpenChange} open={!!users}>
       <DialogContent>
         <FieldGroup>
           <DialogHeader>
@@ -197,14 +196,14 @@ export function ExportUsersDialog({
 
             <InputGroup>
               <InputGroupInput
+                className='overflow-ellipsis'
                 id='filename-input'
                 name='filename-input'
-                value={fileName}
-                className='overflow-ellipsis'
                 onChange={(e) => setFileName(e.target.value)}
                 placeholder={t(
                   'modules.(app).(admin).users._components.export-users-dialog.filename.placeholder'
                 )}
+                value={fileName}
               />
 
               <InputGroupAddon align='inline-start'>
@@ -215,7 +214,7 @@ export function ExportUsersDialog({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant='outline' disabled={isPending}>
+              <Button disabled={isPending} variant='outline'>
                 <CircleX />
                 {t(
                   'modules.(app).(admin).users._components.export-users-dialog.buttons.cancel'

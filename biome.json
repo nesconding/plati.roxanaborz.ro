@@ -19,7 +19,7 @@
     "bracketSpacing": true,
     "enabled": true,
     "expand": "auto",
-    "formatWithErrors": false,
+    "formatWithErrors": true,
     "includes": ["**"],
     "indentStyle": "space",
     "indentWidth": 2,

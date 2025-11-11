@@ -1,6 +1,6 @@
 import { useReducer } from 'react'
 
-import { TRPCRouterOutput } from '~/client/trpc/react'
+import type { TRPCRouterOutput } from '~/client/trpc/react'
 
 type User = TRPCRouterOutput['admin']['authentication']['listUsers'][number]
 

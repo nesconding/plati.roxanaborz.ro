@@ -1,10 +1,9 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-
-import { RowValues } from 'exceljs'
+import type { RowValues } from 'exceljs'
 import { FileSpreadsheet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
 import { Spinner } from '~/client/components/ui/spinner'
@@ -12,10 +11,8 @@ import { cn } from '~/client/lib/utils'
 import { importXLSXFile } from '~/client/lib/xlsx'
 
 const accept = {
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
-    '.xlsx'
-  ],
-  'application/vnd.ms-excel': ['.xls']
+  'application/vnd.ms-excel': ['.xls'],
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
 }
 
 interface FileUploadDropzoneProps {
@@ -58,19 +55,19 @@ export function FileUploadDropzone({
 
   const { getRootProps, getInputProps, isDragActive, isDragReject } =
     useDropzone({
-      onDrop,
       accept,
-      multiple: false,
+      disabled,
       maxSize,
-      disabled
+      multiple: false,
+      onDrop
     })
 
   return (
     <div
       {...getRootProps()}
       aria-busy={isDragActive}
-      aria-invalid={isDragReject}
       aria-disabled={disabled}
+      aria-invalid={isDragReject}
       className={cn(
         'group',
         'border-muted-foreground/25 text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-muted-foreground flex w-full flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed',

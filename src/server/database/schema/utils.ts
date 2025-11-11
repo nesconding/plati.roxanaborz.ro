@@ -8,10 +8,10 @@ export const id = {
 }
 
 export const timestamps = {
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+  createdAt: timestamp('created_at', { mode: 'string', withTimezone: true })
     .defaultNow()
     .notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+  updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true })
     .defaultNow()
     .notNull()
     .$onUpdate(() => new Date().toISOString())
@@ -19,5 +19,5 @@ export const timestamps = {
 
 export const softDeleteTimestamps = {
   ...timestamps,
-  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' })
+  deletedAt: timestamp('deleted_at', { mode: 'string', withTimezone: true })
 }

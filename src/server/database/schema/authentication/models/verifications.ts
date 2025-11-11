@@ -7,8 +7,8 @@ export const verifications = authentication.table('verifications', {
   ...id,
 
   expiresAt: timestamp('expires_at', {
-    withTimezone: true,
-    mode: 'date'
+    mode: 'date',
+    withTimezone: true
   }).notNull(),
   identifier: text('identifier').notNull(),
   value: text('value').notNull(),

@@ -19,14 +19,14 @@ import {
 const input = z.object({ id: z.string() })
 
 const output = ProductsTableValidators.select.extend({
-  installments: z.array(ProductsInstallmentsTableValidators.select),
   extensions: z.array(
     ProductsExtensionsTableValidators.select.extend({
       installments: z.array(
         ProductsExtensionsInstallmentsTableValidators.select
       )
     })
-  )
+  ),
+  installments: z.array(ProductsInstallmentsTableValidators.select)
 })
 
 export const deleteOneProductByIdProcedure = adminProcedure
@@ -66,21 +66,21 @@ export const deleteOneProductByIdProcedure = adminProcedure
 
       const result = {
         ...product,
-        installments,
         extensions: extensions.map((extension) => ({
           ...extension,
           installments: extensionsInstallments.filter(
             (installment) => installment.extensionId === extension.id
           )
-        }))
+        })),
+        installments
       }
 
       return result
     } catch (cause) {
       throw new TRPCError({
+        cause,
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to delete one product by id',
-        cause
+        message: 'Failed to delete one product by id'
       })
     }
   })

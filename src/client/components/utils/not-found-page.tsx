@@ -1,9 +1,9 @@
 'use client'
 
 import { SearchX } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 import { cn } from '~/client/lib/utils'
 
@@ -32,17 +32,17 @@ export function NotFoundPage({ className }: NotFoundPageProps) {
         </p>
         <p>
           {t.rich('components.utils.not-found-page.description', {
-            pathname,
             component: (chunks) => (
               <code className='bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold'>
                 {chunks}
               </code>
-            )
+            ),
+            pathname
           })}
         </p>
       </div>
 
-      <Link href='/' replace passHref>
+      <Link href='/' passHref replace>
         <Button>{t('components.utils.not-found-page.button')}</Button>
       </Link>
     </div>

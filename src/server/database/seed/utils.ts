@@ -1,6 +1,6 @@
 import cliProgress from 'cli-progress'
 import { getTableUniqueName } from 'drizzle-orm'
-import { PgTable } from 'drizzle-orm/pg-core'
+import type { PgTable } from 'drizzle-orm/pg-core'
 
 import { database } from '~/server/database/drizzle'
 

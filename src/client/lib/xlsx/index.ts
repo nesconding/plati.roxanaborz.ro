@@ -1,4 +1,4 @@
-import ExcelJS, { RowValues } from 'exceljs'
+import ExcelJS, { type RowValues } from 'exceljs'
 
 export async function createXLSXFile(
   data: Record<string, string | number | null | undefined>[],
@@ -25,15 +25,15 @@ export async function createXLSXFile(
   const headerRow = worksheet.getRow(1)
   headerRow.font = { bold: true, size: HEADER_FONT_SIZE }
   headerRow.fill = {
-    type: 'pattern',
+    fgColor: { argb: 'FFE0E0E0' },
     pattern: 'solid',
-    fgColor: { argb: 'FFE0E0E0' }
+    type: 'pattern'
   }
   headerRow.height = 30
   headerRow.alignment = {
-    vertical: 'middle',
     horizontal: 'left',
-    indent: 1 // Horizontal padding for headers
+    indent: 1, // Horizontal padding for headers
+    vertical: 'middle'
   }
 
   // Add data rows
@@ -42,9 +42,9 @@ export async function createXLSXFile(
     excelRow.font = { size: DATA_FONT_SIZE }
     excelRow.height = 25
     excelRow.alignment = {
-      vertical: 'middle',
       horizontal: 'left',
-      indent: 1 // Horizontal padding for data rows
+      indent: 1, // Horizontal padding for data rows
+      vertical: 'middle'
     }
   })
 

@@ -12,20 +12,20 @@ export const users_accounts = authentication.table(
 
     accessToken: text('access_token'),
     accessTokenExpiresAt: timestamp('access_token_expires_at', {
-      withTimezone: true,
-      mode: 'string'
+      mode: 'string',
+      withTimezone: true
     }),
     accountId: text('account_id').notNull(),
     idToken: text('id_token'),
+    impersonatedBy: text('impersonated_by'),
     password: text('password'),
     providerId: text('provider_id').notNull(),
     refreshToken: text('refresh_token'),
     refreshTokenExpiresAt: timestamp('refresh_token_expires_at', {
-      withTimezone: true,
-      mode: 'string'
+      mode: 'string',
+      withTimezone: true
     }),
     scope: text('scope'),
-    impersonatedBy: text('impersonated_by'),
 
     userId: text('user_id')
       .notNull()

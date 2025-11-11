@@ -55,14 +55,14 @@ export const importUsersProcedure = adminProcedure
         newUsersToCreate.map(({ data }) =>
           ctx.authentication.api.createUser({
             body: {
-              name: `${data.firstName} ${data.lastName}`,
-              password: 'no-password',
-              email: data.email,
               data: {
-                phoneNumber: data.phoneNumber,
                 firstName: data.firstName,
-                lastName: data.lastName
-              }
+                lastName: data.lastName,
+                phoneNumber: data.phoneNumber
+              },
+              email: data.email,
+              name: `${data.firstName} ${data.lastName}`,
+              password: 'no-password'
             },
             headers: ctx.headers
           })
@@ -76,9 +76,9 @@ export const importUsersProcedure = adminProcedure
       return newUsersWithDuplicates
     } catch (cause) {
       throw new TRPCError({
+        cause,
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to import users',
-        cause
+        message: 'Failed to import users'
       })
     }
   })

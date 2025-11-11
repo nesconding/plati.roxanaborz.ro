@@ -6,9 +6,9 @@ import { adminProcedure } from '~/server/trpc/config'
 import { UserRoles } from '~/shared/enums/user-roles'
 
 const input = z.object({
-  userId: z.string(),
   banExpireDate: z.iso.datetime().optional(),
-  banReason: z.string().optional()
+  banReason: z.string().optional(),
+  userId: z.string()
 })
 const output = z.void()
 
@@ -32,11 +32,11 @@ export const banUserProcedure = adminProcedure
 
       await ctx.authentication.api.banUser({
         body: {
-          userId: input.userId,
           banExpiresIn: input.banExpireDate
             ? differenceInSeconds(input.banExpireDate, new Date())
             : undefined,
-          banReason: input.banReason
+          banReason: input.banReason,
+          userId: input.userId
         },
         headers: ctx.headers
       })
@@ -46,9 +46,9 @@ export const banUserProcedure = adminProcedure
       })
     } catch (cause) {
       throw new TRPCError({
+        cause,
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to ban user',
-        cause
+        message: 'Failed to ban user'
       })
     }
   })

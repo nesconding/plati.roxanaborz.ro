@@ -23,10 +23,10 @@ export function AppLayoutContainerSidebarHeader() {
       <SidebarMenu>
         <SidebarMenuItem className='flex justify-center data-[slot=sidebar-menu-button]:!p-1.5'>
           <SidebarMenuButton
+            asChild
             className={cn('w-fit p-0 transition-[width,height] ease-linear', {
               'bg-transparent!': !showIcon
             })}
-            asChild
           >
             <Link href='/'>
               <div

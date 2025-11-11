@@ -1,13 +1,11 @@
-import { ReactScan } from '~/client/components/utils/react-scan'
-
 import type { Metadata } from 'next'
 import { Esteban, Fira_Code, Montserrat } from 'next/font/google'
+import { ReactScan } from '~/client/components/utils/react-scan'
 
 import '~/client/styles/globals.css'
 
-import { Suspense } from 'react'
-
 import { NextIntlClientProvider } from 'next-intl'
+import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 
 import { ThemeProvider } from '~/client/components/providers/theme-provider'
@@ -19,23 +17,23 @@ import { Devtools } from '~/client/lib/providers/devtools'
 import { TRPCReactProvider } from '~/client/trpc/react'
 
 const montserrat = Montserrat({
-  variable: '--font-sans',
-  subsets: ['latin']
+  subsets: ['latin'],
+  variable: '--font-sans'
 })
 
 const esteban = Esteban({
-  variable: '--font-serif',
   subsets: ['latin'],
+  variable: '--font-serif',
   weight: ['400']
 })
 
 const firacode = Fira_Code({
-  variable: '--font-mono',
-  subsets: ['latin']
+  subsets: ['latin'],
+  variable: '--font-mono'
 })
 export const metadata: Metadata = {
-  title: 'Plați RB',
-  icons: '/favicon.svg'
+  icons: '/favicon.svg',
+  title: 'Plați RB'
 }
 
 export default async function RootLayout({
@@ -54,8 +52,8 @@ export default async function RootLayout({
             <ThemeProvider
               attribute='class'
               defaultTheme='system'
-              enableSystem
               disableTransitionOnChange
+              enableSystem
             >
               <TRPCReactProvider>
                 <ErrorBoundary FallbackComponent={ErrorPage}>

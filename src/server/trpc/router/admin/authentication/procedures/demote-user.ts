@@ -22,14 +22,14 @@ export const demoteUserProcedure = adminProcedure
       }
 
       await ctx.authentication.api.adminUpdateUser({
-        body: { userId: input.userId, data: { role: UserRoles.USER } },
+        body: { data: { role: UserRoles.USER }, userId: input.userId },
         headers: ctx.headers
       })
     } catch (cause) {
       throw new TRPCError({
+        cause,
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to demote user',
-        cause
+        message: 'Failed to demote user'
       })
     }
   })

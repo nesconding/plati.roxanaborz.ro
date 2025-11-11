@@ -1,12 +1,11 @@
 'use client'
 
-import { Fragment } from 'react'
-
 import { useQuery } from '@tanstack/react-query'
 import { ChevronUp, Command } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useSelectedLayoutSegments } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { Fragment } from 'react'
 
 import { Logo } from '~/client/components/logo'
 import {
@@ -105,7 +104,7 @@ export function AppLayoutContainerHeader() {
           // TEST if the resolver actually resolves this segment
           const testResolve = dynamicConfig.resolver(segments[dynamicIndex])
           if (testResolve) {
-            return { index: dynamicIndex, config: dynamicConfig }
+            return { config: dynamicConfig, index: dynamicIndex }
           }
         }
       }
@@ -127,7 +126,7 @@ export function AppLayoutContainerHeader() {
         // If this is the dynamic segment, use the resolver
         if (dynamicSegmentInfo && index === dynamicSegmentInfo.index) {
           const label = dynamicSegmentInfo.config.resolver(segment)
-          return { route, segment, label: label || segment }
+          return { label: label || segment, route, segment }
         }
 
         // Build translation path, replacing dynamic segment with placeholder
@@ -142,7 +141,7 @@ export function AppLayoutContainerHeader() {
         const translationKey = `${baseTranslationPath}.${translationPath}.title`
         const label = t(translationKey)
 
-        return { route, segment, label }
+        return { label, route, segment }
       })
       .filter((item): item is Breadcrumb => item !== null)
   }
@@ -165,10 +164,10 @@ export function AppLayoutContainerHeader() {
       className={cn(
         'bg-background fixed top-0 z-50 h-(--header-height) items-center gap-2 border-b transition-[width] ease-linear max-md:grid max-md:grid-cols-[1fr_auto_1fr] md:flex md:shrink-0',
         {
-          'w-[calc(100%-var(--sidebar-width))]':
-            state === 'expanded' && !isMobile,
           'w-[calc(100%-var(--sidebar-width-icon))]':
             state === 'collapsed' && !isMobile,
+          'w-[calc(100%-var(--sidebar-width))]':
+            state === 'expanded' && !isMobile,
           'w-full': isMobile
         }
       )}
@@ -208,8 +207,8 @@ export function AppLayoutContainerHeader() {
           </TooltipContent>
         </Tooltip>
         <Separator
-          orientation='vertical'
           className='mx-2 data-[orientation=vertical]:h-4'
+          orientation='vertical'
         />
 
         <Breadcrumb className='max-md:hidden'>
@@ -244,7 +243,7 @@ export function AppLayoutContainerHeader() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='start'>
                       {breadcrumbs.slice(0, -1).map((breadcrumb) => (
-                        <DropdownMenuItem key={breadcrumb.route} asChild>
+                        <DropdownMenuItem asChild key={breadcrumb.route}>
                           <Link href={breadcrumb.route}>
                             {breadcrumb.label}
                           </Link>
@@ -282,7 +281,7 @@ export function AppLayoutContainerHeader() {
         </Breadcrumb>
       </div>
 
-      <Link href='/' className='md:hidden' passHref>
+      <Link className='md:hidden' href='/' passHref>
         <Logo className='h-7' />
       </Link>
     </header>

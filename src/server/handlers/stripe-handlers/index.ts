@@ -106,9 +106,7 @@ class StripeHandlersImpl {
               `Unknown product payment link type: ${(metadata as any).type}`
             )
         }
-      } else if (
-        metadata.paymentProductType === PaymentProductType.Extension
-      ) {
+      } else if (metadata.paymentProductType === PaymentProductType.Extension) {
         // Extension payments
         switch (metadata.type) {
           case PaymentLinkType.Integral:
@@ -153,6 +151,6 @@ class StripeHandlersImpl {
 
 export const StripeHandlers = new StripeHandlersImpl()
 
+export { StripeExtensionHandlers } from './stripe-extension-handlers'
 // Also export individual handlers for direct access if needed
 export { StripeProductHandlers } from './stripe-product-handlers'
-export { StripeExtensionHandlers } from './stripe-extension-handlers'

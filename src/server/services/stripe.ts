@@ -165,11 +165,11 @@ class StripeServiceImpl {
       // Create Stripe customer for future off-session payments
       const customer = await stripe.customers.create({
         email: data.customerEmail,
-        name: data.customerName,
         metadata: {
           customerEmail: data.customerEmail,
           customerName: data.customerName
-        }
+        },
+        name: data.customerName
       })
 
       const paymentIntent = await stripe.paymentIntents.create({

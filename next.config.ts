@@ -3,15 +3,15 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  reactStrictMode: true,
   turbopack: {
     rules: {
       '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js'
+        as: '*.js',
+        loaders: ['@svgr/webpack']
       }
     }
-  },
-  reactStrictMode: true
+  }
 }
 
 const withNextIntl = createNextIntlPlugin('./src/client/lib/i18n/request.ts')

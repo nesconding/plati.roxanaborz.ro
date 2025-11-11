@@ -22,14 +22,14 @@ export const promoteUserProcedure = adminProcedure
       }
 
       await ctx.authentication.api.adminUpdateUser({
-        body: { userId: input.userId, data: { role: UserRoles.ADMIN } },
+        body: { data: { role: UserRoles.ADMIN }, userId: input.userId },
         headers: ctx.headers
       })
     } catch (cause) {
       throw new TRPCError({
+        cause,
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to promote user',
-        cause
+        message: 'Failed to promote user'
       })
     }
   })
