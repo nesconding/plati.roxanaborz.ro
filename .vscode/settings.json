@@ -1,0 +1,9 @@
+{
+  "i18n-ally.displayLanguage": "ro",
+  "i18n-ally.localesPaths": [
+    "../src/client/lib/translations/dictionaries/ro.ts",
+    "src/client/lib/i18n",
+    "src/client/lib/i18n/dictionaries"
+  ],
+  "i18n-ally.sourceLanguage": "ro",
+}
