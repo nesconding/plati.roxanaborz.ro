@@ -34,7 +34,7 @@ export const product_payment_links = business.table('product_payment_links', {
     mode: 'string',
     withTimezone: true
   }).notNull(),
-  extraTaxRate: integer('extra_tax_rate').notNull(),
+  extraTaxRate: numeric('extra_tax_rate').notNull(),
   firstPaymentDateAfterDeposit: timestamp('first_payment_date_after_deposit', {
     mode: 'string',
     withTimezone: true

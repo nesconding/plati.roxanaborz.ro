@@ -27,7 +27,7 @@ export type ExtensionPaymentLinkInstallmentsDepositInsertData = {
   extensionInstallmentsCount: number
   extensionInstallmentAmountToPay: string
   extensionInstallmentAmountToPayInCents: string
-  extraTaxRate: number
+  extraTaxRate: string
   firstPaymentDateAfterDeposit: string
   membershipId: string
   paymentMethodType: PaymentMethodType

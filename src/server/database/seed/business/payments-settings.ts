@@ -4,27 +4,27 @@ import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 const PAYMENTS_SETTINGS = [
   {
     currency: PaymentCurrencyType.EUR,
-    extraTaxRate: 0,
+    extraTaxRate: '0',
     label: 'Olanda',
-    tvaRate: 21
+    tvaRate: '21'
   },
   {
     currency: PaymentCurrencyType.RON,
-    extraTaxRate: 21,
+    extraTaxRate: '21',
     label: 'Republica Moldova',
-    tvaRate: 0
+    tvaRate: '0'
   },
   {
     currency: PaymentCurrencyType.RON,
-    extraTaxRate: 0,
+    extraTaxRate: '0',
     label: 'România',
-    tvaRate: 21
+    tvaRate: '21'
   },
   {
     currency: PaymentCurrencyType.EUR,
-    extraTaxRate: 0,
+    extraTaxRate: '0',
     label: 'Cipru',
-    tvaRate: 0
+    tvaRate: '0'
   }
 ]
 

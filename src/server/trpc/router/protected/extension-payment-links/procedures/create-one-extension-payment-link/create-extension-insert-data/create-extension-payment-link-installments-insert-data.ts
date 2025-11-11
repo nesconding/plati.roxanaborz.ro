@@ -23,7 +23,7 @@ export type ExtensionPaymentLinkInstallmentsInsertData = {
   extensionInstallmentsCount: number
   extensionInstallmentAmountToPay: string
   extensionInstallmentAmountToPayInCents: string
-  extraTaxRate: number
+  extraTaxRate: string
   membershipId: string
   paymentMethodType: PaymentMethodType
   paymentProductType: PaymentProductType.Extension

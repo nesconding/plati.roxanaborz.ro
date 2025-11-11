@@ -25,7 +25,7 @@ export type ProductPaymentLinkDepositInsertData = {
   depositAmountInCents: string
   eurToRonRate: string
   expiresAt: string
-  extraTaxRate: number
+  extraTaxRate: string
   firstPaymentDateAfterDeposit: string
   paymentMethodType: PaymentMethodType
   paymentProductType: PaymentProductType.Product

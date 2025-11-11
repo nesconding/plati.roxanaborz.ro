@@ -22,7 +22,7 @@ export type ProductPaymentLinkInstallmentsInsertData = {
   customerName: string
   eurToRonRate: string
   expiresAt: string
-  extraTaxRate: number
+  extraTaxRate: string
   productInstallmentAmountToPay: string
   productInstallmentAmountToPayInCents: string
   productInstallmentId: string

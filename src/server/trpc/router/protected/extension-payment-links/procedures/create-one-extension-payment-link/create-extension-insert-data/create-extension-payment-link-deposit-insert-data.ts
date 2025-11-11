@@ -23,7 +23,7 @@ export type ExtensionPaymentLinkDepositInsertData = {
   eurToRonRate: string
   expiresAt: string
   extensionId: string
-  extraTaxRate: number
+  extraTaxRate: string
   firstPaymentDateAfterDeposit: string
   membershipId: string
   paymentMethodType: PaymentMethodType

@@ -26,7 +26,7 @@ export type ProductPaymentLinkInstallmentsDepositInsertData = {
   depositAmountInCents: string
   eurToRonRate: string
   expiresAt: string
-  extraTaxRate: number
+  extraTaxRate: string
   firstPaymentDateAfterDeposit: string
   productInstallmentAmountToPay: string
   productInstallmentAmountToPayInCents: string

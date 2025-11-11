@@ -7,7 +7,7 @@ import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 const output = z.array(
   z.object({
     currency: z.enum(PaymentCurrencyType),
-    extraTaxRate: z.number(),
+    extraTaxRate: z.string(),
     id: z.string(),
     label: z.string(),
     tvaRate: z.string()

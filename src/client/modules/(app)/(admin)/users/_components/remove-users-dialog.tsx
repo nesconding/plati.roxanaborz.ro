@@ -80,7 +80,7 @@ export function RemoveUsersDialog({
             }
           )
         },
-        onSuccess: async ({ data }) => {
+        onSuccess: async (data) => {
           await queryClient.invalidateQueries({
             queryKey: trpc.admin.authentication.listUsers.queryKey()
           })

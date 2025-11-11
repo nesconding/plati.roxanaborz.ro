@@ -47,7 +47,7 @@ export const extension_payment_links = business.table(
       }
     ),
     extensionInstallmentsCount: integer('extension_installments_count'),
-    extraTaxRate: integer('extra_tax_rate').notNull(),
+    extraTaxRate: numeric('extra_tax_rate').notNull(),
     firstPaymentDateAfterDeposit: timestamp(
       'first_payment_date_after_deposit',
       {

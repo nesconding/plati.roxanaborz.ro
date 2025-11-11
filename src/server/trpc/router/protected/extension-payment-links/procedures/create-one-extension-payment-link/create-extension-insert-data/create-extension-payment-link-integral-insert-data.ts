@@ -19,7 +19,7 @@ export type ExtensionPaymentLinkIntegralInsertData = {
   eurToRonRate: string
   expiresAt: string
   extensionId: string
-  extraTaxRate: number
+  extraTaxRate: string
   membershipId: string
   paymentMethodType: PaymentMethodType
   paymentProductType: PaymentProductType.Extension

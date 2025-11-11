@@ -21,7 +21,7 @@ export type ProductPaymentLinkIntegralInsertData = {
   customerName: string
   eurToRonRate: string
   expiresAt: string
-  extraTaxRate: number
+  extraTaxRate: string
   paymentMethodType: PaymentMethodType
   paymentProductType: PaymentProductType.Product
   productId: string
