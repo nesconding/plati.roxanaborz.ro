@@ -32,8 +32,8 @@ const firacode = Fira_Code({
   variable: '--font-mono'
 })
 export const metadata: Metadata = {
-  icons: '/favicon.svg',
-  title: 'Plați RB'
+  icons: '/logo.webp',
+  title: 'Plați Roxana Borz'
 }
 
 export default async function RootLayout({
