@@ -33,7 +33,7 @@ const firacode = Fira_Code({
 })
 export const metadata: Metadata = {
   icons: '/logo.webp',
-  title: 'Plați Roxana Borz'
+  title: 'Plați - Roxana Borz'
 }
 
 export default async function RootLayout({
