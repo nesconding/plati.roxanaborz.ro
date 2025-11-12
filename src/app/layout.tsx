@@ -8,7 +8,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { NextIntlClientProvider } from 'next-intl'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-
 import { ThemeProvider } from '~/client/components/providers/theme-provider'
 import { Toaster } from '~/client/components/ui/sonner'
 import { ErrorPage } from '~/client/components/utils/error-page'
@@ -33,7 +32,9 @@ const firacode = Fira_Code({
   variable: '--font-mono'
 })
 export const metadata: Metadata = {
-  icons: '/logo.webp',
+  appleWebApp: {
+    title: 'Plati - RB'
+  },
   title: 'Plați - Roxana Borz'
 }
 
