@@ -1,6 +1,5 @@
 import { createId } from '@paralleldrive/cuid2'
 import { TRPCError } from '@trpc/server'
-import z from 'zod'
 import * as schema from '~/server/database/schema'
 import { StripeService } from '~/server/services/stripe'
 import { protectedProcedure } from '~/server/trpc/config'
@@ -11,12 +10,7 @@ import { ProductPaymentLinksTableValidators } from '~/shared/validation/tables'
 
 export const createOneProductPaymentLinkProcedure = protectedProcedure
   .input(CreateProductPaymentLinkFormSchema)
-  .output(
-    z.object({
-      data: ProductPaymentLinksTableValidators.select,
-      url: z.string()
-    })
-  )
+  .output(ProductPaymentLinksTableValidators.select)
   .mutation(async ({ ctx, input }) => {
     try {
       const parsed = await CreateProductPaymentLinkFormParser.Parse(input)
@@ -52,13 +46,7 @@ export const createOneProductPaymentLinkProcedure = protectedProcedure
         .values(insertData)
         .returning()
 
-      const url = new URL(process.env.VERCEL_URL!)
-      url.pathname = `/checkout/${paymentLink.id}`
-
-      return {
-        data: paymentLink,
-        url: url.toString()
-      }
+      return paymentLink
     } catch (cause) {
       console.error(cause)
       throw new TRPCError({

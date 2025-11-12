@@ -4,10 +4,10 @@ import { ReactScan } from '~/client/components/utils/react-scan'
 
 import '~/client/styles/globals.css'
 
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { NextIntlClientProvider } from 'next-intl'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-
 import { ThemeProvider } from '~/client/components/providers/theme-provider'
 import { Toaster } from '~/client/components/ui/sonner'
 import { ErrorPage } from '~/client/components/utils/error-page'
@@ -32,7 +32,9 @@ const firacode = Fira_Code({
   variable: '--font-mono'
 })
 export const metadata: Metadata = {
-  icons: '/logo.webp',
+  appleWebApp: {
+    title: 'Plati - RB'
+  },
   title: 'Plați - Roxana Borz'
 }
 
@@ -44,6 +46,7 @@ export default async function RootLayout({
   return (
     <html lang='ro' suppressHydrationWarning>
       <ReactScan />
+
       <body
         className={`${montserrat.variable} ${esteban.variable} ${firacode.variable} antialiased`}
       >
@@ -61,6 +64,7 @@ export default async function RootLayout({
                     fallback={<LoadingPage className='h-screen w-screen' />}
                   >
                     {children}
+                    <SpeedInsights />
                   </Suspense>
                 </ErrorBoundary>
                 <Devtools />

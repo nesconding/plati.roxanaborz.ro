@@ -84,7 +84,6 @@ function CreateProductPaymentLinkFormInner() {
   const form = useAppForm({
     defaultValues,
     onSubmit: async ({ value, formApi }) => {
-      console.log(value)
       await createPaymentLink.mutateAsync(value, {
         onError: (error) => {
           toast.error(t('response.error.title'), {

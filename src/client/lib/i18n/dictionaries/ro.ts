@@ -1269,10 +1269,11 @@ const dictionary = {
                   title: 'Comenzi'
                 },
                 'payment-links': {
+                  groupTitle: 'Link-uri de plată',
                   routes: {
-                    create: { title: 'Creează link de plată' }
+                    create: { title: 'Adaugă link de plată' }
                   },
-                  title: 'Link-uri de plată'
+                  title: 'Vezi link-urile de plată'
                 },
                 subscriptions: {
                   title: 'Subscripții'

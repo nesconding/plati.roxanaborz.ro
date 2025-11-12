@@ -20,6 +20,12 @@ export default async function PaymentLinksLayout({
       trpc.protected.settings.getEURToRONRate.queryOptions()
     ),
     await queryClient.ensureQueryData(
+      trpc.protected.productPaymentLinks.findAll.queryOptions()
+    ),
+    await queryClient.ensureQueryData(
+      trpc.protected.extensionPaymentLinks.findAll.queryOptions()
+    ),
+    await queryClient.ensureQueryData(
       trpc.protected.settings.findAllFirstPaymentDateAfterDepositOptions.queryOptions()
     )
   ])

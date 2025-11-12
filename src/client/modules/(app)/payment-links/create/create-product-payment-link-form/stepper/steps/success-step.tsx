@@ -8,11 +8,7 @@ import { Button } from '~/client/components/ui/button'
 import { ButtonGroup } from '~/client/components/ui/button-group'
 import { Field, FieldGroup } from '~/client/components/ui/field'
 import { Input } from '~/client/components/ui/input'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput
-} from '~/client/components/ui/input-group'
+
 import {
   Tooltip,
   TooltipContent,
@@ -24,6 +20,12 @@ import type { TRPCRouterOutput } from '~/client/trpc/react'
 
 type ProductPaymentLinkCreateOneResponse =
   TRPCRouterOutput['protected']['productPaymentLinks']['createOne']
+
+function getPaymentLinkUrl(paymentLink: ProductPaymentLinkCreateOneResponse) {
+  return new URL(
+    `${globalThis.location.origin}/checkout/${paymentLink.id}`
+  ).toString()
+}
 
 export function SuccessStep({
   onReset,
@@ -38,9 +40,10 @@ export function SuccessStep({
   )
 
   if (!createOnePaymentLinkResponse) return null
+  const paymentLinkUrl = getPaymentLinkUrl(createOnePaymentLinkResponse)
 
   const handleOnClickCopy = () => {
-    navigator.clipboard.writeText(createOnePaymentLinkResponse.url)
+    navigator.clipboard.writeText(paymentLinkUrl)
     setIsUrlCopied(true)
     setTimeout(() => {
       setIsUrlCopied(false)
@@ -54,12 +57,8 @@ export function SuccessStep({
           <Button className='pointer-events-none' variant='outline'>
             <LinkIcon />
           </Button>
-          {/* <InputGroup> */}
-          <Input readOnly value={createOnePaymentLinkResponse.url} />
-          {/* <InputGroupAddon align='inline-start'>
-              <LinkIcon />
-            </InputGroupAddon> */}
-          {/* </InputGroup> */}
+
+          <Input readOnly value={paymentLinkUrl} />
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -68,7 +67,6 @@ export function SuccessStep({
                 onClick={handleOnClickCopy}
                 size='icon'
                 type='button'
-                // variant='outline'
               >
                 <Copy
                   className={cn(

@@ -7,10 +7,11 @@ import { MagicLinkEmail } from '../../emails/magic-link'
 const resend = new Resend(process.env.RESEND_TOKEN)
 class EmailServiceImpl {
   async sendMagicLink(data: { email: string; token: string; url: string }) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(data)
+      return
+    }
     try {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(data)
-      }
       await resend.emails.send({
         from: process.env.RESEND_SENDER_EMAIL!,
         react: MagicLinkEmail({
@@ -31,6 +32,10 @@ class EmailServiceImpl {
     user: User
     newEmail: string
   }) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(data)
+      return
+    }
     try {
       await resend.emails.send({
         from: process.env.RESEND_SENDER_EMAIL!,
