@@ -27,7 +27,7 @@ function generatePerson(): Person {
 const superAdminData = {
   email: 'alex@nescodigital.com',
   firstName: 'Alex',
-  lastName: 'Alex',
+  lastName: 'Constantinescu',
   role: UserRoles.SUPER_ADMIN
 }
 const adminData = {
