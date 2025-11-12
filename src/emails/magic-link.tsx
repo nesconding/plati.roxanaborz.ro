@@ -46,14 +46,14 @@ export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => {
           theme: {
             extend: {
               colors: {
-                foreground: 'oklch(0.2707 0.0378 336.77)',
+                foreground: 'oklch(0.145 0 0)',
                 muted: {
-                  DEFAULT: 'oklch(0.9889 0.0063 337.02)',
-                  foreground: 'oklch(0.4405 0.0479 336.69)'
+                  DEFAULT: 'oklch(0.97 0 0)',
+                  foreground: 'oklch(0.556 0 0)'
                 },
                 primary: {
-                  DEFAULT: 'oklch(0.5787 0.1955 343.4)',
-                  foreground: '#FFFFFF'
+                  DEFAULT: 'oklch(0.205 0 0)',
+                  foreground: 'oklch(0.985 0 0)F'
                 }
               },
               fontFamily: {
@@ -68,7 +68,12 @@ export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => {
         <Body className='mx-auto my-auto bg-white p-4 font-sans'>
           <Container className='mx-auto my-[16px] max-w-[448px] p-[16px]'>
             <Section>
-              <Img alt='Plați RB' className='mx-auto my-0 w-40' src={logoUrl} />
+              <Img
+                alt='Plați RB'
+                className='mx-auto my-0 w-40 dark:invert'
+                // src={logoUrl}
+                src='logo.png'
+              />
             </Section>
 
             <Heading className='mx-0 my-[32px] p-0 text-center font-normal text-[18px] text-foreground'>
