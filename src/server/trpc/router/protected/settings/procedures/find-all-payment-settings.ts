@@ -1,21 +1,9 @@
 import { TRPCError } from '@trpc/server'
-import { z } from 'zod'
-
 import { protectedProcedure } from '~/server/trpc/config'
-import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
-
-const output = z.array(
-  z.object({
-    currency: z.enum(PaymentCurrencyType),
-    extraTaxRate: z.string(),
-    id: z.string(),
-    label: z.string(),
-    tvaRate: z.string()
-  })
-)
+import { PaymentsSettingsTableValidators } from '~/shared/validation/tables'
 
 export const findAllPaymentSettingsProcedure = protectedProcedure
-  .output(output)
+  .output(PaymentsSettingsTableValidators.select.array())
   .query(({ ctx }) => {
     try {
       return ctx.db.query.payments_settings.findMany({
