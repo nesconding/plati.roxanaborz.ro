@@ -15,6 +15,7 @@ import {
   CardTitle
 } from '~/client/components/ui/card'
 import { Spinner } from '~/client/components/ui/spinner'
+import { cn } from '~/client/lib/utils'
 import {
   Stepper,
   useStepper
@@ -96,7 +97,7 @@ export const StepperContent = withForm({
         stepper.all.map((step) => [
           step.id,
           (step: Step) => (
-            <Stepper.Panel className='min-h-120'>
+            <Stepper.Panel className='min-h-120 w-full'>
               {getStepperContent(step)}
             </Stepper.Panel>
           )
@@ -176,20 +177,47 @@ export const StepperContent = withForm({
         id={props.form.formId}
         onSubmit={handleOnSubmit}
       >
-        <Card>
-          <CardHeader>
+        <Card
+          className={cn({
+            'gap-0 w-full h-[calc(100vh-var(--header-height)-(--spacing(4))-(--spacing(4))-(--spacing(9))-(--spacing(4)))]':
+              stepper.current.id ===
+              CreateProductPaymentLinkFormStep.Confirmation
+          })}
+        >
+          <CardHeader
+            className={cn({
+              'pb-7 border-b':
+                stepper.current.id ===
+                CreateProductPaymentLinkFormStep.Confirmation
+            })}
+          >
             <CardTitle>{t(`steps.${stepper.current.id}.title`)}</CardTitle>
-            <CardDescription className='text-wrap'>
+            <CardDescription className='text-wrap line-clamp-2 h-10'>
               {t(`steps.${stepper.current.id}.description`)}
             </CardDescription>
           </CardHeader>
 
-          <CardContent>{stepper.switch(makeStepperContent())}</CardContent>
+          <CardContent
+            className={cn('w-full h-full', {
+              'p-0':
+                stepper.current.id ===
+                CreateProductPaymentLinkFormStep.Confirmation
+            })}
+          >
+            {stepper.switch(makeStepperContent())}
+          </CardContent>
 
           <Stepper.Controls asChild>
-            <CardFooter>
+            <CardFooter
+              className={cn('flex-col sm:flex-row', {
+                'pt-7 border-t':
+                  stepper.current.id ===
+                  CreateProductPaymentLinkFormStep.Confirmation
+              })}
+            >
               {!stepper.isLast && (
                 <Button
+                  className='w-full sm:w-fit'
                   disabled={stepper.isFirst || props.isLoading}
                   onClick={handleOnPrevious}
                   type='button'
@@ -212,6 +240,7 @@ export const StepperContent = withForm({
               {stepper.current.id ===
                 CreateProductPaymentLinkFormStep.Confirmation && (
                 <Button
+                  className='w-full sm:w-fit'
                   disabled={props.isLoading}
                   form={props.form.formId}
                   type='submit'

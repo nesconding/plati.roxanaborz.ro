@@ -286,7 +286,7 @@ const dictionary = {
 
                 installments: {
                   fields: {
-                    count: 'Număr de rate',
+                    count: 'Număr rate',
                     pricePerInstallment: 'Preț per rată',
                     totalPrice: 'Preț total'
                   },
@@ -296,7 +296,7 @@ const dictionary = {
               },
 
               installments: {
-                count: 'Număr de rate',
+                count: 'Număr rate',
                 description: 'Opțiunile de plată în rate pentru produs.',
                 pricePerInstallment: 'Preț per rată',
                 title: 'Opțiuni de rate',
@@ -350,7 +350,7 @@ const dictionary = {
 
               installments: {
                 fields: {
-                  count: 'Număr de rate',
+                  count: 'Număr rate',
                   pricePerInstallment: 'Preț per rată',
                   totalPrice: 'Preț total'
                 },
@@ -360,7 +360,7 @@ const dictionary = {
             },
 
             installments: {
-              count: 'Număr de rate',
+              count: 'Număr rate',
               description: 'Opțiunile de plată în rate pentru produs.',
               pricePerInstallment: 'Preț per rată',
               title: 'Opțiuni de rate',
@@ -432,7 +432,7 @@ const dictionary = {
 
                   fields: {
                     count: {
-                      header: 'Număr de rate',
+                      header: 'Număr rate',
                       placeholder: 'Numărul de rate'
                     },
                     pricePerInstallment: {
@@ -532,7 +532,7 @@ const dictionary = {
 
                   fields: {
                     count: {
-                      header: 'Număr de rate',
+                      header: 'Număr rate',
                       placeholder: 'Numărul de rate'
                     },
                     pricePerInstallment: {
@@ -1955,6 +1955,71 @@ const dictionary = {
               [CreateProductPaymentLinkFormStep.Confirmation]: {
                 description:
                   'Confirmați detaliile pentru crearea link-ului de plată.',
+                sections: {
+                  deposit: {
+                    items: {
+                      'deposit-amount': 'Suma avansului',
+                      'first-payment-after-deposit': 'Prima platǎ dupa avans',
+                      'first-payment-date-after-deposit':
+                        'Data primei plati dupa avans'
+                    },
+                    title: 'Opțiuni de rate'
+                  },
+                  installments: {
+                    items: {
+                      'installment-count': 'Număr rate',
+                      'installment-price': 'Preț per rată (fără TVA)',
+                      'installment-total-price': 'Preț total (fără TVA)'
+                    },
+                    title: 'Opțiuni de rate'
+                  },
+                  participants: {
+                    items: {
+                      'caller-name': 'Nume caller',
+                      'client-email': 'Email client,',
+                      'client-name': 'Nume client',
+                      'setter-name': 'Nume setter'
+                    },
+                    title: 'Participanți'
+                  },
+                  payment: {
+                    items: {
+                      'deposit-amount': 'Suma avans (cu TVA)',
+                      'installment-amount-to-pay':
+                        'Suma de platǎ per rată (cu TVA)',
+                      'installments-count': 'Număr rate',
+                      'remaining-amount-to-pay':
+                        'Suma rǎmasǎ de platǎ (cu TVA)',
+                      'remaining-amount-to-pay-per-installment':
+                        'Suma rǎmasǎ de platǎ per rata (cu TVA)',
+                      'total-amount-to-pay': 'Suma totalǎ de platǎ (cu TVA)'
+                    },
+                    title: 'Platǎ'
+                  },
+                  'payment-info': {
+                    items: {
+                      currency: 'Monedǎ',
+                      'extra-tax-rate': 'Comision extra',
+                      'payment-method': 'Metoda de platǎ',
+                      'payment-method-values': {
+                        [PaymentMethodType.BankTransfer]: 'Transfer bancar',
+                        [PaymentMethodType.Card]: 'Card',
+                        [PaymentMethodType.TBI]: 'TBI'
+                      },
+                      'payment-setting-label': 'Setare de platǎ',
+                      'tva-rate': 'TVA'
+                    },
+                    title: 'Detalii platǎ'
+                  },
+                  product: {
+                    items: {
+                      contract: 'Contract',
+                      'product-name': 'Nume produs',
+                      'product-price': 'Preț produs (fără TVA)'
+                    },
+                    title: 'Produs'
+                  }
+                },
                 title: 'Confirmați detaliile'
               },
               [CreateProductPaymentLinkFormStep.Success]: {
