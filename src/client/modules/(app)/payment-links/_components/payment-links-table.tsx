@@ -190,7 +190,7 @@ export function PaymentLinksTable({
         const isCopied = copiedRowId === row.original.id
 
         function handleOnClickCopy() {
-          const url = window.location.origin + `/checkout/${row.original.id}`
+          const url = `${window.location.origin}/checkout/${row.original.id}`
           navigator.clipboard.writeText(url)
           setCopiedRowId(row.original.id)
         }
@@ -200,6 +200,11 @@ export function PaymentLinksTable({
             <TooltipTrigger asChild>
               <Button
                 className='relative'
+                disabled={
+                  row.original.status === PaymentStatusType.Expired ||
+                  row.original.status === PaymentStatusType.Succeeded ||
+                  DatesService.isAfter(new Date(), row.original.expiresAt)
+                }
                 onClick={handleOnClickCopy}
                 size='icon-sm'
                 variant='outline'
@@ -792,6 +797,7 @@ export function PaymentLinksTable({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         className={cn('text-center', {
+                          'text-left': ['copy-link'].includes(cell.column.id),
                           'text-right': [
                             'totalAmountToPay',
                             'depositAmount',
