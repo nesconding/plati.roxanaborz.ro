@@ -5,6 +5,7 @@ import { CreateProductPaymentLinkFormSection } from '~/shared/create-product-pay
 import { OrderStatusType } from '~/shared/enums/order-status-type'
 import { OrderType } from '~/shared/enums/order-type'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
+import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
 import { PaymentStatusType } from '~/shared/enums/payment-status'
@@ -1970,24 +1971,70 @@ const dictionary = {
           },
           'payment-links-table': {
             columns: {
-              amountToPay: 'Suma de plată',
-              createdAt: 'Creat la',
-              createdAtValue: 'Creat la (valoare interna)',
+              callerName: 'Nume caller',
+              contract: { name: 'Nume contract' },
+              contractId: 'Id contract (valoare interna)',
+              'copy-link': 'Copiază link',
+              createdAt: 'Adǎugat la',
               createdBy: {
                 email: 'Email creator',
                 name: 'Nume creator'
               },
+              createdById: 'Id creator (valoare interna)',
+              currency: 'Monedǎ',
               customerEmail: 'Email client',
               customerName: 'Nume client',
-              depositAmount: 'Avans de plată',
+              deletedAt: 'Șters la (valoare interna)',
+              depositAmount: 'Suma avansului',
+              depositAmountInCents: 'Suma avansului in cenți(valoare interna)',
+              eurToRonRate: 'Curs EUR/RON',
               expiresAt: 'Expirǎ la',
-              expiresAtValue: 'Expirǎ la (valoare interna)',
+              extraTaxRate: 'Comision extra',
               firstPaymentDateAfterDeposit: 'Data primei plăți',
               firstPaymentDateValue: 'Data primei plăți (valoare interna)',
               id: 'Id',
-              installments: 'Rate',
+              paymentMethodType: 'Metoda de platǎ',
+              paymentMethodTypeValues: {
+                [PaymentMethodType.BankTransfer]: 'Transfer bancar',
+                [PaymentMethodType.Card]: 'Card',
+                [PaymentMethodType.TBI]: 'TBI'
+              },
+              paymentProductType: 'Tip produs',
+              paymentProductTypeValues: {
+                [PaymentProductType.Product]: 'Produs de bazǎ',
+                [PaymentProductType.Extension]: 'Prelungire'
+              },
+              productId: 'Id produs (valoare interna)',
+              productInstallmentAmountToPay: 'Suma de platǎ per rata',
+              productInstallmentAmountToPayInCents:
+                'Suma de platǎ per rata in cenți (valoare interna)',
+              productInstallmentId: 'Id rata (valoare interna)',
+              productInstallmentsCount: 'Rate',
               productName: 'Nume produs',
-              status: 'Status'
+              remainingAmountToPay: 'Suma rǎmasǎ de platǎ',
+              remainingAmountToPayInCents:
+                'Suma rǎmasǎ de platǎ in cenți (valoare interna)',
+              remainingInstallmentAmountToPay: 'Suma rǎmasǎ de platǎ per rata',
+              remainingInstallmentAmountToPayInCents:
+                'Suma rǎmasǎ de platǎ per rata in cenți (valoare interna)',
+              searchCreatedAt: 'Adǎugat la (valoare interna)',
+              searchExpiresAt: 'Expirǎ la (valoare interna)',
+              setterName: 'Numele setter',
+              status: 'Status',
+              stripeClientSecret: 'Secret platǎ Stripe (valoare interna)',
+              stripePaymentIntentId: 'Id platǎ Stripe (valoare interna)',
+              totalAmountToPay: 'Suma totalǎ de platǎ',
+              totalAmountToPayInCents:
+                'Suma totalǎ de platǎ in cenți (valoare interna)',
+              tvaRate: 'TVA',
+              type: 'Tip platǎ',
+              typeValues: {
+                [PaymentLinkType.Integral]: 'Integral',
+                [PaymentLinkType.Deposit]: 'Avans',
+                [PaymentLinkType.Installments]: 'Rate',
+                [PaymentLinkType.InstallmentsDeposit]: 'Rate cu avans'
+              },
+              updatedAt: 'Actualizat la (valoare interna)'
             },
             header: {
               actions: {
@@ -2012,12 +2059,31 @@ const dictionary = {
                       'by-me': 'Create de mine'
                     }
                   },
+
                   'expiration-status': {
                     title: 'Status expirare',
                     values: {
                       active: 'Active',
                       all: 'Toate',
                       expired: 'Expirate'
+                    }
+                  },
+                  status: {
+                    title: 'Status',
+                    values: {
+                      all: 'Toate',
+                      [PaymentStatusType.Created]: 'Creat',
+                      [PaymentStatusType.Processing]: 'În procesare',
+                      [PaymentStatusType.Succeeded]: 'Plătit',
+                      [PaymentStatusType.RequiresConfirmation]:
+                        'Necesitǎ confirmare',
+                      [PaymentStatusType.RequiresAction]: 'Necesitǎ acțiune',
+                      [PaymentStatusType.RequiresCapture]: 'Necesitǎ captură',
+                      [PaymentStatusType.Canceled]: 'Anulat',
+                      [PaymentStatusType.Expired]: 'Expirat',
+                      [PaymentStatusType.PaymentFailed]: 'Eșuat',
+                      [PaymentStatusType.RequiresPaymentMethod]:
+                        'Necesitǎ metoda plată'
                     }
                   }
                 },

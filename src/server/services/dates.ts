@@ -4,10 +4,12 @@ import {
   addMonths,
   type DateArg,
   endOfDay,
+  format,
   isAfter,
   isBefore,
   startOfDay
 } from 'date-fns'
+import { ro } from 'date-fns/locale'
 
 export class DatesServiceImpl {
   static PAYMENT_LINK_EXPIRES_AT_HOURS = 24
@@ -42,6 +44,9 @@ export class DatesServiceImpl {
     dateToCompare: DateArg<DateType>
   ): boolean {
     return isBefore(date, dateToCompare)
+  }
+  formatDate(date: DateArg<Date>): string {
+    return format(date, 'PPP - HH:mm', { locale: ro })
   }
 }
 

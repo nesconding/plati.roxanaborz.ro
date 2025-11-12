@@ -83,6 +83,7 @@ import { cn } from '~/client/lib/utils'
 import { createXLSXFile } from '~/client/lib/xlsx'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
+import { DatesService } from '~/server/services/dates'
 import { PaymentStatusType } from '~/shared/enums/payment-status'
 import { UserRoles } from '~/shared/enums/user-roles'
 
@@ -105,6 +106,16 @@ const expirationStatusFilter = (
   return true
 }
 
+const statusFilter = (
+  row: Row<Payment>,
+  columnId: string,
+  filterValue: PaymentStatusType | 'all'
+) => {
+  if (filterValue === 'all') return true
+  const status = row.getValue(columnId) as PaymentStatusType
+  return status === filterValue
+}
+
 const formatDate = (date: DateArg<Date> & {}) =>
   format(date, 'PPP - HH:mm', { locale: ro })
 
@@ -118,7 +129,9 @@ export function PaymentLinksTable({
   className,
   search
 }: PaymentLinksTableProps) {
-  const t = useTranslations()
+  const t = useTranslations(
+    'modules.(app).payment-links._components.payment-links-table'
+  )
 
   const isMobile = useIsMobile()
 
@@ -129,14 +142,7 @@ export function PaymentLinksTable({
   const [globalFilter, setGlobalFilter] = useState(search ?? '')
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [copiedRowId, setCopiedRowId] = useState<string>()
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    // createdAt: false,
-    // depositAmountInRON: false,
-    // firstPaymentDateAfterDeposit: false,
-    // id: false,
-    // 'installments.installments': false,
-    // 'product.name': false
-  })
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: pageSizeOptions[1]
@@ -178,303 +184,6 @@ export function PaymentLinksTable({
   const debouncedSetGlobalFilter = useDebouncedCallback(setGlobalFilter, 500)
 
   const columns: ColumnDef<Payment>[] = [
-    { accessorKey: 'id', header: PaymentLinksTableHeader, id: 'id' },
-    {
-      accessorKey: 'callerName',
-      header: PaymentLinksTableHeader,
-      id: 'callerName'
-    },
-    {
-      accessorKey: 'contractId',
-      header: PaymentLinksTableHeader,
-      id: 'contractId'
-    },
-    {
-      accessorKey: 'createdById',
-      header: PaymentLinksTableHeader,
-      id: 'createdById'
-    },
-    {
-      accessorKey: 'currency',
-      header: PaymentLinksTableHeader,
-      id: 'currency'
-    },
-    {
-      accessorKey: 'customerEmail',
-      header: PaymentLinksTableHeader,
-      id: 'customerEmail'
-    },
-    {
-      accessorKey: 'customerName',
-      header: PaymentLinksTableHeader,
-      id: 'customerName'
-    },
-    {
-      accessorKey: 'depositAmount',
-      header: PaymentLinksTableHeader,
-      id: 'depositAmount'
-    },
-    {
-      accessorKey: 'depositAmountInCents',
-      header: PaymentLinksTableHeader,
-      id: 'depositAmountInCents'
-    },
-    {
-      accessorKey: 'eurToRonRate',
-      header: PaymentLinksTableHeader,
-      id: 'eurToRonRate'
-    },
-    {
-      accessorKey: 'expiresAt',
-      header: PaymentLinksTableHeader,
-      id: 'expiresAt'
-    },
-    {
-      accessorKey: 'extraTaxRate',
-      header: PaymentLinksTableHeader,
-      id: 'extraTaxRate'
-    },
-    {
-      accessorKey: 'firstPaymentDateAfterDeposit',
-      header: PaymentLinksTableHeader,
-      id: 'firstPaymentDateAfterDeposit'
-    },
-    {
-      accessorKey: 'paymentMethodType',
-      header: PaymentLinksTableHeader,
-      id: 'paymentMethodType'
-    },
-    {
-      accessorKey: 'paymentProductType',
-      header: PaymentLinksTableHeader,
-      id: 'paymentProductType'
-    },
-    {
-      accessorKey: 'productId',
-      header: PaymentLinksTableHeader,
-      id: 'productId'
-    },
-    {
-      accessorKey: 'productInstallmentAmountToPay',
-      header: PaymentLinksTableHeader,
-      id: 'productInstallmentAmountToPay'
-    },
-    {
-      accessorKey: 'productInstallmentAmountToPayInCents',
-      header: PaymentLinksTableHeader,
-      id: 'productInstallmentAmountToPayInCents'
-    },
-    {
-      accessorKey: 'productInstallmentId',
-      header: PaymentLinksTableHeader,
-      id: 'productInstallmentId'
-    },
-    {
-      accessorKey: 'productInstallmentsCount',
-      header: PaymentLinksTableHeader,
-      id: 'productInstallmentsCount'
-    },
-    {
-      accessorKey: 'productName',
-      header: PaymentLinksTableHeader,
-      id: 'productName'
-    },
-    {
-      accessorKey: 'remainingAmountToPay',
-      header: PaymentLinksTableHeader,
-      id: 'remainingAmountToPay'
-    },
-    {
-      accessorKey: 'remainingAmountToPayInCents',
-      header: PaymentLinksTableHeader,
-      id: 'remainingAmountToPayInCents'
-    },
-    {
-      accessorKey: 'remainingInstallmentAmountToPay',
-      header: PaymentLinksTableHeader,
-      id: 'remainingInstallmentAmountToPay'
-    },
-    {
-      accessorKey: 'remainingInstallmentAmountToPayInCents',
-      header: PaymentLinksTableHeader,
-      id: 'remainingInstallmentAmountToPayInCents'
-    },
-    {
-      accessorKey: 'setterName',
-      header: PaymentLinksTableHeader,
-      id: 'setterName'
-    },
-    { accessorKey: 'status', header: PaymentLinksTableHeader, id: 'status' },
-    {
-      accessorKey: 'stripeClientSecret',
-      header: PaymentLinksTableHeader,
-      id: 'stripeClientSecret'
-    },
-    {
-      accessorKey: 'stripePaymentIntentId',
-      header: PaymentLinksTableHeader,
-      id: 'stripePaymentIntentId'
-    },
-    {
-      accessorKey: 'totalAmountToPay',
-      header: PaymentLinksTableHeader,
-      id: 'totalAmountToPay'
-    },
-    {
-      accessorKey: 'totalAmountToPayInCents',
-      header: PaymentLinksTableHeader,
-      id: 'totalAmountToPayInCents'
-    },
-    { accessorKey: 'tvaRate', header: PaymentLinksTableHeader, id: 'tvaRate' },
-    { accessorKey: 'type', header: PaymentLinksTableHeader, id: 'type' },
-    {
-      accessorKey: 'createdAt',
-      header: PaymentLinksTableHeader,
-      id: 'createdAt'
-    },
-    {
-      accessorKey: 'updatedAt',
-      header: PaymentLinksTableHeader,
-      id: 'updatedAt'
-    },
-
-    // {
-    //   accessorKey: 'id',
-    //   enableSorting: false,
-    //   header: t(
-    //     'modules.(app).payment-links._components.payment-links-table.columns.id'
-    //   ),
-    //   id: 'id'
-    // },
-    // {
-    //   accessorKey: 'customerName',
-    //   header: PaymentLinksTableHeader,
-    //   id: 'customerName'
-    // },
-    // {
-    //   accessorKey: 'customerEmail',
-    //   header: PaymentLinksTableHeader,
-    //   id: 'customerEmail'
-    // },
-    // {
-    //   accessorKey: 'status',
-    //   cell: ({ row }) => (
-    //     <Badge
-    //       className={cn('capitalize', {
-    //         'bg-green-700 dark:bg-green-500':
-    //           row.original.status === PaymentStatusType.Succeeded
-    //       })}
-    //       variant={
-    //         row.original.status === PaymentStatusType.Succeeded
-    //           ? 'default'
-    //           : row.original.status === PaymentStatusType.Expired ||
-    //               row.original.status === PaymentStatusType.PaymentFailed
-    //             ? 'destructive'
-    //             : 'outline'
-    //       }
-    //     >
-    //       {t(
-    //         `modules.(app).payment-links._components.payment-links-table.row.status.${row.original.status}`
-    //       )}
-    //     </Badge>
-    //   ),
-    //   header: PaymentLinksTableHeader,
-    //   id: 'status'
-    // },
-    // {
-    //   accessorKey: 'productName',
-    //   header: PaymentLinksTableHeader,
-    //   id: 'productName'
-    // },
-    // {
-    //   accessorKey: 'installments',
-    //   header: PaymentLinksTableHeader,
-    //   id: 'installments'
-    // },
-    // {
-    //   accessorKey: 'depositAmount',
-    //   cell: ({ row }) =>
-    //     row.original.depositAmount
-    //       ? PricingService.formatPrice(row.original.depositAmount, 'EUR')
-    //       : undefined,
-    //   header: PaymentLinksTableHeader,
-    //   id: 'depositAmount'
-    // },
-    // {
-    //   accessorKey: 'firstPaymentDateAfterDeposit',
-    //   cell: ({ row }) =>
-    //     row.original.firstPaymentDateAfterDeposit ? (
-    //       <span className='capitalize'>
-    //         {formatDate(row.original.firstPaymentDateAfterDeposit)}
-    //       </span>
-    //     ) : null,
-    //   header: PaymentLinksTableHeader,
-    //   id: 'firstPaymentDateAfterDeposit'
-    // },
-    // {
-    //   accessorKey: 'amountToPay',
-    //   cell: ({ row }) =>
-    //     PricingService.formatPrice(row.original.totalAmountToPay, 'EUR'),
-    //   header: PaymentLinksTableHeader,
-    //   id: 'amountToPay'
-    // },
-    // {
-    //   accessorKey: 'createdBy.name',
-    //   header: PaymentLinksTableHeader,
-    //   id: 'createdBy.name'
-    // },
-    // {
-    //   accessorKey: 'createdBy.email',
-    //   filterFn: userEmailFilter,
-    //   header: PaymentLinksTableHeader,
-    //   id: 'createdBy.email'
-    // },
-    // {
-    //   accessorKey: 'expiresAt',
-    //   cell: ({ row }) => (
-    //     <span
-    //       className={cn('capitalize', {
-    //         'text-destructive line-through':
-    //           isAfter(new Date(), row.original.expiresAt) &&
-    //           (row.original.status === PaymentStatusType.Canceled ||
-    //             row.original.status === PaymentStatusType.Expired),
-    //         'text-green-700 line-through dark:text-green-500':
-    //           row.original.status === PaymentStatusType.Succeeded
-    //       })}
-    //     >
-    //       {formatDate(row.original.expiresAt)}
-    //     </span>
-    //   ),
-    //   filterFn: expirationStatusFilter,
-    //   header: PaymentLinksTableHeader,
-    //   id: 'expiresAt'
-    // },
-    // {
-    //   accessorKey: 'searchExpiresAt',
-    //   cell: () => null,
-    //   enableColumnFilter: false,
-    //   enableHiding: false,
-    //   enableSorting: false,
-    //   header: () => null,
-    //   id: 'searchExpiresAt'
-    // },
-    // {
-    //   accessorKey: 'createdAt',
-    //   cell: ({ row }) => (
-    //     <span className='capitalize'>{formatDate(row.original.createdAt)}</span>
-    //   ),
-    //   header: PaymentLinksTableHeader,
-    //   id: 'createdAt'
-    // },
-    // {
-    //   accessorKey: 'searchCreatedAt',
-    //   cell: () => null,
-    //   enableColumnFilter: false,
-    //   enableHiding: false,
-    //   enableSorting: false,
-    //   header: () => null,
-    //   id: 'searchCreatedAt'
-    // },
     {
       accessorKey: 'copy-link',
       cell: ({ row }) => {
@@ -518,12 +227,8 @@ export function PaymentLinksTable({
             </TooltipTrigger>
             <TooltipContent>
               {isCopied
-                ? t(
-                    'modules.(app).payment-links._components.payment-links-table.row.actions.values.copied'
-                  )
-                : t(
-                    'modules.(app).payment-links._components.payment-links-table.row.actions.values.copy'
-                  )}
+                ? t('row.actions.values.copied')
+                : t('row.actions.values.copy')}
             </TooltipContent>
           </Tooltip>
         )
@@ -532,8 +237,220 @@ export function PaymentLinksTable({
       enableGlobalFilter: false,
       enableHiding: false,
       enableSorting: false,
-      header: () => null,
+      header: t('columns.copy-link'),
       id: 'copy-link'
+    },
+    { accessorKey: 'id', header: PaymentLinksTableHeader, id: 'id' },
+    {
+      accessorKey: 'callerName',
+      header: PaymentLinksTableHeader,
+      id: 'callerName'
+    },
+    {
+      accessorKey: 'contract.name',
+      header: PaymentLinksTableHeader,
+      id: 'contract.name'
+    },
+    {
+      accessorKey: 'currency',
+      header: PaymentLinksTableHeader,
+      id: 'currency'
+    },
+    {
+      accessorKey: 'customerEmail',
+      header: PaymentLinksTableHeader,
+      id: 'customerEmail'
+    },
+    {
+      accessorKey: 'customerName',
+      header: PaymentLinksTableHeader,
+      id: 'customerName'
+    },
+    {
+      accessorKey: 'depositAmount',
+      cell: ({ row }) =>
+        row.original.depositAmount
+          ? PricingService.formatPrice(
+              row.original.depositAmount,
+              row.original.currency
+            )
+          : null,
+      header: PaymentLinksTableHeader,
+      id: 'depositAmount'
+    },
+    {
+      accessorKey: 'eurToRonRate',
+      header: PaymentLinksTableHeader,
+      id: 'eurToRonRate'
+    },
+    {
+      accessorKey: 'extraTaxRate',
+      header: PaymentLinksTableHeader,
+      id: 'extraTaxRate'
+    },
+    {
+      accessorKey: 'firstPaymentDateAfterDeposit',
+      header: PaymentLinksTableHeader,
+      id: 'firstPaymentDateAfterDeposit'
+    },
+    {
+      accessorKey: 'paymentMethodType',
+      header: PaymentLinksTableHeader,
+      id: 'paymentMethodType'
+    },
+    {
+      accessorKey: 'paymentProductType',
+      header: PaymentLinksTableHeader,
+      id: 'paymentProductType'
+    },
+    {
+      accessorKey: 'productInstallmentAmountToPay',
+      cell: ({ row }) =>
+        row.original.productInstallmentAmountToPay
+          ? PricingService.formatPrice(
+              row.original.productInstallmentAmountToPay,
+              row.original.currency
+            )
+          : null,
+      header: PaymentLinksTableHeader,
+      id: 'productInstallmentAmountToPay'
+    },
+    {
+      accessorKey: 'productInstallmentsCount',
+      header: PaymentLinksTableHeader,
+      id: 'productInstallmentsCount'
+    },
+    {
+      accessorKey: 'productName',
+      header: PaymentLinksTableHeader,
+      id: 'productName'
+    },
+    {
+      accessorKey: 'remainingAmountToPay',
+      cell: ({ row }) =>
+        row.original.remainingAmountToPay
+          ? PricingService.formatPrice(
+              row.original.remainingAmountToPay,
+              row.original.currency
+            )
+          : null,
+      header: PaymentLinksTableHeader,
+      id: 'remainingAmountToPay'
+    },
+    {
+      accessorKey: 'remainingInstallmentAmountToPay',
+      cell: ({ row }) =>
+        row.original.remainingInstallmentAmountToPay
+          ? PricingService.formatPrice(
+              row.original.remainingInstallmentAmountToPay,
+              row.original.currency
+            )
+          : null,
+      header: PaymentLinksTableHeader,
+      id: 'remainingInstallmentAmountToPay'
+    },
+    {
+      accessorKey: 'setterName',
+      header: PaymentLinksTableHeader,
+      id: 'setterName'
+    },
+    {
+      accessorKey: 'status',
+      cell: ({ row }) => (
+        <Badge
+          className={cn('capitalize', {
+            'bg-green-700 dark:bg-green-500':
+              row.original.status === PaymentStatusType.Succeeded
+          })}
+          variant={
+            row.original.status === PaymentStatusType.Succeeded
+              ? 'default'
+              : row.original.status === PaymentStatusType.Expired ||
+                  row.original.status === PaymentStatusType.PaymentFailed
+                ? 'destructive'
+                : 'outline'
+          }
+        >
+          {t(`row.status.${row.original.status}`)}
+        </Badge>
+      ),
+      filterFn: statusFilter,
+      header: PaymentLinksTableHeader,
+      id: 'status'
+    },
+    {
+      accessorKey: 'totalAmountToPay',
+      cell: ({ row }) =>
+        PricingService.formatPrice(
+          row.original.totalAmountToPay,
+          row.original.currency
+        ),
+      header: PaymentLinksTableHeader,
+      id: 'totalAmountToPay'
+    },
+    { accessorKey: 'tvaRate', header: PaymentLinksTableHeader, id: 'tvaRate' },
+    {
+      accessorKey: 'type',
+      cell: ({ row }) => t(`columns.typeValues.${row.original.type}`),
+      header: PaymentLinksTableHeader,
+      id: 'type'
+    },
+    {
+      accessorKey: 'createdBy.name',
+      header: PaymentLinksTableHeader,
+      id: 'createdBy.name'
+    },
+    {
+      accessorKey: 'createdBy.email',
+      filterFn: userEmailFilter,
+      header: PaymentLinksTableHeader,
+      id: 'createdBy.email'
+    },
+    {
+      accessorKey: 'expiresAt',
+      cell: ({ row }) => (
+        <span
+          className={cn('capitalize', {
+            'text-destructive line-through':
+              isAfter(new Date(), row.original.expiresAt) &&
+              (row.original.status === PaymentStatusType.Canceled ||
+                row.original.status === PaymentStatusType.Expired),
+            'text-green-700 line-through dark:text-green-500':
+              row.original.status === PaymentStatusType.Succeeded
+          })}
+        >
+          {formatDate(row.original.expiresAt)}
+        </span>
+      ),
+      filterFn: expirationStatusFilter,
+      header: PaymentLinksTableHeader,
+      id: 'expiresAt'
+    },
+    {
+      accessorKey: 'searchExpiresAt',
+      cell: () => null,
+      enableColumnFilter: false,
+      enableHiding: false,
+      enableSorting: false,
+      header: () => null,
+      id: 'searchExpiresAt'
+    },
+    {
+      accessorKey: 'createdAt',
+      cell: ({ row }) => (
+        <span className='capitalize'>{formatDate(row.original.createdAt)}</span>
+      ),
+      header: PaymentLinksTableHeader,
+      id: 'createdAt'
+    },
+    {
+      accessorKey: 'searchCreatedAt',
+      cell: () => null,
+      enableColumnFilter: false,
+      enableHiding: false,
+      enableSorting: false,
+      header: () => null,
+      id: 'searchCreatedAt'
     }
   ]
 
@@ -566,53 +483,60 @@ export function PaymentLinksTable({
       .getRowModel()
       .rows.map((row) => row.original)
       .map((row) => ({
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.id'
-        )]: row.id,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.customerName'
-        )]: row.customerName,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.customerEmail'
-        )]: row.customerEmail,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.productName'
-        )]: row.productName,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.installments'
-        )]: row.productInstallmentsCount,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.depositAmount'
-        )]: row.depositAmount,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.firstPaymentDateAfterDeposit'
-        )]: row.firstPaymentDateAfterDeposit
-          ? formatDate(row.firstPaymentDateAfterDeposit)
-          : undefined,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.firstPaymentDateValue'
-        )]: row.firstPaymentDateAfterDeposit,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.amountToPay'
-        )]: row.totalAmountToPay,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.createdBy.name'
-        )]: row.createdBy?.name,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.createdBy.email'
-        )]: row.createdBy?.email,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.expiresAt'
-        )]: formatDate(row.expiresAt),
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.expiresAtValue'
-        )]: row.expiresAt,
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.createdAt'
-        )]: formatDate(row.createdAt),
-        [t(
-          'modules.(app).payment-links._components.payment-links-table.columns.createdAtValue'
-        )]: row.createdAt
+        [t('columns.callerName')]: row.callerName ?? '',
+        [t('columns.contract.name')]: row.contract.name,
+        [t('columns.contractId')]: row.contractId,
+        [t('columns.createdAt')]: DatesService.formatDate(row.createdAt),
+        [t('columns.createdBy.email')]: row.createdBy.email ?? '',
+        [t('columns.createdBy.name')]: row.createdBy.name ?? '',
+        [t('columns.createdById')]: row.createdById,
+        [t('columns.currency')]: row.currency,
+        [t('columns.customerEmail')]: row.customerEmail,
+        [t('columns.customerName')]: row.customerName ?? '',
+        [t('columns.deletedAt')]: row.deletedAt ?? '',
+        [t('columns.depositAmount')]: row.depositAmount ?? '',
+        [t('columns.depositAmountInCents')]: row.depositAmountInCents ?? '',
+        [t('columns.eurToRonRate')]: row.eurToRonRate ?? '',
+        [t('columns.expiresAt')]: DatesService.formatDate(row.expiresAt),
+        [t('columns.extraTaxRate')]: row.extraTaxRate,
+        [t('columns.firstPaymentDateAfterDeposit')]:
+          row.firstPaymentDateAfterDeposit
+            ? DatesService.formatDate(row.firstPaymentDateAfterDeposit)
+            : '',
+        [t('columns.id')]: row.id,
+        [t('columns.paymentMethodType')]: t(
+          `columns.paymentMethodTypeValues.${row.paymentMethodType}`
+        ),
+        [t('columns.paymentProductType')]: t(
+          `columns.paymentProductTypeValues.${row.paymentProductType}`
+        ),
+        [t('columns.productId')]: row.productId,
+        [t('columns.productInstallmentAmountToPay')]:
+          row.productInstallmentAmountToPay ?? '',
+        [t('columns.productInstallmentAmountToPayInCents')]:
+          row.productInstallmentAmountToPayInCents ?? '',
+        [t('columns.productInstallmentId')]: row.productInstallmentId ?? '',
+        [t('columns.productInstallmentsCount')]:
+          row.productInstallmentsCount ?? '',
+        [t('columns.productName')]: row.productName,
+        [t('columns.remainingAmountToPay')]: row.remainingAmountToPay ?? '',
+        [t('columns.remainingAmountToPayInCents')]:
+          row.remainingAmountToPayInCents ?? '',
+        [t('columns.remainingInstallmentAmountToPay')]:
+          row.remainingInstallmentAmountToPay ?? '',
+        [t('columns.remainingInstallmentAmountToPayInCents')]:
+          row.remainingInstallmentAmountToPayInCents ?? '',
+        [t('columns.searchCreatedAt')]: DatesService.formatDate(row.createdAt),
+        [t('columns.searchExpiresAt')]: DatesService.formatDate(row.expiresAt),
+        [t('columns.setterName')]: row.setterName ?? '',
+        [t('columns.status')]: row.status,
+        [t('columns.stripeClientSecret')]: row.stripeClientSecret,
+        [t('columns.stripePaymentIntentId')]: row.stripePaymentIntentId,
+        [t('columns.totalAmountToPay')]: row.totalAmountToPay,
+        [t('columns.totalAmountToPayInCents')]: row.totalAmountToPayInCents,
+        [t('columns.tvaRate')]: row.tvaRate,
+        [t('columns.type')]: t(`columns.typeValues.${row.type}`),
+        [t('columns.updatedAt')]: DatesService.formatDate(row.updatedAt)
       }))
     createXLSXFile(data, `Link-uri de platǎ - ${formatDate(new Date())}`)
   }
@@ -638,9 +562,7 @@ export function PaymentLinksTable({
                 setSearchInput(value)
                 debouncedSetGlobalFilter(value)
               }}
-              placeholder={t(
-                'modules.(app).payment-links._components.payment-links-table.header.input.placeholder'
-              )}
+              placeholder={t('header.input.placeholder')}
               value={searchInput}
             />
           </InputGroup>
@@ -650,9 +572,7 @@ export function PaymentLinksTable({
               <Button className='max-lg:size-9' variant='outline'>
                 <View />
                 <span className='hidden lg:block'>
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.header.show.title'
-                  )}
+                  {t('header.show.title')}
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -662,40 +582,34 @@ export function PaymentLinksTable({
                 <>
                   <DropdownMenuGroup>
                     <DropdownMenuLabel>
-                      {t(
-                        'modules.(app).payment-links._components.payment-links-table.header.show.groups.created-by.title'
-                      )}
+                      {t('header.show.groups.created-by.title')}
                     </DropdownMenuLabel>
                     <DropdownMenuCheckboxItem
-                      // checked={
-                      //   table.getColumn('createdBy.email')?.getFilterValue() ===
-                      //     'all' ||
-                      //   !table.getColumn('createdBy.email')?.getFilterValue()
-                      // }
+                      checked={
+                        table.getColumn('createdBy.email')?.getFilterValue() ===
+                          'all' ||
+                        !table.getColumn('createdBy.email')?.getFilterValue()
+                      }
                       onCheckedChange={() =>
                         table
                           .getColumn('createdBy.email')
                           ?.setFilterValue('all')
                       }
                     >
-                      {t(
-                        'modules.(app).payment-links._components.payment-links-table.header.show.groups.created-by.values.all'
-                      )}
+                      {t('header.show.groups.created-by.values.all')}
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
-                      // checked={
-                      //   table.getColumn('createdBy.email')?.getFilterValue() ===
-                      //   'users'
-                      // }
+                      checked={
+                        table.getColumn('createdBy.email')?.getFilterValue() ===
+                        'users'
+                      }
                       onCheckedChange={() =>
                         table
                           .getColumn('createdBy.email')
                           ?.setFilterValue('users')
                       }
                     >
-                      {t(
-                        'modules.(app).payment-links._components.payment-links-table.header.show.groups.created-by.values.by-me'
-                      )}
+                      {t('header.show.groups.created-by.values.by-me')}
                     </DropdownMenuCheckboxItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
@@ -703,9 +617,47 @@ export function PaymentLinksTable({
               )}
               <DropdownMenuGroup>
                 <DropdownMenuLabel>
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.header.show.groups.expiration-status.title'
-                  )}
+                  {t('header.show.groups.status.title')}
+                </DropdownMenuLabel>
+
+                <DropdownMenuCheckboxItem
+                  checked={
+                    table.getColumn('status')?.getFilterValue() === 'all' ||
+                    !table.getColumn('status')?.getFilterValue()
+                  }
+                  onCheckedChange={() =>
+                    table.getColumn('status')?.setFilterValue('all')
+                  }
+                >
+                  {t('header.show.groups.status.values.all')}
+                </DropdownMenuCheckboxItem>
+
+                {Object.values(PaymentStatusType)
+                  .map((status) => ({
+                    label: t(`header.show.groups.status.values.${status}`),
+                    status
+                  }))
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map(({ status, label }) => (
+                    <DropdownMenuCheckboxItem
+                      checked={
+                        table.getColumn('status')?.getFilterValue() === status
+                      }
+                      key={status}
+                      onCheckedChange={() =>
+                        table.getColumn('status')?.setFilterValue(status)
+                      }
+                    >
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  {t('header.show.groups.expiration-status.title')}
                 </DropdownMenuLabel>
                 <DropdownMenuCheckboxItem
                   checked={
@@ -716,9 +668,7 @@ export function PaymentLinksTable({
                     table.getColumn('expiresAt')?.setFilterValue('all')
                   }
                 >
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.header.show.groups.expiration-status.values.all'
-                  )}
+                  {t('header.show.groups.expiration-status.values.all')}
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuCheckboxItem
                   checked={
@@ -728,9 +678,7 @@ export function PaymentLinksTable({
                     table.getColumn('expiresAt')?.setFilterValue('active')
                   }
                 >
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.header.show.groups.expiration-status.values.active'
-                  )}
+                  {t('header.show.groups.expiration-status.values.active')}
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuCheckboxItem
                   checked={
@@ -740,9 +688,7 @@ export function PaymentLinksTable({
                     table.getColumn('expiresAt')?.setFilterValue('expired')
                   }
                 >
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.header.show.groups.expiration-status.values.expired'
-                  )}
+                  {t('header.show.groups.expiration-status.values.expired')}
                 </DropdownMenuCheckboxItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
@@ -758,9 +704,7 @@ export function PaymentLinksTable({
               >
                 <Columns2 />
                 <span className='sm:hidden lg:block'>
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.header.columns.title'
-                  )}
+                  {t('header.columns.title')}
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -779,10 +723,7 @@ export function PaymentLinksTable({
                           column.toggleVisibility(!!value)
                         }
                       >
-                        {/* {t(
-                          `modules.(app).payment-links._components.payment-links-table.columns.${column.id}`
-                        )} */}
-                        {column.id}
+                        {t(`columns.${column.id}`)}
                       </DropdownMenuCheckboxItem>
                     )
                 )}
@@ -797,9 +738,7 @@ export function PaymentLinksTable({
               >
                 <Zap />
                 <span className='sm:hidden lg:block'>
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.header.actions.title'
-                  )}
+                  {t('header.actions.title')}
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -808,16 +747,12 @@ export function PaymentLinksTable({
               <DropdownMenuItem asChild>
                 <Link href='/payment-links/create' passHref>
                   <Plus />
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.header.actions.values.create'
-                  )}
+                  {t('header.actions.values.create')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleOnClickDownload}>
                 <Download />
-                {t(
-                  'modules.(app).payment-links._components.payment-links-table.header.actions.values.download'
-                )}
+                {t('header.actions.values.download')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -858,8 +793,11 @@ export function PaymentLinksTable({
                       <TableCell
                         className={cn('text-center', {
                           'text-right': [
-                            'amountToPay',
-                            'depositAmountInRON'
+                            'totalAmountToPay',
+                            'depositAmount',
+                            'productInstallmentAmountToPay',
+                            'remainingAmountToPay',
+                            'remainingInstallmentAmountToPay'
                           ].includes(cell.column.id)
                         })}
                         key={cell.id}
@@ -888,9 +826,7 @@ export function PaymentLinksTable({
                   className='h-[calc(--spacing(14)*10)] text-center'
                   colSpan={columns.length}
                 >
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.no-results'
-                  )}
+                  {t('no-results')}
                 </TableCell>
               </TableRow>
             )}
@@ -900,13 +836,10 @@ export function PaymentLinksTable({
 
       <div className='flex h-fit items-center justify-end gap-1.5 lg:gap-3'>
         <div className='mr-auto text-xs font-medium sm:text-sm'>
-          {t(
-            'modules.(app).payment-links._components.payment-links-table.pagination.page-count',
-            {
-              page: table.getState().pagination.pageIndex + 1,
-              pageCount: table.getPageCount()
-            }
-          )}
+          {t('pagination.page-count', {
+            page: table.getState().pagination.pageIndex + 1,
+            pageCount: table.getPageCount()
+          })}
         </div>
 
         <div className='flex items-center gap-1.5'>
@@ -914,9 +847,7 @@ export function PaymentLinksTable({
             className='text-sm font-medium max-sm:hidden'
             htmlFor='rows-per-page'
           >
-            {t(
-              'modules.(app).payment-links._components.payment-links-table.pagination.rows-per-page'
-            )}
+            {t('pagination.rows-per-page')}
           </Label>
           <Select
             onValueChange={(value) => {
@@ -930,9 +861,7 @@ export function PaymentLinksTable({
             <SelectContent align='end' side='top'>
               <SelectGroup>
                 <SelectLabel className='sm:hidden'>
-                  {t(
-                    'modules.(app).payment-links._components.payment-links-table.pagination.rows-per-page'
-                  )}
+                  {t('pagination.rows-per-page')}
                 </SelectLabel>
                 {pageSizeOptions.map((pageSize) => (
                   <SelectItem key={pageSize} value={`${pageSize}`}>
@@ -953,9 +882,7 @@ export function PaymentLinksTable({
         >
           <ChevronLeft />
           <span className='hidden lg:block'>
-            {t(
-              'modules.(app).payment-links._components.payment-links-table.pagination.previous-page'
-            )}
+            {t('pagination.previous-page')}
           </span>
         </Button>
 
@@ -966,11 +893,7 @@ export function PaymentLinksTable({
           size='sm'
           variant='outline'
         >
-          <span className='hidden lg:block'>
-            {t(
-              'modules.(app).payment-links._components.payment-links-table.pagination.next-page'
-            )}
-          </span>
+          <span className='hidden lg:block'>{t('pagination.next-page')}</span>
           <ChevronRight />
         </Button>
       </div>
@@ -981,7 +904,9 @@ export function PaymentLinksTable({
 export function PaymentLinksTableHeader({
   column
 }: HeaderContext<Payment, unknown>) {
-  const t = useTranslations()
+  const t = useTranslations(
+    'modules.(app).payment-links._components.payment-links-table'
+  )
 
   const handleOnClickColumn = (column: Column<Payment>) => {
     if (column.getIsSorted() === 'asc') {
@@ -999,10 +924,7 @@ export function PaymentLinksTableHeader({
 
   return (
     <Button onClick={() => handleOnClickColumn(column)} variant='ghost'>
-      {/* {t(
-        `modules.(app).payment-links._components.payment-links-table.columns.${column.id}`
-      )} */}
-      {column.id}
+      {t(`columns.${column.id}`)}
       <DynamicIcon
         className={cn('ml-2 h-4 w-4', {
           'rotate-0': column.getIsSorted() === 'asc',
