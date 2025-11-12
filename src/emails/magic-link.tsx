@@ -70,7 +70,7 @@ export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => {
             <Section>
               <Img
                 alt='Plați RB'
-                className='mx-auto my-0 w-40 dark:invert'
+                className='mx-auto my-0 w-40'
                 // src={logoUrl}
                 src='logo.png'
               />
