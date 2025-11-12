@@ -11,6 +11,15 @@ import { createProductsExtensionsInstallmentsData } from '~/server/database/seed
 import { createProductsInstallmentsData } from '~/server/database/seed/business/products-installments'
 import { formatCount, seedTable } from '~/server/database/seed/utils'
 import { createContractsData } from './business/contracts'
+import {
+  createExtensionOrdersData,
+  createExtensionPaymentLinksData,
+  createExtensionSubscriptionsData,
+  createMembershipsData,
+  createProductOrdersData,
+  createProductPaymentLinksData,
+  createProductSubscriptionsData
+} from './business/payment-system-data'
 
 export async function seed() {
   const start = Date.now()
@@ -57,6 +66,61 @@ export async function seed() {
       () => createPaymentsSettingsData()
     )
 
+    // Payment System Data
+    const [productPaymentLinksName, productPaymentLinks] = await seedTable(
+      schema.product_payment_links,
+      () =>
+        createProductPaymentLinksData({
+          users,
+          products,
+          contracts,
+          paymentsSettings,
+          productsInstallments
+        })
+    )
+
+    const [productOrdersName, productOrders] = await seedTable(
+      schema.product_orders,
+      () => createProductOrdersData(productPaymentLinks)
+    )
+
+    const [membershipsName, memberships] = await seedTable(
+      schema.memberships,
+      () => createMembershipsData(productOrders, productPaymentLinks, products)
+    )
+
+    const [productSubscriptionsName, productSubscriptions] = await seedTable(
+      schema.product_subscriptions,
+      () =>
+        createProductSubscriptionsData(
+          productOrders,
+          memberships,
+          productPaymentLinks
+        )
+    )
+
+    const [extensionPaymentLinksName, extensionPaymentLinks] = await seedTable(
+      schema.extension_payment_links,
+      () =>
+        createExtensionPaymentLinksData({
+          users,
+          productsExtensions,
+          memberships,
+          paymentsSettings,
+          productsExtensionsInstallments
+        })
+    )
+
+    const [extensionOrdersName, extensionOrders] = await seedTable(
+      schema.extension_orders,
+      () => createExtensionOrdersData(extensionPaymentLinks)
+    )
+
+    const [extensionSubscriptionsName, extensionSubscriptions] =
+      await seedTable(schema.extension_subscriptions, () =>
+        createExtensionSubscriptionsData(extensionOrders, extensionPaymentLinks)
+      )
+
     console.log(`\nSeeded database in ${(Date.now() - start) / 1000}s\n`)
     console.groupEnd()
     console.group('Summary')
@@ -96,6 +160,35 @@ export async function seed() {
         name: paymentsSettingsName,
         count: formatCount(paymentsSettings.length)
       },
+      // Payment System
+      {
+        name: productPaymentLinksName,
+        count: formatCount(productPaymentLinks.length)
+      },
+      {
+        name: productOrdersName,
+        count: formatCount(productOrders.length)
+      },
+      {
+        name: membershipsName,
+        count: formatCount(memberships.length)
+      },
+      {
+        name: productSubscriptionsName,
+        count: formatCount(productSubscriptions.length)
+      },
+      {
+        name: extensionPaymentLinksName,
+        count: formatCount(extensionPaymentLinks.length)
+      },
+      {
+        name: extensionOrdersName,
+        count: formatCount(extensionOrders.length)
+      },
+      {
+        name: extensionSubscriptionsName,
+        count: formatCount(extensionSubscriptions.length)
+      },
       // ---TOTAL---
       {
         name: 'TOTAL',
@@ -112,7 +205,15 @@ export async function seed() {
             constants.length +
             contracts.length +
             firstPaymentDateAfterDepositOptions.length +
-            paymentsSettings.length
+            paymentsSettings.length +
+            // Payment System
+            productPaymentLinks.length +
+            productOrders.length +
+            memberships.length +
+            productSubscriptions.length +
+            extensionPaymentLinks.length +
+            extensionOrders.length +
+            extensionSubscriptions.length
         )
       }
     ])

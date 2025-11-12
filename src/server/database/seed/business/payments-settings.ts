@@ -17,6 +17,7 @@ const PAYMENTS_SETTINGS = [
   {
     currency: PaymentCurrencyType.RON,
     extraTaxRate: '0',
+    isDefault: true,
     label: 'România',
     tvaRate: '21'
   },
