@@ -19,8 +19,6 @@ interface ChangeEmailVerificationEmail {
   url: string
 }
 
-const logoUrl = `https://${process.env.VERCEL_URL}/logo.png`
-
 export const ChangeEmailVerificationEmail = ({
   url
 }: ChangeEmailVerificationEmail) => {
@@ -47,14 +45,14 @@ export const ChangeEmailVerificationEmail = ({
           theme: {
             extend: {
               colors: {
-                foreground: 'oklch(0.3651 0.0325 287.0807)',
+                foreground: 'oklch(0.145 0 0)',
                 muted: {
-                  DEFAULT: 'oklch(0.8906 0.0139 299.7754)',
-                  foreground: 'oklch(0.5288 0.0375 290.7895)'
+                  DEFAULT: 'oklch(0.97 0 0)',
+                  foreground: 'oklch(0.556 0 0)'
                 },
                 primary: {
-                  DEFAULT: 'oklch(0.6104 0.0767 299.7335)',
-                  foreground: 'oklch(0.9777 0.0041 301.4256)'
+                  DEFAULT: 'oklch(0.205 0 0)',
+                  foreground: 'oklch(0.985 0 0)'
                 }
               },
               fontFamily: {
@@ -69,7 +67,11 @@ export const ChangeEmailVerificationEmail = ({
         <Body className='mx-auto my-auto bg-white p-4 font-sans'>
           <Container className='mx-auto my-[16px] max-w-[448px] p-[16px]'>
             <Section>
-              <Img alt='Plați RB' className='mx-auto my-0 w-40' src={logoUrl} />
+              <Img
+                alt='Plați RB'
+                className='mx-auto my-0 w-40'
+                src='https://plati-roxanaborz-ro.vercel.app/logo.png'
+              />
             </Section>
 
             <Heading className='mx-0 my-[32px] p-0 text-center font-normal text-[18px] text-foreground'>
