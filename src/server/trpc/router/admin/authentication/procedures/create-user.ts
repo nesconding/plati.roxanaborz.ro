@@ -13,6 +13,7 @@ export const createUserProcedure = adminProcedure
         body: {
           data: {
             firstName: input.firstName,
+            invitedById: ctx.session.user.id,
             lastName: input.lastName,
             phoneNumber:
               input.phoneNumber === '' ? undefined : input.phoneNumber
