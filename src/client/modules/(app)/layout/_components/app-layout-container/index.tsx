@@ -21,11 +21,11 @@ export function AppLayoutContainer({
 
       <SidebarInset
         className={cn(
-          'h-screen w-[calc(100%-var(--sidebar-width))] pt-(--header-height) transition-[width] peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon))]'
+          'h-screen w-[calc(100vh-var(--sidebar-width))] pt-(--header-height) transition-[width] peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon))]'
         )}
       >
         <AppLayoutContainerHeader />
-        <ScrollArea className='h-[calc(100vh-var(--header-height))]'>
+        <ScrollArea className='h-[calc(100vh-var(--header-height))] overflow-y-hidden'>
           {children}
         </ScrollArea>
       </SidebarInset>
