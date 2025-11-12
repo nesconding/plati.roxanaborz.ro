@@ -702,6 +702,109 @@ const dictionary = {
           //   }
           // }
         },
+
+        settings: {
+          'eur-to-ron-rate': {
+            buttons: {
+              submit: {
+                default: 'Salvează',
+                loading: 'Se salvează rata EUR-RON...'
+              }
+            },
+            description: 'Cursul EUR la RON pentru calcularea prețurilor.',
+            placeholder: 'Introduceți cursul EUR la RON',
+            response: {
+              error: {
+                description:
+                  'A apărut o eroare la salvarea cursului EUR la RON.',
+                title: 'Salvare eșuată'
+              },
+              success: {
+                description: 'Cursul EUR la RON a fost salvat cu succes.',
+                title: 'Salvare reușită'
+              }
+            },
+            title: 'Cursul EUR la RON'
+          },
+          'first-payment-date-after-deposit-options': {
+            buttons: {
+              add: 'Adaugă opțiune',
+              submit: {
+                default: 'Salvează',
+                loading: 'Se salvează...'
+              }
+            },
+            description:
+              'Opțiuni de zile pentru alegerea datei primei plati dupa avans.',
+            item: {
+              label: 'Opțiunea {index}',
+              placeholder: 'Introduceți numărul de zile dupa avans'
+            },
+            placeholder: 'Introduceți numărul de zile dupa avans',
+            response: {
+              error: {
+                description:
+                  'A apărut o eroare la salvarea opțiunilor de zile.',
+                title: 'Salvare eșuată'
+              },
+              success: {
+                description: 'Opțiunile de zile au fost salvate cu succes.',
+                title: 'Salvare reușită'
+              }
+            },
+            title:
+              'Opțiuni de zile pentru alegerea datei primei plati dupa avans'
+          },
+          'payment-settings': {
+            buttons: {
+              add: 'Adaugă setare',
+              submit: {
+                default: 'Salvează',
+                loading: 'Se salvează setările de plată...'
+              }
+            },
+            description: 'Setări de plată pentru produse.',
+            form: {
+              fields: {
+                currency: {
+                  description: 'Moneda pentru plată.',
+                  label: 'Monedă',
+                  placeholder: 'Selectează moneda'
+                },
+                extraTaxRate: {
+                  description: 'Calculat înainte de TVA.',
+                  label: 'Comision extra',
+                  placeholder: 'Introduceți comisionul extra'
+                },
+                label: {
+                  description: 'Numele setării de plată.',
+                  label: 'Nume',
+                  placeholder: 'Introduceți numele setării de plată'
+                },
+                tvaRate: {
+                  description: 'TVA-ul pentru plată.',
+                  label: 'TVA',
+                  placeholder: 'Introduceți TVA-ul'
+                }
+              },
+              item: {
+                legend: 'Setarea de plată {index}'
+              }
+            },
+            response: {
+              error: {
+                description:
+                  'A apărut o eroare la salvarea setărilor de plată.',
+                title: 'Salvare eșuată'
+              },
+              success: {
+                description: 'Setările de plată au fost salvate cu succes.',
+                title: 'Salvare reușită'
+              }
+            },
+            title: 'Setări de plată'
+          }
+        },
         users: {
           _components: {
             'ban-user-dialog': {
@@ -1252,6 +1355,9 @@ const dictionary = {
                         }
                       },
                       title: 'Produse'
+                    },
+                    settings: {
+                      title: 'Setări'
                     },
                     users: {
                       title: 'Utilizatori'

@@ -159,37 +159,37 @@ export async function createProductsData(): Promise<
 > {
   const productsData: (typeof products.$inferInsert)[] = HARDCODED_PRODUCTS
 
-  // // Create dynamic products
-  // const names = new Set<string>()
+  // Create dynamic products
+  const names = new Set<string>()
 
-  // for (let i = 0; i < faker.number.int({ max: 30, min: 5 }); i++) {
-  //   let name = faker.commerce.productName()
-  //   while (names.has(name)) name = faker.commerce.productName()
-  //   names.add(name)
-  // }
+  for (let i = 0; i < faker.number.int({ max: 30, min: 5 }); i++) {
+    let name = faker.commerce.productName()
+    while (names.has(name)) name = faker.commerce.productName()
+    names.add(name)
+  }
 
-  // for (const name of names) {
-  //   const membershipDurationMonths = faker.number.int({
-  //     max: 21,
-  //     min: 3,
-  //     multipleOf: 3
-  //   })
-  //   const isDepositAmountEnabled = faker.datatype.boolean()
-  //   const price = faker.number.int({ max: 10000, min: 5000 }).toString()
-  //   const minDepositAmount = isDepositAmountEnabled
-  //     ? faker.number.int({ max: 1500, min: 500, multipleOf: 100 }).toString()
-  //     : '0'
-  //   const fullName = `${name} (${membershipDurationMonths} luni)`
+  for (const name of names) {
+    const membershipDurationMonths = faker.number.int({
+      max: 21,
+      min: 3,
+      multipleOf: 3
+    })
+    const isDepositAmountEnabled = faker.datatype.boolean()
+    const price = faker.number.int({ max: 10000, min: 5000 }).toString()
+    const minDepositAmount = isDepositAmountEnabled
+      ? faker.number.int({ max: 1500, min: 500, multipleOf: 100 }).toString()
+      : '0'
+    const fullName = `${name} (${membershipDurationMonths} luni)`
 
-  //   // Add to products array
-  //   productsData.push({
-  //     isDepositAmountEnabled,
-  //     membershipDurationMonths,
-  //     minDepositAmount,
-  //     name: fullName,
-  //     price
-  //   })
-  // }
+    // Add to products array
+    productsData.push({
+      isDepositAmountEnabled,
+      membershipDurationMonths,
+      minDepositAmount,
+      name: fullName,
+      price
+    })
+  }
 
   return productsData
 }

@@ -27,6 +27,12 @@ async function insertInChunks<Table extends PgTable>(
   tableName: string,
   chunkSize = 5000
 ): Promise<Table['$inferSelect'][]> {
+  // Handle empty data array
+  if (data.length === 0) {
+    console.log(`No rows to insert into ${tableName}`)
+    return []
+  }
+
   if (data.length < chunkSize) {
     console.log(
       `Inserting ${formatCount(data.length)} rows into ${tableName}...`

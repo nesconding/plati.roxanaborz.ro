@@ -41,20 +41,20 @@ function createUserData(): Omit<
   typeof users.$inferInsert,
   'createdAt' | 'updatedAt'
 >[] {
-  // const emails = new Set<string>()
+  const emails = new Set<string>()
 
   const data: Person[] = [superAdminData, adminData]
 
-  // for (let i = 0; i < fakerRO.number.int({ max: 50, min: 25 }); i++) {
-  //   let person = generatePerson()
+  for (let i = 0; i < fakerRO.number.int({ max: 50, min: 25 }); i++) {
+    let person = generatePerson()
 
-  //   while (emails.has(person.email)) {
-  //     person = generatePerson()
-  //   }
+    while (emails.has(person.email)) {
+      person = generatePerson()
+    }
 
-  //   emails.add(person.email)
-  //   data.push(person)
-  // }
+    emails.add(person.email)
+    data.push(person)
+  }
 
   return data.map(
     ({
@@ -84,7 +84,10 @@ export async function seedUsers() {
 
     const data = createUserData()
     const result = await Promise.all(
-      data.map((user) => ctx.internalAdapter.createUser(user))
+      data.map(
+        (user): Promise<typeof users.$inferSelect> =>
+          ctx.internalAdapter.createUser(user)
+      )
     )
 
     const [superAdminUser] = await database

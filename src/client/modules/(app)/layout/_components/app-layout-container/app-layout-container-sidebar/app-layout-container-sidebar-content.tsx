@@ -4,10 +4,10 @@ import { useQuery } from '@tanstack/react-query'
 import {
   CalendarSync,
   ClipboardList,
+  Cog,
   IdCardLanyard,
   Link2,
   Package,
-  Pi,
   Plus,
   SquareUserRound
 } from 'lucide-react'
@@ -28,6 +28,7 @@ import {
   SidebarSeparator,
   useSidebar
 } from '~/client/components/ui/sidebar'
+import { cn } from '~/client/lib/utils'
 import { useTRPC } from '~/client/trpc/react'
 import { UserRoles } from '~/shared/enums/user-roles'
 
@@ -96,6 +97,23 @@ export function AppLayoutContainerSidebarContent() {
                         </Link>
                       </SidebarMenuAction>
                     </SidebarMenuItem>
+
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        className='select-none'
+                        isActive={pathname === '/settings'}
+                        onClick={handleClose}
+                        tooltip={t('(admin).routes.settings.title')}
+                      >
+                        <Link href='/settings' passHref>
+                          <Cog className='pointer-events-none' />
+                          <span className='pointer-events-none'>
+                            {t('(admin).routes.settings.title')}
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
@@ -105,7 +123,11 @@ export function AppLayoutContainerSidebarContent() {
           )}
 
           <SidebarGroup>
-            <SidebarGroupLabel>
+            <SidebarGroupLabel
+              className={cn({
+                'select-none pointer-events-none': sidebar.state === 'collapsed'
+              })}
+            >
               {t('payment-links.groupTitle')}
             </SidebarGroupLabel>
 

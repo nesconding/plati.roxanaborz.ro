@@ -4,12 +4,12 @@ import { useQuery } from '@tanstack/react-query'
 import {
   Check,
   ChevronUp,
-  Cog,
   LogOut,
   Moon,
   Sun,
   SunMoon,
-  UserCircle2
+  UserCircle2,
+  UserRoundCog
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useTheme } from 'next-themes'
@@ -160,7 +160,7 @@ export function AppLayoutContainerSidebarFooter() {
                 <DropdownMenuItem
                   onClick={() => setIsAccountManagementDialogOpen(true)}
                 >
-                  <Cog />
+                  <UserRoundCog />
                   <span className='w-full'>
                     {t(
                       'modules.(app).layout.container.sidebar.footer.dropdown.account-management'

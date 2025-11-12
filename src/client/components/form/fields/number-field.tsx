@@ -43,7 +43,7 @@ function isIconAddon(addon: IconAddon | TextAddon): addon is IconAddon {
 
 interface NumberFieldProps {
   className?: string
-  label: string | React.ReactNode
+  label?: string | React.ReactNode
   addons?: (IconAddon | TextAddon)[]
   autoComplete?: React.HTMLInputAutoCompleteAttribute | undefined
   description?: string | React.ReactNode
@@ -83,13 +83,15 @@ export function NumberField({
       data-disabled={isDisabled}
       data-invalid={isInvalid}
     >
-      <FieldLabel
-        className={cn({ 'gap-0.5': isRequired })}
-        htmlFor={field.name}
-      >
-        {label}
-        {isRequired ? <RequiredMarker /> : null}
-      </FieldLabel>
+      {label && (
+        <FieldLabel
+          className={cn({ 'gap-0.5': isRequired })}
+          htmlFor={field.name}
+        >
+          {label}
+          {isRequired ? <RequiredMarker /> : null}
+        </FieldLabel>
+      )}
       {description && (
         <FieldDescription className={cn({ 'opacity-50': isDisabled })}>
           {description}

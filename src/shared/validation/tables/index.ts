@@ -51,6 +51,9 @@ export const ExtensionSubscriptionsTableValidators = new TableValidatorFactory(
 export const ProductSubscriptionsTableValidators = new TableValidatorFactory(
   schema.product_subscriptions
 )
+export const ConstantsTableValidators = new TableValidatorFactory(
+  schema.constants
+)
 export const FirstPaymentDateAfterDepositOptionsTableValidators =
   new TableValidatorFactory(schema.first_payment_date_after_deposit_options)
 
