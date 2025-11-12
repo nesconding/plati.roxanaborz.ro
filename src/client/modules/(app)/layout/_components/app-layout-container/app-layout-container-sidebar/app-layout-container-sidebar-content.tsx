@@ -18,6 +18,7 @@ import { useTranslations } from 'next-intl'
 import {
   SidebarContent,
   SidebarGroup,
+  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
@@ -37,7 +38,9 @@ export function AppLayoutContainerSidebarContent() {
   )
   const pathname = usePathname()
   const sidebar = useSidebar()
-  const t = useTranslations()
+  const t = useTranslations(
+    'modules.(app).layout.container.sidebar.content.navigation'
+  )
 
   const isAdmin =
     getSession.data?.user.role === UserRoles.ADMIN ||
@@ -57,11 +60,7 @@ export function AppLayoutContainerSidebarContent() {
           {isAdmin && (
             <>
               <SidebarGroup>
-                <SidebarGroupLabel>
-                  {t(
-                    'modules.(app).layout.container.sidebar.content.navigation.(admin).title'
-                  )}
-                </SidebarGroupLabel>
+                <SidebarGroupLabel>{t('(admin).title')}</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
@@ -69,17 +68,11 @@ export function AppLayoutContainerSidebarContent() {
                         asChild
                         isActive={pathname === '/users'}
                         onClick={handleClose}
-                        tooltip={t(
-                          'modules.(app).layout.container.sidebar.content.navigation.(admin).routes.users.title'
-                        )}
+                        tooltip={t('(admin).routes.users.title')}
                       >
                         <Link href='/users' passHref>
                           <SquareUserRound />
-                          <span>
-                            {t(
-                              'modules.(app).layout.container.sidebar.content.navigation.(admin).routes.users.title'
-                            )}
-                          </span>
+                          <span>{t('(admin).routes.users.title')}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -89,17 +82,11 @@ export function AppLayoutContainerSidebarContent() {
                         asChild
                         isActive={pathname === '/products'}
                         onClick={handleClose}
-                        tooltip={t(
-                          'modules.(app).layout.container.sidebar.content.navigation.(admin).routes.products.title'
-                        )}
+                        tooltip={t('(admin).routes.products.title')}
                       >
                         <Link href='/products' passHref>
                           <Package />
-                          <span>
-                            {t(
-                              'modules.(app).layout.container.sidebar.content.navigation.(admin).routes.products.title'
-                            )}
-                          </span>
+                          <span>{t('(admin).routes.products.title')}</span>
                         </Link>
                       </SidebarMenuButton>
 
@@ -118,50 +105,70 @@ export function AppLayoutContainerSidebarContent() {
           )}
 
           <SidebarGroup>
+            <SidebarGroupLabel>
+              {t('payment-links.groupTitle')}
+            </SidebarGroupLabel>
+
+            <SidebarGroupAction
+              onClick={handleClose}
+              title={t('payment-links.routes.create.title')}
+            >
+              <Link href='/payment-links/create' passHref>
+                <Plus className='size-4' />
+                <span className='sr-only'>
+                  {t('payment-links.routes.create.title')}
+                </span>
+              </Link>
+            </SidebarGroupAction>
+
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === '/payment-links'}
+                    isActive={pathname === '/payment-links/create'}
                     onClick={handleClose}
-                    tooltip={t(
-                      'modules.(app).layout.container.sidebar.content.navigation.payment-links.title'
-                    )}
+                    tooltip={t('payment-links.routes.create.title')}
                   >
-                    <Link href='/payment-links' passHref>
-                      <Link2 />
-                      <span>
-                        {t(
-                          'modules.(app).layout.container.sidebar.content.navigation.payment-links.title'
-                        )}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-
-                  <SidebarMenuAction asChild onClick={handleClose}>
                     <Link href='/payment-links/create' passHref>
                       <Plus />
+                      <span>{t('payment-links.routes.create.title')}</span>
                     </Link>
-                  </SidebarMenuAction>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
+                    isActive={pathname === '/payment-links'}
+                    onClick={handleClose}
+                    tooltip={t('payment-links.title')}
+                  >
+                    <Link href='/payment-links' passHref>
+                      <Link2 />
+                      <span>{t('payment-links.title')}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarSeparator className='mx-0' />
+
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
                     isActive={pathname === '/orders'}
                     onClick={handleClose}
-                    tooltip={t(
-                      'modules.(app).layout.container.sidebar.content.navigation.orders.title'
-                    )}
+                    tooltip={t('orders.title')}
                   >
                     <Link href='/orders' passHref>
                       <ClipboardList />
-                      <span>
-                        {t(
-                          'modules.(app).layout.container.sidebar.content.navigation.orders.title'
-                        )}
-                      </span>
+                      <span>{t('orders.title')}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -171,17 +178,11 @@ export function AppLayoutContainerSidebarContent() {
                     asChild
                     isActive={pathname === '/subscriptions'}
                     onClick={handleClose}
-                    tooltip={t(
-                      'modules.(app).layout.container.sidebar.content.navigation.subscriptions.title'
-                    )}
+                    tooltip={t('subscriptions.title')}
                   >
                     <Link href='/subscriptions' passHref>
                       <CalendarSync />
-                      <span>
-                        {t(
-                          'modules.(app).layout.container.sidebar.content.navigation.subscriptions.title'
-                        )}
-                      </span>
+                      <span>{t('subscriptions.title')}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -191,17 +192,11 @@ export function AppLayoutContainerSidebarContent() {
                     asChild
                     isActive={pathname === '/memberships'}
                     onClick={handleClose}
-                    tooltip={t(
-                      'modules.(app).layout.container.sidebar.content.navigation.memberships.title'
-                    )}
+                    tooltip={t('memberships.title')}
                   >
                     <Link href='/memberships' passHref>
                       <IdCardLanyard />
-                      <span>
-                        {t(
-                          'modules.(app).layout.container.sidebar.content.navigation.memberships.title'
-                        )}
-                      </span>
+                      <span>{t('memberships.title')}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
