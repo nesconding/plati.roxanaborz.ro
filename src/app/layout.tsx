@@ -4,6 +4,7 @@ import { ReactScan } from '~/client/components/utils/react-scan'
 
 import '~/client/styles/globals.css'
 
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { NextIntlClientProvider } from 'next-intl'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -44,6 +45,7 @@ export default async function RootLayout({
   return (
     <html lang='ro' suppressHydrationWarning>
       <ReactScan />
+
       <body
         className={`${montserrat.variable} ${esteban.variable} ${firacode.variable} antialiased`}
       >
@@ -61,6 +63,7 @@ export default async function RootLayout({
                     fallback={<LoadingPage className='h-screen w-screen' />}
                   >
                     {children}
+                    <SpeedInsights />
                   </Suspense>
                 </ErrorBoundary>
                 <Devtools />
