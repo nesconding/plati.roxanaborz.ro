@@ -19,8 +19,6 @@ interface MagicLinkEmailProps {
   url: string
 }
 
-const logoUrl = `https://${process.env.VERCEL_URL}/logo.png`
-
 export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => {
   const previewText =
     'Link-ul dumneavoastră de autentificare pentru a vă conecta în platforma Plați RB'
@@ -53,7 +51,7 @@ export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => {
                 },
                 primary: {
                   DEFAULT: 'oklch(0.205 0 0)',
-                  foreground: 'oklch(0.985 0 0)F'
+                  foreground: 'oklch(0.985 0 0)'
                 }
               },
               fontFamily: {
@@ -71,8 +69,7 @@ export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => {
               <Img
                 alt='Plați RB'
                 className='mx-auto my-0 w-40'
-                // src={logoUrl}
-                src='logo.png'
+                src='https://plati-roxanaborz-ro.vercel.app/logo.png'
               />
             </Section>
 
