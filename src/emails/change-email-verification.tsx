@@ -19,7 +19,7 @@ interface ChangeEmailVerificationEmail {
   url: string
 }
 
-const baseUrl = process.env.VERCEL_URL ?? process.env.NEXT_PUBLIC_URL ?? ''
+const logoUrl = `https://${process.env.VERCEL_URL}/logo.png`
 
 export const ChangeEmailVerificationEmail = ({
   url
@@ -69,11 +69,7 @@ export const ChangeEmailVerificationEmail = ({
         <Body className='mx-auto my-auto bg-white p-4 font-sans'>
           <Container className='mx-auto my-[16px] max-w-[448px] p-[16px]'>
             <Section>
-              <Img
-                alt='Plați RB'
-                className='mx-auto my-0 w-40'
-                src={`${baseUrl}/static/logo.webp`}
-              />
+              <Img alt='Plați RB' className='mx-auto my-0 w-40' src={logoUrl} />
             </Section>
 
             <Heading className='mx-0 my-[32px] p-0 text-center font-normal text-[18px] text-foreground'>
