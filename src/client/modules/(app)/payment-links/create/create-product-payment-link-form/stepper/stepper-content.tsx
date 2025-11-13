@@ -231,7 +231,11 @@ export const StepperContent = withForm({
               {stepper.current.id !==
                 CreateProductPaymentLinkFormStep.Confirmation &&
                 !stepper.isLast && (
-                  <Button onClick={handleOnNext} type='button'>
+                  <Button
+                    className='w-full sm:w-fit'
+                    onClick={handleOnNext}
+                    type='button'
+                  >
                     {t('buttons.next-step')}
                     <StepForward />
                   </Button>
