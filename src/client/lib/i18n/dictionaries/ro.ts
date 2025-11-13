@@ -2170,17 +2170,17 @@ const dictionary = {
                 }
               },
               status: {
-                [PaymentStatusType.Created]: 'În așteptare',
+                [PaymentStatusType.Created]: 'Creat',
                 [PaymentStatusType.Processing]: 'În procesare',
                 [PaymentStatusType.Succeeded]: 'Plătit',
-                [PaymentStatusType.PaymentFailed]: 'Eșuat',
-                [PaymentStatusType.RequiresPaymentMethod]: 'În așteptare plată',
-                [PaymentStatusType.RequiresConfirmation]:
-                  'În așteptare confirmare',
-                [PaymentStatusType.RequiresAction]: 'În așteptare acțiune',
-                [PaymentStatusType.RequiresCapture]: 'În așteptare captură',
+                [PaymentStatusType.RequiresConfirmation]: 'Necesitǎ confirmare',
+                [PaymentStatusType.RequiresAction]: 'Necesitǎ acțiune',
+                [PaymentStatusType.RequiresCapture]: 'Necesitǎ captură',
                 [PaymentStatusType.Canceled]: 'Anulat',
-                [PaymentStatusType.Expired]: 'Expirat'
+                [PaymentStatusType.Expired]: 'Expirat',
+                [PaymentStatusType.PaymentFailed]: 'Eșuat',
+                [PaymentStatusType.RequiresPaymentMethod]:
+                  'Necesitǎ metoda plată'
               }
             }
           }

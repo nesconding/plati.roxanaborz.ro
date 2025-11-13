@@ -16,6 +16,7 @@ import { OrderStatusType } from '~/shared/enums/order-status-type'
 import { OrderType } from '~/shared/enums/order-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
+import { PaymentStatusType } from '~/shared/enums/payment-status'
 import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
 
 /**
@@ -27,6 +28,32 @@ import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
  */
 export class StripeProductHandlers {
   constructor(private readonly db: Database) {}
+
+  /**
+   * Updates the status of a product payment link
+   * @param paymentLinkId - The ID of the product payment link
+   * @param status - The new status of the product payment link
+   */
+  async updateProductPaymentLinkStatus(
+    productPaymentLinkId: string,
+    status: PaymentStatusType | `${PaymentStatusType}`
+  ) {
+    try {
+      await this.db
+        .update(schema.product_payment_links)
+        .set({
+          status: status as PaymentStatusType
+        })
+        .where(eq(schema.product_payment_links.id, productPaymentLinkId))
+    } catch (cause) {
+      throw new Error(
+        'StripeProductHandlers updateProductPaymentLinkStatus error',
+        {
+          cause
+        }
+      )
+    }
+  }
 
   /**
    * Cron handler: Charge final payment for Product Deposit
@@ -390,6 +417,12 @@ export class StripeProductHandlers {
     })
     if (!product) throw new Error('Product not found')
 
+    // Update payment link status to succeeded
+    await this.updateProductPaymentLinkStatus(
+      data.productPaymentLinkId,
+      PaymentStatusType.Succeeded
+    )
+
     const [productOrder] = await this.db
       .insert(schema.product_orders)
       .values({
@@ -426,6 +459,12 @@ export class StripeProductHandlers {
       where: (products, { eq }) => eq(products.id, data.productId)
     })
     if (!product) throw new Error('Product not found')
+
+    // Update payment link status to succeeded
+    await this.updateProductPaymentLinkStatus(
+      data.productPaymentLinkId,
+      PaymentStatusType.Succeeded
+    )
 
     const [productOrder] = await this.db
       .insert(schema.product_orders)
@@ -480,6 +519,12 @@ export class StripeProductHandlers {
       where: (products, { eq }) => eq(products.id, data.productId)
     })
     if (!product) throw new Error('Product not found')
+
+    // Update payment link status to succeeded
+    await this.updateProductPaymentLinkStatus(
+      data.productPaymentLinkId,
+      PaymentStatusType.Succeeded
+    )
 
     // Create parent order
     const [productOrder] = await this.db
@@ -539,6 +584,12 @@ export class StripeProductHandlers {
       where: (products, { eq }) => eq(products.id, data.productId)
     })
     if (!product) throw new Error('Product not found')
+
+    // Update payment link status to succeeded
+    await this.updateProductPaymentLinkStatus(
+      data.productPaymentLinkId,
+      PaymentStatusType.Succeeded
+    )
 
     // Create parent order for deposit
     const [productOrder] = await this.db

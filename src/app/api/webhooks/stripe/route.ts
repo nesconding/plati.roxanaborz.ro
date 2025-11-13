@@ -70,6 +70,26 @@ export async function POST(req: Request) {
         )
         break
       }
+      case 'payment_intent.canceled': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent
+        await StripeHandlers.paymentIntentOtherStatus(paymentIntent)
+        break
+      }
+      case 'payment_intent.processing': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent
+        await StripeHandlers.paymentIntentOtherStatus(paymentIntent)
+        break
+      }
+      case 'payment_intent.partially_funded': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent
+        await StripeHandlers.paymentIntentOtherStatus(paymentIntent)
+        break
+      }
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent
+        await StripeHandlers.paymentIntentOtherStatus(paymentIntent)
+        break
+      }
 
       default:
         console.log(`[Webhook] Unhandled event type: ${event.type}`)

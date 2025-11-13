@@ -1,19 +1,24 @@
 import type Stripe from 'stripe'
-import { database } from '~/server/database/drizzle'
+import { type Database, database } from '~/server/database/drizzle'
 import type { PaymentIntentMetadata } from '~/server/services/stripe'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
+import type { PaymentStatusType } from '~/shared/enums/payment-status'
 import { StripeExtensionHandlers } from './stripe-extension-handlers'
 import { StripeProductHandlers } from './stripe-product-handlers'
-
-const productHandlers = new StripeProductHandlers(database)
-const extensionHandlers = new StripeExtensionHandlers(database)
 
 /**
  * Unified Stripe Handlers
  * Orchestrates between Product and Extension handlers based on payment type
  */
 class StripeHandlersImpl {
+  private readonly productHandlers: StripeProductHandlers
+  private readonly extensionHandlers: StripeExtensionHandlers
+
+  constructor(private readonly db: Database) {
+    this.productHandlers = new StripeProductHandlers(db)
+    this.extensionHandlers = new StripeExtensionHandlers(db)
+  }
   /**
    * Cron job handler: Process all deferred payments
    * - Product Deposit: Final payment after deposit
@@ -25,9 +30,9 @@ class StripeHandlersImpl {
     try {
       const [productDeposits, extensionDeposits, productInstallments] =
         await Promise.all([
-          productHandlers.handleChargeDeferredProductPayments(),
-          extensionHandlers.handleChargeDeferredExtensionPayments(),
-          productHandlers.handleChargeProductInstallmentsPayments()
+          this.productHandlers.handleChargeDeferredProductPayments(),
+          this.extensionHandlers.handleChargeDeferredExtensionPayments(),
+          this.productHandlers.handleChargeProductInstallmentsPayments()
         ])
 
       return {
@@ -62,7 +67,7 @@ class StripeHandlersImpl {
         paymentIntent.metadata as unknown as PaymentIntentMetadata
 
       // Skip renewal payments - they're already handled by cron jobs
-      if ((metadata as any).isRenewalPayment === 'true') {
+      if (metadata.isRenewalPayment === 'true') {
         console.log(
           `[Webhook] Skipping renewal payment ${paymentIntent.id} - already processed by cron`
         )
@@ -74,28 +79,28 @@ class StripeHandlersImpl {
         // Product payments
         switch (metadata.type) {
           case PaymentLinkType.Integral:
-            await productHandlers.handleProductIntegralPayment(
+            await this.productHandlers.handleProductIntegralPayment(
               paymentIntent.id,
               metadata
             )
             break
 
           case PaymentLinkType.Deposit:
-            await productHandlers.handleProductDepositPayment(
+            await this.productHandlers.handleProductDepositPayment(
               paymentIntent.id,
               metadata
             )
             break
 
           case PaymentLinkType.Installments:
-            await productHandlers.handleProductInstallmentsPayment(
+            await this.productHandlers.handleProductInstallmentsPayment(
               paymentIntent,
               metadata
             )
             break
 
           case PaymentLinkType.InstallmentsDeposit:
-            await productHandlers.handleProductInstallmentsDepositPayment(
+            await this.productHandlers.handleProductInstallmentsDepositPayment(
               paymentIntent,
               metadata
             )
@@ -103,6 +108,7 @@ class StripeHandlersImpl {
 
           default:
             throw new Error(
+              // biome-ignore lint/suspicious/noExplicitAny: <This case should never happen but we need to handle it>
               `Unknown product payment link type: ${(metadata as any).type}`
             )
         }
@@ -110,14 +116,14 @@ class StripeHandlersImpl {
         // Extension payments
         switch (metadata.type) {
           case PaymentLinkType.Integral:
-            await extensionHandlers.handleExtensionIntegralPayment(
+            await this.extensionHandlers.handleExtensionIntegralPayment(
               paymentIntent.id,
               metadata
             )
             break
 
           case PaymentLinkType.Deposit:
-            await extensionHandlers.handleExtensionDepositPayment(
+            await this.extensionHandlers.handleExtensionDepositPayment(
               paymentIntent.id,
               metadata
             )
@@ -133,11 +139,13 @@ class StripeHandlersImpl {
 
           default:
             throw new Error(
+              // biome-ignore lint/suspicious/noExplicitAny: <This case should never happen but we need to handle it>
               `Unknown extension payment link type: ${(metadata as any).type}`
             )
         }
       } else {
         throw new Error(
+          // biome-ignore lint/suspicious/noExplicitAny: <This case should never happen but we need to handle it>
           `Unknown payment product type: ${(metadata as any).paymentProductType}`
         )
       }
@@ -147,9 +155,50 @@ class StripeHandlersImpl {
       })
     }
   }
+
+  async paymentIntentOtherStatus(paymentIntent: Stripe.PaymentIntent) {
+    try {
+      const metadata =
+        paymentIntent.metadata as unknown as PaymentIntentMetadata
+
+      // Skip renewal payments - they're already handled by cron jobs
+      if ((metadata as any).isRenewalPayment === 'true') {
+        console.log(
+          `[Webhook] Skipping renewal payment ${paymentIntent.id} - already processed by cron`
+        )
+        return
+      }
+
+      switch (metadata.paymentProductType) {
+        case PaymentProductType.Product:
+          await this.productHandlers.updateProductPaymentLinkStatus(
+            metadata.productPaymentLinkId,
+            paymentIntent.status
+          )
+          break
+
+        case PaymentProductType.Extension:
+          await this.extensionHandlers.updateExtensionPaymentLinkStatus(
+            metadata.extensionPaymentLinkId,
+            paymentIntent.status
+          )
+          break
+
+        default:
+          throw new Error(
+            // biome-ignore lint/suspicious/noExplicitAny: <This case should never happen but we need to handle it>
+            `Unknown payment product type: ${(metadata as any).paymentProductType}`
+          )
+      }
+    } catch (cause) {
+      throw new Error('StripeHandlers paymentIntentOtherStatus error', {
+        cause
+      })
+    }
+  }
 }
 
-export const StripeHandlers = new StripeHandlersImpl()
+export const StripeHandlers = new StripeHandlersImpl(database)
 
 export { StripeExtensionHandlers } from './stripe-extension-handlers'
 // Also export individual handlers for direct access if needed

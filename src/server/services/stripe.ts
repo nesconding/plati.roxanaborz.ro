@@ -66,9 +66,12 @@ export type ExtensionPaymentIntentMetadata =
   | PaymentIntentExtensionInstallmentsMetadata
   | PaymentIntentExtensionInstallmentsDepositMetadata
 
-export type PaymentIntentMetadata =
+export type PaymentIntentMetadata = (
   | ProductPaymentIntentMetadata
   | ExtensionPaymentIntentMetadata
+) & {
+  isRenewalPayment?: 'true' | undefined
+}
 
 class StripeServiceImpl {
   public async chargeDeferredPayment({

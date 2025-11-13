@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm'
 import type { Database } from '~/server/database/drizzle'
-
 import * as schema from '~/server/database/schema'
 import { DatesService } from '~/server/services/dates'
 import {
@@ -12,6 +11,7 @@ import { MembershipStatusType } from '~/shared/enums/membership-status-type'
 import { OrderStatusType } from '~/shared/enums/order-status-type'
 import { OrderType } from '~/shared/enums/order-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
+import type { PaymentStatusType } from '~/shared/enums/payment-status'
 import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
 
 /**
@@ -22,6 +22,32 @@ import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
  */
 export class StripeExtensionHandlers {
   constructor(private readonly db: Database) {}
+
+  /**
+   * Updates the status of an extension payment link
+   * @param extensionPaymentLinkId - The ID of the extension payment link
+   * @param status - The new status of the extension payment link
+   */
+  async updateExtensionPaymentLinkStatus(
+    extensionPaymentLinkId: string,
+    status: PaymentStatusType | `${PaymentStatusType}`
+  ) {
+    try {
+      await this.db
+        .update(schema.extension_payment_links)
+        .set({
+          status: status as PaymentStatusType
+        })
+        .where(eq(schema.extension_payment_links.id, extensionPaymentLinkId))
+    } catch (cause) {
+      throw new Error(
+        'StripeExtensionHandlers updateExtensionPaymentLinkStatus error',
+        {
+          cause
+        }
+      )
+    }
+  }
 
   /**
    * Cron handler: Charge final payment for Extension Deposit
