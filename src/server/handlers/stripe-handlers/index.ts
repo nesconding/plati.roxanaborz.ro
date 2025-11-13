@@ -1,11 +1,20 @@
-import type Stripe from 'stripe'
+import { and, lt, notInArray, sql } from 'drizzle-orm'
+import Stripe from 'stripe'
 import { type Database, database } from '~/server/database/drizzle'
+import {
+  extension_payment_links,
+  product_payment_links
+} from '~/server/database/schema'
 import type { PaymentIntentMetadata } from '~/server/services/stripe'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
-import type { PaymentStatusType } from '~/shared/enums/payment-status'
+import { PaymentStatusType } from '~/shared/enums/payment-status'
 import { StripeExtensionHandlers } from './stripe-extension-handlers'
 import { StripeProductHandlers } from './stripe-product-handlers'
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  typescript: true
+})
 
 /**
  * Unified Stripe Handlers
@@ -192,6 +201,141 @@ class StripeHandlersImpl {
       }
     } catch (cause) {
       throw new Error('StripeHandlers paymentIntentOtherStatus error', {
+        cause
+      })
+    }
+  }
+
+  /**
+   * Cron job handler: Cancel expired payment links
+   * Finds all payment links where expiresAt < now() and status is pending
+   * Cancels the Stripe payment intent and updates the status to Expired
+   */
+  async handleCancelExpiredPayments() {
+    const errors: Array<{ id: string; error: string; type: string }> = []
+    let processedCount = 0
+    let successCount = 0
+
+    try {
+      const now = new Date().toISOString()
+
+      // Statuses that should NOT be cancelled (already terminal states)
+      const terminalStatuses = [
+        PaymentStatusType.Expired,
+        PaymentStatusType.Succeeded,
+        PaymentStatusType.Canceled
+      ]
+
+      // Query expired product payment links
+      const expiredProductLinks = await this.db
+        .select({
+          id: product_payment_links.id,
+          stripePaymentIntentId: product_payment_links.stripePaymentIntentId,
+          status: product_payment_links.status,
+          expiresAt: product_payment_links.expiresAt
+        })
+        .from(product_payment_links)
+        .where(
+          and(
+            lt(product_payment_links.expiresAt, now),
+            notInArray(product_payment_links.status, terminalStatuses)
+          )
+        )
+
+      // Query expired extension payment links
+      const expiredExtensionLinks = await this.db
+        .select({
+          id: extension_payment_links.id,
+          stripePaymentIntentId: extension_payment_links.stripePaymentIntentId,
+          status: extension_payment_links.status,
+          expiresAt: extension_payment_links.expiresAt
+        })
+        .from(extension_payment_links)
+        .where(
+          and(
+            lt(extension_payment_links.expiresAt, now),
+            notInArray(extension_payment_links.status, terminalStatuses)
+          )
+        )
+
+      console.log(
+        `[Cron] Found ${expiredProductLinks.length} expired product payment links`
+      )
+      console.log(
+        `[Cron] Found ${expiredExtensionLinks.length} expired extension payment links`
+      )
+
+      // Process expired product payment links
+      for (const link of expiredProductLinks) {
+        processedCount++
+        try {
+          // Cancel the Stripe payment intent
+          await stripe.paymentIntents.cancel(link.stripePaymentIntentId)
+
+          // Update the payment link status to Expired
+          await this.db
+            .update(product_payment_links)
+            .set({ status: PaymentStatusType.Expired })
+            .where(sql`${product_payment_links.id} = ${link.id}`)
+
+          successCount++
+          console.log(
+            `[Cron] Cancelled product payment link ${link.id} (expired at ${link.expiresAt})`
+          )
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error'
+          errors.push({
+            error: errorMessage,
+            id: link.id,
+            type: 'product'
+          })
+          console.error(
+            `[Cron] Failed to cancel product payment link ${link.id}:`,
+            errorMessage
+          )
+        }
+      }
+
+      // Process expired extension payment links
+      for (const link of expiredExtensionLinks) {
+        processedCount++
+        try {
+          // Cancel the Stripe payment intent
+          await stripe.paymentIntents.cancel(link.stripePaymentIntentId)
+
+          // Update the payment link status to Expired
+          await this.db
+            .update(extension_payment_links)
+            .set({ status: PaymentStatusType.Expired })
+            .where(sql`${extension_payment_links.id} = ${link.id}`)
+
+          successCount++
+          console.log(
+            `[Cron] Cancelled extension payment link ${link.id} (expired at ${link.expiresAt})`
+          )
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error'
+          errors.push({
+            error: errorMessage,
+            id: link.id,
+            type: 'extension'
+          })
+          console.error(
+            `[Cron] Failed to cancel extension payment link ${link.id}:`,
+            errorMessage
+          )
+        }
+      }
+
+      return {
+        errors,
+        processedCount,
+        successCount
+      }
+    } catch (cause) {
+      throw new Error('StripeHandlers handleCancelExpiredPayments error', {
         cause
       })
     }
