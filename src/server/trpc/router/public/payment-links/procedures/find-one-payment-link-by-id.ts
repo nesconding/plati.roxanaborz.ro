@@ -1,10 +1,28 @@
 import { TRPCError } from '@trpc/server'
 import z from 'zod'
 import { publicProcedure } from '~/server/trpc/config'
-import { ProductPaymentLinksTableValidators } from '~/shared/validation/tables'
+import {
+  ProductPaymentLinksTableValidators,
+  ProductsExtensionsInstallmentsTableValidators,
+  ProductsExtensionsTableValidators,
+  ProductsInstallmentsTableValidators,
+  ProductsTableValidators
+} from '~/shared/validation/tables'
 
 const input = z.object({ id: z.string() })
-const output = ProductPaymentLinksTableValidators.select.nullable()
+const output = ProductPaymentLinksTableValidators.select
+  .extend({
+    product: ProductsTableValidators.select.extend({
+      extensions: ProductsExtensionsTableValidators.select
+        .extend({
+          installments:
+            ProductsExtensionsInstallmentsTableValidators.select.array()
+        })
+        .array(),
+      installments: ProductsInstallmentsTableValidators.select.array()
+    })
+  })
+  .nullable()
 
 export const findOnePaymentLinkByIdProcedure = publicProcedure
   .input(input)
@@ -17,7 +35,19 @@ export const findOnePaymentLinkByIdProcedure = publicProcedure
             eq(product_payment_links.id, input.id),
             isNull(product_payment_links.deletedAt),
             gte(product_payment_links.expiresAt, new Date().toISOString())
-          )
+          ),
+        with: {
+          product: {
+            with: {
+              extensions: {
+                with: {
+                  installments: true
+                }
+              },
+              installments: true
+            }
+          }
+        }
       })
       return paymentLink ?? null
     } catch (cause) {

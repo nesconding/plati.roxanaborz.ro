@@ -7,6 +7,9 @@ import { VerifyDetailsSection } from '~/client/modules/checkout/checkout-form/st
 
 export const ConfirmationStep = withForm({
   defaultValues,
+  props: {
+    paymentLinkId: ''
+  },
   render: function Render(props) {
     return (
       <FieldGroup>

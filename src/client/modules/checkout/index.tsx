@@ -19,12 +19,12 @@ export function CheckoutModule({ paymentLink }: CheckoutModuleProps) {
   return (
     <ElementsWrapper clientSecret={paymentLink.stripeClientSecret}>
       <div className='flex flex-col gap-4 items-center '>
-        <div className='col-span-6 w-full grid-cols-[1fr_auto_1fr] grid grid-rows-1 p-4 border-b'>
-          <Logo className='col-start-2 w-48 self-center' />
+        <div className='col-span-6 w-full grid-cols-[1fr_auto_1fr] grid grid-rows-1 p-4 border-b fixed top-0 left-0 right-0 z-10 bg-background'>
+          <Logo className='col-start-2 w-36 self-center' />
           <ThemeSelect className='col-start-3 justify-self-end self-center' />
         </div>
 
-        <ScrollArea className='sm:max-w-4xl w-full'>
+        <ScrollArea className='sm:max-w-4xl w-full mt-[calc(--spacing(17)+1px+--spacing(4))]'>
           <CheckoutForm paymentLink={paymentLink} />
         </ScrollArea>
       </div>

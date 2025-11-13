@@ -1245,6 +1245,7 @@ const dictionary = {
           }
         }
       },
+
       checkout: {
         _components: {
           'checkout-form': {
@@ -1330,6 +1331,10 @@ const dictionary = {
               }
             }
           }
+        },
+        callback: {
+          close: 'Puteți închide aceasta paginǎ.',
+          title: 'Plata in valoare de {paidAmount} a fost efectuata cu succes!'
         }
       },
       layout: {

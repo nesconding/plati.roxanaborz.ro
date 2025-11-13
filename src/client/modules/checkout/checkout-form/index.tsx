@@ -105,6 +105,7 @@ function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
         className='col-span-3'
         form={form}
         isLoading={isLoading}
+        paymentLinkId={paymentLink.id}
       />
     </div>
   )

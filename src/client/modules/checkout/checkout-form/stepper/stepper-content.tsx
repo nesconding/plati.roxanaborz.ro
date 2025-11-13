@@ -39,7 +39,8 @@ export const StepperContent = withForm({
   defaultValues: CheckoutFormDefaultValues,
   props: {
     className: '' as string | undefined,
-    isLoading: false
+    isLoading: false,
+    paymentLinkId: ''
   },
   render: function Render(props) {
     const stepper = useStepper()
@@ -134,17 +135,15 @@ export const StepperContent = withForm({
 
           <Stepper.Controls asChild>
             <CardFooter>
-              {!stepper.isLast && (
-                <Button
-                  disabled={stepper.isFirst || props.isLoading}
-                  onClick={stepper.prev}
-                  type='button'
-                  variant='secondary'
-                >
-                  <StepBack />
-                  {t('buttons.previous-step')}
-                </Button>
-              )}
+              <Button
+                disabled={stepper.isFirst || props.isLoading}
+                onClick={stepper.prev}
+                type='button'
+                variant='secondary'
+              >
+                <StepBack />
+                {t('buttons.previous-step')}
+              </Button>
 
               {!stepper.isLast && (
                 <Button onClick={handleOnNext} type='button'>
