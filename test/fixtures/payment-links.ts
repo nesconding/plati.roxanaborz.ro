@@ -1,0 +1,260 @@
+import type {
+  product_payment_links,
+  extension_payment_links
+} from '~/server/database/schema'
+
+type ProductPaymentLink = typeof product_payment_links.$inferSelect
+type ExtensionPaymentLink = typeof extension_payment_links.$inferSelect
+import { PaymentLinkType } from '~/shared/enums/payment-link-type'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
+import { PaymentStatusType } from '~/shared/enums/payment-status'
+import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
+import { PaymentMethodType } from '~/shared/enums/payment-method-type'
+
+/**
+ * Test fixture data for payment links
+ */
+
+export const mockProductPaymentLinkIntegral: ProductPaymentLink = {
+  id: 'ppl_integral_123',
+  productId: 'prod_123',
+  createdById: 'user_regular_123',
+  contractId: 'contract_123',
+  productName: 'Test Product',
+  type: PaymentLinkType.Integral,
+  status: PaymentStatusType.Created,
+  stripePaymentIntentId: 'pi_mock_123',
+  stripeClientSecret: 'pi_mock_123_secret',
+  customerName: 'Test Customer',
+  customerEmail: 'customer@example.com',
+  currency: PaymentCurrencyType.RON,
+  totalAmountToPay: '5000.00',
+  totalAmountToPayInCents: '500000',
+  paymentMethodType: PaymentMethodType.Card,
+  extraTaxRate: '19.00',
+  tvaRate: '19.00',
+  callerName: null,
+  setterName: null,
+  depositAmount: null,
+  depositAmountInCents: null,
+  eurToRonRate: null,
+  firstPaymentDateAfterDeposit: null,
+  productInstallmentAmountToPay: null,
+  productInstallmentAmountToPayInCents: null,
+  productInstallmentId: null,
+  productInstallmentsCount: null,
+  remainingAmountToPay: null,
+  remainingAmountToPayInCents: null,
+  remainingInstallmentAmountToPay: null,
+  remainingInstallmentAmountToPayInCents: null,
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+  deletedAt: null,
+  expiresAt: '2024-01-02T00:00:00.000Z',
+  paymentProductType: PaymentProductType.Product
+}
+
+export const mockProductPaymentLinkDeposit: ProductPaymentLink = {
+  id: 'ppl_deposit_123',
+  productId: 'prod_123',
+  createdById: 'user_regular_123',
+  contractId: 'contract_123',
+  productName: 'Test Product',
+  type: PaymentLinkType.Deposit,
+  status: PaymentStatusType.Created,
+  stripePaymentIntentId: 'pi_mock_deposit_123',
+  stripeClientSecret: 'pi_mock_deposit_123_secret',
+  customerName: 'Test Customer',
+  customerEmail: 'customer@example.com',
+  currency: PaymentCurrencyType.RON,
+  totalAmountToPay: '5000.00',
+  totalAmountToPayInCents: '500000',
+  depositAmount: '1000.00',
+  depositAmountInCents: '100000',
+  remainingAmountToPay: '4000.00',
+  remainingAmountToPayInCents: '400000',
+  firstPaymentDateAfterDeposit: '2024-02-01T00:00:00.000Z',
+  paymentMethodType: PaymentMethodType.Card,
+  extraTaxRate: '19.00',
+  tvaRate: '19.00',
+  callerName: null,
+  setterName: null,
+  eurToRonRate: null,
+  productInstallmentAmountToPay: null,
+  productInstallmentAmountToPayInCents: null,
+  productInstallmentId: null,
+  productInstallmentsCount: null,
+  remainingInstallmentAmountToPay: null,
+  remainingInstallmentAmountToPayInCents: null,
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+  deletedAt: null,
+  expiresAt: '2024-01-02T00:00:00.000Z',
+  paymentProductType: PaymentProductType.Product
+}
+
+export const mockProductPaymentLinkInstallments: ProductPaymentLink = {
+  id: 'ppl_installments_123',
+  productId: 'prod_123',
+  createdById: 'user_regular_123',
+  contractId: 'contract_123',
+  productName: 'Test Product',
+  type: PaymentLinkType.Installments,
+  status: PaymentStatusType.Created,
+  stripePaymentIntentId: 'pi_mock_installments_123',
+  stripeClientSecret: 'pi_mock_installments_123_secret',
+  customerName: 'Test Customer',
+  customerEmail: 'customer@example.com',
+  currency: PaymentCurrencyType.RON,
+  totalAmountToPay: '6000.00',
+  totalAmountToPayInCents: '600000',
+  productInstallmentsCount: 12,
+  productInstallmentAmountToPay: '500.00',
+  productInstallmentAmountToPayInCents: '50000',
+  firstPaymentDateAfterDeposit: '2024-02-01T00:00:00.000Z',
+  paymentMethodType: PaymentMethodType.Card,
+  extraTaxRate: '19.00',
+  tvaRate: '19.00',
+  callerName: null,
+  setterName: null,
+  depositAmount: null,
+  depositAmountInCents: null,
+  eurToRonRate: null,
+  productInstallmentId: null,
+  remainingAmountToPay: null,
+  remainingAmountToPayInCents: null,
+  remainingInstallmentAmountToPay: null,
+  remainingInstallmentAmountToPayInCents: null,
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+  deletedAt: null,
+  expiresAt: '2024-01-02T00:00:00.000Z',
+  paymentProductType: PaymentProductType.Product
+}
+
+export const mockProductPaymentLinkInstallmentsDeposit: ProductPaymentLink = {
+  id: 'ppl_installments_deposit_123',
+  productId: 'prod_123',
+  createdById: 'user_regular_123',
+  contractId: 'contract_123',
+  productName: 'Test Product',
+  type: PaymentLinkType.InstallmentsDeposit,
+  status: PaymentStatusType.Created,
+  stripePaymentIntentId: 'pi_mock_installments_deposit_123',
+  stripeClientSecret: 'pi_mock_installments_deposit_123_secret',
+  customerName: 'Test Customer',
+  customerEmail: 'customer@example.com',
+  currency: PaymentCurrencyType.RON,
+  totalAmountToPay: '6000.00',
+  totalAmountToPayInCents: '600000',
+  depositAmount: '1000.00',
+  depositAmountInCents: '100000',
+  remainingAmountToPay: '5000.00',
+  remainingAmountToPayInCents: '500000',
+  productInstallmentsCount: 12,
+  productInstallmentAmountToPay: '500.00',
+  productInstallmentAmountToPayInCents: '50000',
+  remainingInstallmentAmountToPay: '416.67',
+  remainingInstallmentAmountToPayInCents: '41667',
+  firstPaymentDateAfterDeposit: '2024-02-01T00:00:00.000Z',
+  paymentMethodType: PaymentMethodType.Card,
+  extraTaxRate: '19.00',
+  tvaRate: '19.00',
+  callerName: null,
+  setterName: null,
+  eurToRonRate: null,
+  productInstallmentId: null,
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+  deletedAt: null,
+  expiresAt: '2024-01-02T00:00:00.000Z',
+  paymentProductType: PaymentProductType.Product
+}
+
+export const mockExtensionPaymentLinkIntegral: ExtensionPaymentLink = {
+  id: 'epl_integral_123',
+  extensionId: 'ext_123',
+  createdById: 'user_regular_123',
+  type: PaymentLinkType.Integral,
+  status: PaymentStatusType.Created,
+  stripePaymentIntentId: 'pi_mock_ext_123',
+  stripeClientSecret: 'pi_mock_ext_123_secret',
+  customerName: 'Test Customer',
+  customerEmail: 'customer@example.com',
+  currency: PaymentCurrencyType.RON,
+  totalAmountToPay: '500.00',
+  totalAmountToPayInCents: '50000',
+  membershipId: 'membership_active_123',
+  productName: 'Test Product',
+  paymentMethodType: PaymentMethodType.Card,
+  extraTaxRate: '19.00',
+  tvaRate: '19.00',
+  depositAmount: null,
+  depositAmountInCents: null,
+  eurToRonRate: null,
+  extensionInstallmentAmountToPay: null,
+  extensionInstallmentAmountToPayInCents: null,
+  extensionInstallmentId: null,
+  extensionInstallmentsCount: null,
+  firstPaymentDateAfterDeposit: null,
+  remainingAmountToPay: null,
+  remainingAmountToPayInCents: null,
+  remainingInstallmentAmountToPay: null,
+  remainingInstallmentAmountToPayInCents: null,
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+  deletedAt: null,
+  expiresAt: '2024-01-02T00:00:00.000Z',
+  paymentProductType: PaymentProductType.Extension
+}
+
+export const mockExtensionPaymentLinkDeposit: ExtensionPaymentLink = {
+  id: 'epl_deposit_123',
+  extensionId: 'ext_123',
+  createdById: 'user_regular_123',
+  type: PaymentLinkType.Deposit,
+  status: PaymentStatusType.Created,
+  stripePaymentIntentId: 'pi_mock_ext_deposit_123',
+  stripeClientSecret: 'pi_mock_ext_deposit_123_secret',
+  customerName: 'Test Customer',
+  customerEmail: 'customer@example.com',
+  currency: PaymentCurrencyType.RON,
+  totalAmountToPay: '500.00',
+  totalAmountToPayInCents: '50000',
+  depositAmount: '100.00',
+  depositAmountInCents: '10000',
+  remainingAmountToPay: '400.00',
+  remainingAmountToPayInCents: '40000',
+  firstPaymentDateAfterDeposit: '2024-02-01T00:00:00.000Z',
+  membershipId: 'membership_active_123',
+  productName: 'Test Product',
+  paymentMethodType: PaymentMethodType.Card,
+  extraTaxRate: '19.00',
+  tvaRate: '19.00',
+  eurToRonRate: null,
+  extensionInstallmentAmountToPay: null,
+  extensionInstallmentAmountToPayInCents: null,
+  extensionInstallmentId: null,
+  extensionInstallmentsCount: null,
+  remainingInstallmentAmountToPay: null,
+  remainingInstallmentAmountToPayInCents: null,
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+  deletedAt: null,
+  expiresAt: '2024-01-02T00:00:00.000Z',
+  paymentProductType: PaymentProductType.Extension
+}
+
+export const createMockProductPaymentLink = (
+  overrides?: Partial<ProductPaymentLink>
+): ProductPaymentLink => ({
+  ...mockProductPaymentLinkIntegral,
+  ...overrides
+})
+
+export const createMockExtensionPaymentLink = (
+  overrides?: Partial<ExtensionPaymentLink>
+): ExtensionPaymentLink => ({
+  ...mockExtensionPaymentLinkIntegral,
+  ...overrides
+})
