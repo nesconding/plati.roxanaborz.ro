@@ -24,8 +24,35 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  plati_rb_ro_test:
+    image: postgres:latest
+    container_name: plati_rb_ro_test_db
+    environment:
+      POSTGRES_USER: plati_rb_ro_test_user
+      POSTGRES_PASSWORD: plati_rb_ro_test_password
+      POSTGRES_DB: plati_rb_ro_test_db
+    ports:
+      - "9877:5432"
+    networks:
+      - plati_rb_ro_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plati_rb_ro_test_user -d plati_rb_ro_test_db"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    volumes:
+      - plati_rb_ro_test_data:/data/postgres
+    command: postgres -c listen_addresses='*'
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   plati_rb_ro_data:
+    driver: local
+  plati_rb_ro_test_data:
     driver: local
 
 networks:

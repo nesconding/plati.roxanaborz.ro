@@ -6,13 +6,21 @@
     "incremental": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
     "paths": {
-      "~/*": ["./src/*"],
-      "#test/*": ["./test/*"]
+      "~/*": [
+        "./src/*"
+      ],
+      "#test/*": [
+        "./test/*"
+      ]
     },
     "plugins": [
       {
@@ -23,15 +31,22 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2017",
-    "types": ["@types/bun"]
+    "types": [
+      "@types/bun"
+    ]
   },
-  "exclude": ["node_modules", "src/client/components/ui", "documentation"],
+  "exclude": [
+    "node_modules",
+    "src/client/components/ui",
+    "documentation"
+  ],
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "src/emails/**/*.tsx"
+    "src/emails/**/*.tsx",
+    ".next/dev/dev/types/**/*.ts"
   ]
 }
