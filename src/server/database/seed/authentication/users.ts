@@ -1,5 +1,5 @@
 import { fakerRO } from '@faker-js/faker'
-import { eq, getTableUniqueName, not } from 'drizzle-orm'
+import { eq, getTableUniqueName, inArray, not } from 'drizzle-orm'
 import { database } from '~/server/database/drizzle'
 import { users } from '~/server/database/schema'
 import { formatCount } from '~/server/database/seed/utils'
@@ -30,12 +30,20 @@ const superAdminData = {
   lastName: 'Constantinescu',
   role: UserRoles.SUPER_ADMIN
 }
-const adminData = {
-  email: 'andrei.varut@nescodigital.com',
-  firstName: 'Andrei',
-  lastName: 'Vǎruț',
-  role: UserRoles.ADMIN
-}
+const adminData = [
+  {
+    email: 'andrei.varut@nescodigital.com',
+    firstName: 'Andrei',
+    lastName: 'Vǎruț',
+    role: UserRoles.ADMIN
+  },
+  {
+    email: 'varut.andrei@gmail.com',
+    firstName: 'Andrei',
+    lastName: 'Vǎruț',
+    role: UserRoles.ADMIN
+  }
+]
 
 function createUserData(): Omit<
   typeof users.$inferInsert,
@@ -43,7 +51,7 @@ function createUserData(): Omit<
 >[] {
   const emails = new Set<string>()
 
-  const data: Person[] = [superAdminData, adminData]
+  const data: Person[] = [superAdminData, ...adminData]
 
   for (let i = 0; i < fakerRO.number.int({ max: 50, min: 25 }); i++) {
     let person = generatePerson()
@@ -102,7 +110,12 @@ export async function seedUsers() {
       .set({
         role: UserRoles.ADMIN
       })
-      .where(eq(users.email, adminData.email))
+      .where(
+        inArray(
+          users.email,
+          adminData.map((admin) => admin.email)
+        )
+      )
       .returning()
 
     await database
@@ -111,9 +124,6 @@ export async function seedUsers() {
         invitedById: superAdminUser.id
       })
       .where(not(eq(users.email, superAdminUser.email)))
-    console.log(
-      `Gave ${formatCount(data.length - 1)} users the invitation from me`
-    )
 
     console.log(
       `Seeded ${formatCount(data.length)} ${tableName} in ${Date.now() - start}ms\n`

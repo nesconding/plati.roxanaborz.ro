@@ -166,6 +166,7 @@ export function ElementsWrapper({
   // }, [theme])
 
   if (!loaded) return <LoadingPage />
+  if (!stripe) return <div className='text-center'>Stripe not loaded</div>
 
   return (
     <Elements

@@ -25,9 +25,7 @@ import { PaymentStatusType } from '~/shared/enums/payment-status'
 import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
 import { UserRoles } from '~/shared/enums/user-roles'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-10-29.clover'
-})
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 // Helper to create Stripe customer
 async function createStripeCustomer(
@@ -78,7 +76,9 @@ export async function createProductPaymentLinksData(dependencies: {
   const { products, contracts, paymentsSettings, productsInstallments } =
     dependencies
 
-  const ronSetting = (paymentsSettings as any[]).find((s) => s.currency === 'RON')!
+  const ronSetting = (paymentsSettings as any[]).find(
+    (s) => s.currency === 'RON'
+  )!
 
   const paymentLinks: (typeof product_payment_links.$inferInsert)[] = []
 
@@ -388,10 +388,10 @@ export async function createProductPaymentLinksData(dependencies: {
     if (status === PaymentStatusType.Succeeded) {
       paymentIntent = await stripe.paymentIntents.create({
         amount: priceInCents,
+        confirm: true,
         currency: ronSetting.currency.toLowerCase(),
         customer: stripeCustomer.id,
         metadata: { seedData: 'true', status },
-        confirm: true,
         payment_method: 'pm_card_visa', // Auto-confirm
         return_url: 'https://example.com/return'
       })
@@ -406,10 +406,10 @@ export async function createProductPaymentLinksData(dependencies: {
     } else if (status === PaymentStatusType.RequiresCapture) {
       paymentIntent = await stripe.paymentIntents.create({
         amount: priceInCents,
-        currency: ronSetting.currency.toLowerCase(),
-        customer: stripeCustomer.id,
         capture_method: 'manual',
         confirm: true,
+        currency: ronSetting.currency.toLowerCase(),
+        customer: stripeCustomer.id,
         metadata: { seedData: 'true', status },
         payment_method: 'pm_card_visa',
         return_url: 'https://example.com/return'
@@ -466,7 +466,8 @@ export async function createProductPaymentLinksData(dependencies: {
     const depositAmount = parseFloat(statusProduct.minDepositAmount)
     const remainingAmount = totalPrice - depositAmount
     const depositAmountInCents = PricingService.convertToCents(depositAmount)
-    const remainingAmountInCents = PricingService.convertToCents(remainingAmount)
+    const remainingAmountInCents =
+      PricingService.convertToCents(remainingAmount)
     const totalPriceInCents = PricingService.convertToCents(totalPrice)
 
     const paymentIntent = await createStripePaymentIntent(
@@ -607,7 +608,9 @@ export async function createMembershipsData(
     const paymentLink = paymentLinks.find(
       (pl) => pl.id === order.productPaymentLinkId
     )!
-    const product = (products as any[]).find((p: any) => p.id === paymentLink.productId)!
+    const product = (products as any[]).find(
+      (p: any) => p.id === paymentLink.productId
+    )!
 
     const startDate = new Date()
     const endDate = DatesService.addMonths(
@@ -740,7 +743,9 @@ export async function createProductSubscriptionsData(
     const paymentLink = paymentLinks.find(
       (pl) => pl.id === order.productPaymentLinkId
     )!
-    const membership = membershipsData.find((m) => m.parentOrderId === order.id)!
+    const membership = membershipsData.find(
+      (m) => m.parentOrderId === order.id
+    )!
 
     let remainingPayments: number
     let nextPaymentDate: string
@@ -874,13 +879,11 @@ export async function createExtensionPaymentLinksData(dependencies: {
   paymentsSettings: unknown[]
   productsExtensionsInstallments: unknown[]
 }) {
-  const {
-    productsExtensions,
-    memberships,
-    paymentsSettings
-  } = dependencies
+  const { productsExtensions, memberships, paymentsSettings } = dependencies
 
-  const ronSetting = (paymentsSettings as any[]).find((s: any) => s.currency === 'RON')!
+  const ronSetting = (paymentsSettings as any[]).find(
+    (s: any) => s.currency === 'RON'
+  )!
   const extensionPaymentLinks: (typeof extension_payment_links.$inferInsert)[] =
     []
 
@@ -909,7 +912,9 @@ export async function createExtensionPaymentLinksData(dependencies: {
   )
 
   for (const membership of activeMemberships.slice(0, 2)) {
-    const extension: any = faker.helpers.arrayElement(productsExtensions as any[])
+    const extension: any = faker.helpers.arrayElement(
+      productsExtensions as any[]
+    )
     const customer = generateCustomer()
 
     // Create Stripe customer
