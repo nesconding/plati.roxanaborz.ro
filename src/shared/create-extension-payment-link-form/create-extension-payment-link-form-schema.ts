@@ -5,7 +5,7 @@ import { CreateExtensionPaymentLinkFormSection } from './enums/create-extension-
 
 export const CreateExtensionPaymentLinkFormSchema = z.object({
   [CreateExtensionPaymentLinkFormSection.Extension]: z.object({
-    extensionId: z.string(),
+    extensionId: z.string().nonempty(),
     membershipId: z.string().nonempty()
   }),
   [CreateExtensionPaymentLinkFormSection.PaymentInfo]: z.object({
