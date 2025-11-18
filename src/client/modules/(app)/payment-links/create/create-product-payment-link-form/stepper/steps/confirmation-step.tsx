@@ -27,7 +27,7 @@ export const ConfirmationStep = withForm({
   defaultValues: CreateProductPaymentLinkFormDefaultValues,
   render: function Render({ form }) {
     const t = useTranslations(
-      `modules.(app).payment-links._components.create-payment-link-form.steps.${CreateProductPaymentLinkFormStep.Confirmation}.sections`
+      `modules.(app).payment-links._components.create-product-payment-link-form.steps.${CreateProductPaymentLinkFormStep.Confirmation}.sections`
     )
     const trpc = useTRPC()
     const findAllMeetings = useQuery(

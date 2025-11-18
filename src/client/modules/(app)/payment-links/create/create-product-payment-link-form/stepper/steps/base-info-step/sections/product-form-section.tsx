@@ -27,7 +27,7 @@ export const ProductFormSection = withForm({
   },
   render: function Render({ contracts, form, products }) {
     const t = useTranslations(
-      `modules.(app).payment-links._components.create-payment-link-form.steps.${CreateProductPaymentLinkFormStep.BaseInfo}.forms.${CreateProductPaymentLinkFormSection.Product}`
+      `modules.(app).payment-links._components.create-product-payment-link-form.steps.${CreateProductPaymentLinkFormStep.BaseInfo}.forms.${CreateProductPaymentLinkFormSection.Product}`
     )
 
     return (

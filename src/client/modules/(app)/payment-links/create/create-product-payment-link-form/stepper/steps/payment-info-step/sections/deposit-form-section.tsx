@@ -47,7 +47,7 @@ export const DepositFormSection = withForm({
     products
   }) {
     const t = useTranslations(
-      `modules.(app).payment-links._components.create-payment-link-form.steps.${CreateProductPaymentLinkFormStep.PaymentInfo}.forms.${CreateProductPaymentLinkFormSection.Deposit}`
+      `modules.(app).payment-links._components.create-product-payment-link-form.steps.${CreateProductPaymentLinkFormStep.PaymentInfo}.forms.${CreateProductPaymentLinkFormSection.Deposit}`
     )
 
     const {

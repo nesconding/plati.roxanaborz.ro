@@ -34,7 +34,7 @@ export function CreateProductPaymentLinkForm() {
 
 function CreateProductPaymentLinkFormInner() {
   const t = useTranslations(
-    'modules.(app).payment-links._components.create-payment-link-form'
+    'modules.(app).payment-links._components.create-product-payment-link-form'
   )
   const stepper = useStepper()
   const [createOnePaymentLinkResponse, setCreateOnePaymentLinkResponse] =

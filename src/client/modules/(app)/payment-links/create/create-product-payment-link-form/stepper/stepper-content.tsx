@@ -69,7 +69,7 @@ export const StepperContent = withForm({
   render: function Render(props) {
     const stepper = useStepper()
     const t = useTranslations(
-      'modules.(app).payment-links._components.create-payment-link-form'
+      'modules.(app).payment-links._components.create-product-payment-link-form'
     )
     type Step = (typeof stepper.all)[number]
 

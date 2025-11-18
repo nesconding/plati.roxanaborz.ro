@@ -36,7 +36,7 @@ export function SuccessStep({
 }) {
   const [isUrlCopied, setIsUrlCopied] = useState(false)
   const t = useTranslations(
-    `modules.(app).payment-links._components.create-payment-link-form.steps.${CreateProductPaymentLinkFormStep.Success}`
+    `modules.(app).payment-links._components.create-product-payment-link-form.steps.${CreateProductPaymentLinkFormStep.Success}`
   )
 
   if (!createOnePaymentLinkResponse) return null

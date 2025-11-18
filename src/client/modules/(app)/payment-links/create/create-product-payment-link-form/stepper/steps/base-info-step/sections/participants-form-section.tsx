@@ -54,7 +54,7 @@ export const ParticipantsFormSection = withForm({
   render: function Render({ form, meetings }) {
     const [isOpen, setIsOpen] = useState(false)
     const t = useTranslations(
-      `modules.(app).payment-links._components.create-payment-link-form.steps.${CreateProductPaymentLinkFormStep.BaseInfo}.forms.${CreateProductPaymentLinkFormSection.Participants}`
+      `modules.(app).payment-links._components.create-product-payment-link-form.steps.${CreateProductPaymentLinkFormStep.BaseInfo}.forms.${CreateProductPaymentLinkFormSection.Participants}`
     )
 
     return (
