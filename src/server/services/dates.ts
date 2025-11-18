@@ -11,7 +11,7 @@ import {
 } from 'date-fns'
 import { ro } from 'date-fns/locale'
 
-export class DatesServiceImpl {
+class DatesServiceImpl {
   static PAYMENT_LINK_EXPIRES_AT_HOURS = 24
 
   createPaymentLinkExpiresAt(): Date {

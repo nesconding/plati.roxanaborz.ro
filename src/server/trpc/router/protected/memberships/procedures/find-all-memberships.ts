@@ -1,9 +1,24 @@
 import { protectedProcedure } from '~/server/trpc/config'
 import { UserRoles } from '~/shared/enums/user-roles'
-import { MembershipsTableValidators } from '~/shared/validation/tables'
+import {
+  MembershipsTableValidators,
+  ProductOrdersTableValidators,
+  ProductPaymentLinksTableValidators,
+  ProductsTableValidators
+} from '~/shared/validation/tables'
 
 export const findAllMembershipsProcedure = protectedProcedure
-  .output(MembershipsTableValidators.select.array())
+  .output(
+    MembershipsTableValidators.select
+      .extend({
+        parentOrder: ProductOrdersTableValidators.select.extend({
+          productPaymentLink: ProductPaymentLinksTableValidators.select.extend({
+            product: ProductsTableValidators.select
+          })
+        })
+      })
+      .array()
+  )
   .query(async ({ ctx }) => {
     if (ctx.session.user.role === UserRoles.USER) {
       const [productPaymentLinks, extensionPaymentLinks] = await Promise.all([
@@ -34,12 +49,22 @@ export const findAllMembershipsProcedure = protectedProcedure
           and(
             inArray(memberships.parentOrderId, paymentLinkIds),
             isNull(memberships.deletedAt)
-          )
+          ),
+        with: {
+          parentOrder: {
+            with: { productPaymentLink: { with: { product: true } } }
+          }
+        }
       })
     }
 
     return await ctx.db.query.memberships.findMany({
       orderBy: (memberships, { asc }) => asc(memberships.createdAt),
-      where: (memberships, { isNull }) => isNull(memberships.deletedAt)
+      where: (memberships, { isNull }) => isNull(memberships.deletedAt),
+      with: {
+        parentOrder: {
+          with: { productPaymentLink: { with: { product: true } } }
+        }
+      }
     })
   })
