@@ -44,14 +44,15 @@ import type { TRPCRouterOutput } from '~/client/trpc/react'
 import { CreateProductPaymentLinkFormDefaultValues as defaultValues } from '~/shared/create-product-payment-link-form/create-product-payment-link-form-schema'
 import { CreateProductPaymentLinkFormSection } from '~/shared/create-product-payment-link-form/enums/create-product-payment-link-form-sections'
 
-type Meeting = TRPCRouterOutput['protected']['meetings']['findAll'][number]
+type ScheduledEvent =
+  TRPCRouterOutput['protected']['scheduledEvents']['findAll'][number]
 
 export const ParticipantsFormSection = withForm({
   defaultValues,
   props: {
-    meetings: [] as Meeting[]
+    scheduledEvents: [] as ScheduledEvent[]
   },
-  render: function Render({ form, meetings }) {
+  render: function Render({ form, scheduledEvents }) {
     const [isOpen, setIsOpen] = useState(false)
     const t = useTranslations(
       `modules.(app).payment-links._components.create-product-payment-link-form.steps.${CreateProductPaymentLinkFormStep.BaseInfo}.forms.${CreateProductPaymentLinkFormSection.Participants}`
@@ -64,24 +65,24 @@ export const ParticipantsFormSection = withForm({
 
         <FieldGroup>
           <form.AppField
-            name={`${CreateProductPaymentLinkFormSection.Participants}.meetingId`}
+            name={`${CreateProductPaymentLinkFormSection.Participants}.scheduledEventUri`}
           >
             {(field) => {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid
-              const meeting = meetings.find(
-                (meeting) => meeting.id === field.state.value
+              const scheduledEvent = scheduledEvents.find(
+                (scheduledEvent) => scheduledEvent.id === field.state.value
               )
 
-              function handleOnSelectMeeting(meetingId: string) {
-                field.handleChange(meetingId)
+              function handleOnSelectMeeting(scheduledEventUri: string) {
+                field.handleChange(scheduledEventUri)
                 setIsOpen(false)
               }
 
               return (
                 <Field data-invalid={isInvalid}>
                   <FieldLabel className='w-fit! gap-0.5' htmlFor={field.name}>
-                    {t('fields.meetingId.title')}
+                    {t('fields.scheduledEventUri.title')}
                     <RequiredMarker />
                   </FieldLabel>
 
@@ -100,16 +101,17 @@ export const ParticipantsFormSection = withForm({
                       >
                         <div className='flex w-full items-center gap-2'>
                           <CalendarClock className='text-muted-foreground' />
-                          {meeting ? (
+                          {scheduledEvent ? (
                             <div className='flex w-[calc(100%-(--spacing(4))-(--spacing(2))-(--spacing(4))-(--spacing(2)))] items-center justify-between gap-2 text-sm'>
                               <p className='h-[calc(--spacing(4)+(--spacing(1))/2)] font-normal'>
-                                {meeting.participant_names}
+                                {scheduledEvent.participant_names}
                               </p>
 
                               <p className='text-muted-foreground line-clamp-1 h-[calc(--spacing(4)+(--spacing(1))/2)] font-normal overflow-ellipsis whitespace-nowrap'>
                                 <span className='capitalize'>
                                   {format(
-                                    Number(meeting.meeting_start_at) * 1000,
+                                    Number(scheduledEvent.meeting_start_at) *
+                                      1000,
                                     'PPP',
                                     {
                                       locale: ro
@@ -117,7 +119,8 @@ export const ParticipantsFormSection = withForm({
                                   )}
                                 </span>
                                 <span>{` la ${format(
-                                  Number(meeting.meeting_start_at) * 1000,
+                                  Number(scheduledEvent.meeting_start_at) *
+                                    1000,
                                   'HH:mm',
                                   {
                                     locale: ro
@@ -127,7 +130,7 @@ export const ParticipantsFormSection = withForm({
                             </div>
                           ) : (
                             <p className='text-muted-foreground line-clamp-1 font-normal overflow-ellipsis whitespace-nowrap'>
-                              {t('fields.meetingId.placeholder')}
+                              {t('fields.scheduledEventUri.placeholder')}
                             </p>
                           )}
                           <ChevronDown className='text-muted-foreground ml-auto opacity-50' />
@@ -143,47 +146,49 @@ export const ParticipantsFormSection = withForm({
                         <CommandInput
                           autoFocus={true}
                           className='h-9 text-base md:text-sm'
-                          placeholder={t('fields.meetingId.values.placeholder')}
+                          placeholder={t(
+                            'fields.scheduledEventUri.values.placeholder'
+                          )}
                         />
                         <CommandList>
                           <CommandEmpty>
-                            {t('fields.meetingId.values.not-found')}
+                            {t('fields.scheduledEventUri.values.not-found')}
                           </CommandEmpty>
                           <CommandGroup>
-                            {meetings.map((meeting) => (
+                            {scheduledEvents.map((scheduledEvent) => (
                               <CommandItem
                                 asChild
-                                key={meeting.id}
+                                key={scheduledEvent.id}
                                 onSelect={() =>
-                                  handleOnSelectMeeting(meeting.id)
+                                  handleOnSelectMeeting(scheduledEvent.id)
                                 }
                               >
                                 <Item className='w-full p-2' size='sm'>
                                   <ItemHeader>
-                                    <ItemTitle>{meeting.name}</ItemTitle>
+                                    <ItemTitle>{scheduledEvent.name}</ItemTitle>
                                     <Badge
                                       className={cn({
                                         'bg-green-700 text-white dark:bg-green-800':
-                                          meeting.status === 'active'
+                                          scheduledEvent.status === 'active'
                                       })}
                                       variant={
-                                        meeting.status === 'canceled'
+                                        scheduledEvent.status === 'canceled'
                                           ? 'destructive'
                                           : 'default'
                                       }
                                     >
                                       {t(
-                                        `fields.meetingId.values.status.${meeting.status}`
+                                        `fields.scheduledEventUri.values.status.${scheduledEvent.status}`
                                       )}
                                     </Badge>
                                   </ItemHeader>
 
                                   <ItemContent className='gap-0.5'>
                                     <ItemTitle>
-                                      {meeting.participant_names}
+                                      {scheduledEvent.participant_names}
                                     </ItemTitle>
                                     <ItemDescription>
-                                      {meeting.participant_emails}
+                                      {scheduledEvent.participant_emails}
                                     </ItemDescription>
                                   </ItemContent>
 
@@ -191,8 +196,9 @@ export const ParticipantsFormSection = withForm({
                                     <ItemDescription>
                                       <span className='capitalize'>
                                         {format(
-                                          Number(meeting.meeting_start_at) *
-                                            1000,
+                                          Number(
+                                            scheduledEvent.meeting_start_at
+                                          ) * 1000,
                                           'PPP',
                                           {
                                             locale: ro
@@ -200,7 +206,9 @@ export const ParticipantsFormSection = withForm({
                                         )}
                                       </span>
                                       <span>{` la ${format(
-                                        Number(meeting.meeting_start_at) * 1000,
+                                        Number(
+                                          scheduledEvent.meeting_start_at
+                                        ) * 1000,
                                         'HH:mm',
                                         {
                                           locale: ro
@@ -212,7 +220,7 @@ export const ParticipantsFormSection = withForm({
                                   <Check
                                     className={cn(
                                       'ml-auto',
-                                      field.state.value === meeting.id
+                                      field.state.value === scheduledEvent.id
                                         ? 'opacity-100'
                                         : 'opacity-0'
                                     )}

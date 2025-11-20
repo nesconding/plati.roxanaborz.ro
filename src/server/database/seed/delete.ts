@@ -17,6 +17,9 @@ async function deleteSchemas() {
     ),
     await database.execute(
       sql`DROP SCHEMA IF EXISTS ${schemas.product} CASCADE;`
+    ),
+    await database.execute(
+      sql`DROP SCHEMA IF EXISTS ${schemas.calendly} CASCADE;`
     )
   ])
 

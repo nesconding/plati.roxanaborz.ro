@@ -21,6 +21,7 @@
     "lint": "biome check",
     "lint:fix": "biome format --write",
     "start": "next start",
+    "setup:calendly": "bun run ./scripts/calendly-setup.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",

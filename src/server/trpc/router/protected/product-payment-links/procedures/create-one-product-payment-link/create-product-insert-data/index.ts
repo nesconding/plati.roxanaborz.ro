@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server'
 import type { database } from '~/server/database/drizzle'
 import { DatesService } from '~/server/services/dates'
-import { MeetingsService } from '~/server/services/meetings'
+
 import {
   createProductPaymentLinkDepositInsertData,
   type ProductPaymentLinkDepositInsertData
@@ -37,9 +37,12 @@ export async function createProductPaymentLinkInsertData({
   db: typeof database
   user: typeof UsersTableValidators.$types.select
 }): Promise<ProductPaymentLinkInsertData> {
-  const [constants, meeting, product, setting] = await Promise.all([
+  const [constants, scheduledEvent, product, setting] = await Promise.all([
     db.query.constants.findFirst(),
-    MeetingsService.findOneMeetingById(data.meetingId),
+    db.query.calendly_scheduled_events.findFirst({
+      where: (calendly_scheduled_events, { eq }) =>
+        eq(calendly_scheduled_events.uri, data.scheduledEventUri)
+    }),
     db.query.products.findFirst({
       where: (products, { eq }) => eq(products.id, data.productId)
     }),
@@ -63,10 +66,10 @@ export async function createProductPaymentLinkInsertData({
     })
   }
 
-  if (!meeting) {
+  if (!scheduledEvent) {
     throw new TRPCError({
       code: 'NOT_FOUND',
-      message: 'Meeting not found'
+      message: 'ScheduledEvent not found'
     })
   }
 
@@ -85,8 +88,8 @@ export async function createProductPaymentLinkInsertData({
         data,
         eurToRonRate: constants.eurToRonRate,
         expiresAt,
-        meeting,
         product,
+        scheduledEvent,
         setting,
         user
       })
@@ -112,8 +115,8 @@ export async function createProductPaymentLinkInsertData({
         eurToRonRate: constants.eurToRonRate,
         expiresAt,
         firstPaymentDateAfterDepositOption,
-        meeting,
         product,
+        scheduledEvent,
         setting,
         user
       })
@@ -136,8 +139,8 @@ export async function createProductPaymentLinkInsertData({
         data,
         eurToRonRate: constants.eurToRonRate,
         expiresAt,
-        meeting,
         product,
+        scheduledEvent,
         setting,
         user
       })
@@ -176,8 +179,8 @@ export async function createProductPaymentLinkInsertData({
         eurToRonRate: constants.eurToRonRate,
         expiresAt,
         firstPaymentDateAfterDepositOption,
-        meeting,
         product,
+        scheduledEvent,
         setting,
         user
       })

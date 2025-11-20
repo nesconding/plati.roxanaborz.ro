@@ -50,8 +50,8 @@ function CreateProductPaymentLinkFormInner() {
   const getEURToRONRate = useQuery(
     trpc.protected.settings.getEURToRONRate.queryOptions()
   )
-  const findAllMeetings = useQuery(
-    trpc.protected.meetings.findAll.queryOptions()
+  const findAllScheduledEvents = useQuery(
+    trpc.protected.scheduledEvents.findAll.queryOptions()
   )
   const findAllPaymentSettings = useQuery(
     trpc.protected.settings.findAllPaymentSettings.queryOptions()
@@ -123,7 +123,7 @@ function CreateProductPaymentLinkFormInner() {
     !findAllContracts.data ||
     !findAllFirstPaymentDateAfterDepositOptions.data ||
     !getEURToRONRate.data ||
-    !findAllMeetings.data ||
+    !findAllScheduledEvents.data ||
     !findAllPaymentSettings.data ||
     !findAllProducts.data
   ) {
@@ -153,10 +153,10 @@ function CreateProductPaymentLinkFormInner() {
         }
         form={form}
         isLoading={isLoading}
-        meetings={findAllMeetings.data}
         onReset={handleOnReset}
         paymentSettings={findAllPaymentSettings.data}
         products={findAllProducts.data}
+        scheduledEvents={findAllScheduledEvents.data}
       />
     </div>
   )

@@ -1,6 +1,6 @@
 import { PricingService } from '~/lib/pricing'
 import { DatesService } from '~/server/services/dates'
-import type { Meeting } from '~/server/services/meetings'
+import type { ScheduledEvent } from '~/server/services/scheduledEvents'
 import type { CreateProductPaymentLinkDepositFormData } from '~/shared/create-product-payment-link-form/data'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
@@ -46,7 +46,7 @@ export function createProductPaymentLinkDepositInsertData({
   eurToRonRate,
   expiresAt,
   firstPaymentDateAfterDepositOption,
-  meeting,
+  scheduledEvent,
   product,
   setting,
   user
@@ -55,7 +55,7 @@ export function createProductPaymentLinkDepositInsertData({
   eurToRonRate: string
   expiresAt: Date
   firstPaymentDateAfterDepositOption: typeof FirstPaymentDateAfterDepositOptionsTableValidators.$types.select
-  meeting: Meeting
+  scheduledEvent: ScheduledEvent
   product: typeof ProductsTableValidators.$types.select
   setting: typeof PaymentsSettingsTableValidators.$types.select
   user: typeof UsersTableValidators.$types.select
@@ -87,8 +87,8 @@ export function createProductPaymentLinkDepositInsertData({
     contractId: data.contractId,
     createdById: user.id,
     currency: setting.currency,
-    customerEmail: meeting.participant_emails,
-    customerName: meeting.participant_names,
+    customerEmail: scheduledEvent.participant_emails,
+    customerName: scheduledEvent.participant_names,
     depositAmount: data.depositAmount,
     depositAmountInCents: depositAmountInCents.toString(),
     eurToRonRate: eurToRonRate,

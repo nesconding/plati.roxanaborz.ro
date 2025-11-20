@@ -5,7 +5,7 @@ import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 export const CreateProductPaymentLinkFormSchema = z.object({
   [CreateProductPaymentLinkFormSection.Participants]: z.object({
     callerName: z.string(),
-    meetingId: z.string().nonempty(),
+    scheduledEventUri: z.string().nonempty(),
     setterName: z.string()
   }),
   [CreateProductPaymentLinkFormSection.Product]: z.object({
@@ -34,7 +34,7 @@ export const CreateProductPaymentLinkFormDefaultValues: CreateProductPaymentLink
   {
     [CreateProductPaymentLinkFormSection.Participants]: {
       callerName: '',
-      meetingId: '',
+      scheduledEventUri: '',
       setterName: ''
     },
     [CreateProductPaymentLinkFormSection.Product]: {

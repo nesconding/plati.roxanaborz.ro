@@ -4,7 +4,7 @@ import type { PaymentMethodType } from '~/shared/enums/payment-method-type'
 export type CreateProductPaymentLinkIntegralFormData = {
   callerName: string
   contractId: string
-  meetingId: string
+  scheduledEventUri: string
   paymentMethodType: PaymentMethodType
   paymentSettingId: string
   productId: string
@@ -18,7 +18,7 @@ export type CreateProductPaymentLinkDepositFormData = {
   depositAmount: string
   firstPaymentDateAfterDepositOptionId: string
   hasDeposit: true
-  meetingId: string
+  scheduledEventUri: string
   paymentMethodType: PaymentMethodType
   paymentSettingId: string
   productId: string
@@ -31,7 +31,7 @@ export type CreateProductPaymentLinkInstallmentsFormData = {
   contractId: string
   hasInstallments: true
   productInstallmentId: string
-  meetingId: string
+  scheduledEventUri: string
   paymentMethodType: PaymentMethodType
   paymentSettingId: string
   productId: string
@@ -47,7 +47,7 @@ export type CreateProductPaymentLinkInstallmentsDepositFormData = {
   hasDeposit: true
   hasInstallments: true
   productInstallmentId: string
-  meetingId: string
+  scheduledEventUri: string
   paymentMethodType: PaymentMethodType
   paymentSettingId: string
   productId: string

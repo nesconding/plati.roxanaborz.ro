@@ -1,5 +1,5 @@
 import { PricingService } from '~/lib/pricing'
-import type { Meeting } from '~/server/services/meetings'
+import type { ScheduledEvent } from '~/server/services/scheduledEvents'
 import type { CreateProductPaymentLinkInstallmentsFormData } from '~/shared/create-product-payment-link-form/data'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
@@ -44,7 +44,7 @@ export function createProductPaymentLinkInstallmentsInsertData({
   eurToRonRate,
   baseProductInstallment,
   expiresAt,
-  meeting,
+  scheduledEvent,
   product,
   setting,
   user
@@ -53,7 +53,7 @@ export function createProductPaymentLinkInstallmentsInsertData({
   eurToRonRate: string
   baseProductInstallment: typeof ProductsInstallmentsTableValidators.$types.select
   expiresAt: Date
-  meeting: Meeting
+  scheduledEvent: ScheduledEvent
   product: typeof ProductsTableValidators.$types.select
   setting: typeof PaymentsSettingsTableValidators.$types.select
   user: typeof UsersTableValidators.$types.select
@@ -83,8 +83,8 @@ export function createProductPaymentLinkInstallmentsInsertData({
     contractId: data.contractId,
     createdById: user.id,
     currency: setting.currency,
-    customerEmail: meeting.participant_emails,
-    customerName: meeting.participant_names,
+    customerEmail: scheduledEvent.participant_emails,
+    customerName: scheduledEvent.participant_names,
     eurToRonRate: eurToRonRate,
     expiresAt: expiresAt.toISOString(),
     extraTaxRate: setting.extraTaxRate,
