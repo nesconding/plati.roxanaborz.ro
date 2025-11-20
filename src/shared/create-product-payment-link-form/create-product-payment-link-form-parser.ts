@@ -14,7 +14,7 @@ import { CreateProductPaymentLinkFormSection } from './enums/create-product-paym
 // Participants
 const participantsSchema = z.object({
   callerName: z.string(),
-  meetingId: z.string().nonempty(),
+  scheduledEventUri: z.string().nonempty(),
   setterName: z.string()
 })
 
@@ -224,9 +224,6 @@ export namespace CreateProductPaymentLinkFormParser {
               .callerName,
           contractId:
             result.data[CreateProductPaymentLinkFormSection.Product].contractId,
-          meetingId:
-            result.data[CreateProductPaymentLinkFormSection.Participants]
-              .meetingId,
           paymentMethodType:
             result.data[CreateProductPaymentLinkFormSection.PaymentInfo]
               .paymentMethodType,
@@ -235,6 +232,9 @@ export namespace CreateProductPaymentLinkFormParser {
               .paymentSettingId,
           productId:
             result.data[CreateProductPaymentLinkFormSection.Product].productId,
+          scheduledEventUri:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .scheduledEventUri,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,
@@ -261,9 +261,6 @@ export namespace CreateProductPaymentLinkFormParser {
               .firstPaymentDateAfterDepositOptionId,
           hasDeposit:
             result.data[CreateProductPaymentLinkFormSection.Deposit].hasDeposit,
-          meetingId:
-            result.data[CreateProductPaymentLinkFormSection.Participants]
-              .meetingId,
           paymentMethodType:
             result.data[CreateProductPaymentLinkFormSection.PaymentInfo]
               .paymentMethodType,
@@ -272,6 +269,9 @@ export namespace CreateProductPaymentLinkFormParser {
               .paymentSettingId,
           productId:
             result.data[CreateProductPaymentLinkFormSection.Product].productId,
+          scheduledEventUri:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .scheduledEventUri,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,
@@ -293,9 +293,6 @@ export namespace CreateProductPaymentLinkFormParser {
           hasInstallments:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .hasInstallments,
-          meetingId:
-            result.data[CreateProductPaymentLinkFormSection.Participants]
-              .meetingId,
           paymentMethodType:
             result.data[CreateProductPaymentLinkFormSection.PaymentInfo]
               .paymentMethodType,
@@ -307,6 +304,9 @@ export namespace CreateProductPaymentLinkFormParser {
           productInstallmentId:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .productInstallmentId,
+          scheduledEventUri:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .scheduledEventUri,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,
@@ -336,9 +336,6 @@ export namespace CreateProductPaymentLinkFormParser {
           hasInstallments:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .hasInstallments,
-          meetingId:
-            result.data[CreateProductPaymentLinkFormSection.Participants]
-              .meetingId,
           paymentMethodType:
             result.data[CreateProductPaymentLinkFormSection.PaymentInfo]
               .paymentMethodType,
@@ -350,6 +347,9 @@ export namespace CreateProductPaymentLinkFormParser {
           productInstallmentId:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .productInstallmentId,
+          scheduledEventUri:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .scheduledEventUri,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,

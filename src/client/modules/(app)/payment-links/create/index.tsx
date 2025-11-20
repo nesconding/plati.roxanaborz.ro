@@ -26,7 +26,9 @@ export async function ProductPaymentLinksCreatePageModule() {
     queryClient.ensureQueryData(
       trpc.protected.settings.findAllPaymentSettings.queryOptions()
     ),
-    queryClient.ensureQueryData(trpc.protected.meetings.findAll.queryOptions())
+    queryClient.ensureQueryData(
+      trpc.protected.scheduledEvents.findAll.queryOptions()
+    )
   ])
 
   return (

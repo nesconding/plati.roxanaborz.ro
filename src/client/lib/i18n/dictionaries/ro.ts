@@ -1627,12 +1627,16 @@ const dictionary = {
                 title: 'Link-ul de plată a fost creat'
               }
             },
-            'select-product-and-meeting': {
+            'select-product-and-scheduledEvent': {
               description:
                 'Alege un produs și o întâlnire pentru care se va crea link-ul de plată.',
 
               fields: {
-                'meeting-select': {
+                'product-select': {
+                  placeholder: 'Selecteazǎ un produs',
+                  title: 'Alege un produs'
+                },
+                'scheduledEvent-select': {
                   placeholder: 'Selecteazǎ o întâlnire',
                   title: 'Alege o întâlnire',
                   values: {
@@ -1643,10 +1647,6 @@ const dictionary = {
                       canceled: 'Anulatǎ'
                     }
                   }
-                },
-                'product-select': {
-                  placeholder: 'Selecteazǎ un produs',
-                  title: 'Alege un produs'
                 }
               },
               legend: 'Alege un produs și o întâlnire'
@@ -1766,7 +1766,7 @@ const dictionary = {
                 description: 'Link-ul de plată a fost creat cu succes.',
                 title: 'Link-ul de plată a fost creat'
               }
-            },
+            }
 
             steps: {
               [CreateExtensionPaymentLinkFormStep.BaseInfo]: {
@@ -1819,7 +1819,7 @@ const dictionary = {
                   //       placeholder: 'Introduceți numele caller-ului',
                   //       title: 'Nume caller'
                   //     },
-                  //     meetingId: {
+                  //     scheduledEventUri: {
                   //       placeholder: 'Selecteazǎ o întâlnire',
                   //       title: 'Alege o întâlnire',
                   //       values: {
@@ -2110,7 +2110,7 @@ const dictionary = {
                         placeholder: 'Introduceți numele caller-ului',
                         title: 'Nume caller'
                       },
-                      meetingId: {
+                      scheduledEventUri: {
                         placeholder: 'Selecteazǎ o întâlnire',
                         title: 'Alege o întâlnire',
                         values: {

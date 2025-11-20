@@ -30,8 +30,8 @@ export const ConfirmationStep = withForm({
       `modules.(app).payment-links._components.create-product-payment-link-form.steps.${CreateProductPaymentLinkFormStep.Confirmation}.sections`
     )
     const trpc = useTRPC()
-    const findAllMeetings = useQuery(
-      trpc.protected.meetings.findAll.queryOptions()
+    const findAllScheduledEvents = useQuery(
+      trpc.protected.scheduledEvents.findAll.queryOptions()
     )
     const findAllProducts = useQuery(
       trpc.protected.products.findAll.queryOptions()
@@ -54,8 +54,8 @@ export const ConfirmationStep = withForm({
     // Participants
     const participants =
       form.state.values[CreateProductPaymentLinkFormSection.Participants]
-    const meeting = findAllMeetings.data?.find(
-      (meeting) => meeting.id === participants.meetingId
+    const scheduledEvent = findAllScheduledEvents.data?.find(
+      (scheduledEvent) => scheduledEvent.id === participants.scheduledEventUri
     )
 
     const callerName =
@@ -135,14 +135,14 @@ export const ConfirmationStep = withForm({
             <Item className='py-0 col-span-2'>
               <ItemHeader>{t('participants.items.client-name')}</ItemHeader>
               <ItemContent>
-                <ItemTitle>{meeting?.participant_names}</ItemTitle>
+                <ItemTitle>{scheduledEvent?.participant_names}</ItemTitle>
               </ItemContent>
             </Item>
 
             <Item className='py-0 col-span-2'>
               <ItemHeader>{t('participants.items.client-email')}</ItemHeader>
               <ItemContent>
-                <ItemTitle>{meeting?.participant_emails}</ItemTitle>
+                <ItemTitle>{scheduledEvent?.participant_emails}</ItemTitle>
               </ItemContent>
             </Item>
 

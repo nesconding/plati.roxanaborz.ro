@@ -9,6 +9,7 @@ This is a Next.js 16 payment management application built with React 19, tRPC, D
 ## Development Commands
 
 ### Running the Application
+
 ```bash
 bun dev                    # Start Next.js dev server on port 9090 with turbopack
 bun run build              # Build the application for production
@@ -16,6 +17,7 @@ bun start                  # Start production server
 ```
 
 ### Database Management
+
 ```bash
 bun db:studio              # Open Drizzle Studio on port 9091 for DB inspection
 bun db:generate            # Generate migrations from schema changes (also applies triggers)
@@ -29,6 +31,7 @@ bun db:apply-triggers      # Apply SQL triggers to latest migration
 **Important**: The `db:generate` command automatically runs `db:apply-triggers` after generating migrations. Custom SQL triggers in `src/server/database/triggers/*.sql` are automatically appended to the latest migration file.
 
 ### Email Development
+
 ```bash
 bun email:dev              # Start email preview server for development
 bun email:build            # Build email templates
@@ -36,12 +39,14 @@ bun email:export           # Export email templates
 ```
 
 ### Docker
+
 ```bash
 bun docker:start           # Start Docker containers (likely PostgreSQL)
 bun docker:stop            # Stop Docker containers
 ```
 
 ### Code Quality
+
 ```bash
 bun lint                   # Check code with Biome
 bun lint:fix               # Format and fix code with Biome
@@ -94,7 +99,7 @@ src/
 │   │   ├── authentication/       # Better Auth configuration
 │   │   ├── stripe.ts             # Stripe integration
 │   │   ├── email.ts              # Email service (Resend)
-│   │   ├── meetings.ts           # Calendly integration
+│   │   ├── scheduledEvents.ts           # Calendly integration
 │   │   └── dates.ts              # Date utilities
 │   └── handlers/                 # Request handlers
 ├── emails/                       # React Email templates
@@ -110,6 +115,7 @@ src/
 ### Tech Stack
 
 **Frontend:**
+
 - Next.js 16 (App Router) with React 19
 - TypeScript with strict mode
 - Tailwind CSS v4 (PostCSS)
@@ -120,6 +126,7 @@ src/
 - next-intl for internationalization (Romanian locale)
 
 **Backend:**
+
 - tRPC for type-safe APIs
 - Drizzle ORM with PostgreSQL
 - Better Auth for authentication (magic links, phone verification)
@@ -128,6 +135,7 @@ src/
 - Vercel Blob for file storage
 
 **Dev Tools:**
+
 - Bun runtime and package manager
 - Biome for linting/formatting
 - Drizzle Studio for database inspection
@@ -162,6 +170,7 @@ SQL triggers are stored in `src/server/database/triggers/*.sql` and automaticall
 #### 4. Form Management
 
 Forms use a shared pattern:
+
 - Schema defined in `src/shared/*-form/*-schema.ts` (Zod)
 - Parser in `src/shared/*-form/*-parser.ts` (transforms form data)
 - Client component uses TanStack Form
@@ -170,20 +179,23 @@ Forms use a shared pattern:
 #### 5. Module Structure
 
 Client-side features are organized as modules in `src/client/modules/`, typically containing:
+
 - `index.tsx`: Main component/page
 - `_components/`: Feature-specific components (prefixed with `_` to indicate private)
 
 #### 6. Path Aliases
 
 Use `~/` prefix for all imports (configured in `tsconfig.json`):
+
 ```typescript
-import { database } from '~/server/database/drizzle'
-import { Button } from '~/client/components/ui/button'
+import { database } from "~/server/database/drizzle";
+import { Button } from "~/client/components/ui/button";
 ```
 
 #### 7. Authentication
 
 Authentication is powered by Better Auth with:
+
 - Magic link authentication (via Resend)
 - Phone number verification (OTP)
 - Change email functionality
@@ -195,11 +207,12 @@ Authentication is powered by Better Auth with:
 #### 8. Environment Variables
 
 Required environment variables (see `.env.example`):
+
 - `DATABASE_URL`: PostgreSQL connection string
 - `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`: Authentication config
 - `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLIC_KEY`, `STRIPE_WEBHOOK_SECRET`: Stripe
 - `RESEND_SENDER_EMAIL`, `RESEND_TOKEN`: Email sending
-- `CALENDLY_TOKEN`: Meeting scheduling
+- `CALENDLY_TOKEN`: ScheduledEvent scheduling
 - `BLOB_READ_WRITE_TOKEN`: Vercel Blob storage
 - `CRON_SECRET`: Cron job authentication
 
@@ -217,6 +230,7 @@ Required environment variables (see `.env.example`):
 ## Testing Changes
 
 When making database changes:
+
 1. Modify schema in `src/server/database/schema/`
 2. Run `bun db:generate` to create migration
 3. Review generated migration in `src/server/database/drizzle/`
@@ -224,6 +238,7 @@ When making database changes:
 5. Update seed scripts if needed, then `bun db:seed`
 
 When adding new tRPC procedures:
+
 1. Create procedure in appropriate router (public/protected/admin)
 2. Use correct procedure type based on auth requirements
 3. Client-side access via `useTRPC()` hook from `~/client/trpc/react`

@@ -46,7 +46,8 @@ type CreateOnePaymentLink =
   TRPCRouterOutput['protected']['productPaymentLinks']['createOne']
 type FirstPaymentDateAfterDepositOption =
   TRPCRouterOutput['protected']['settings']['findAllFirstPaymentDateAfterDepositOptions'][number]
-type Meeting = TRPCRouterOutput['protected']['meetings']['findAll'][number]
+type ScheduledEvent =
+  TRPCRouterOutput['protected']['scheduledEvents']['findAll'][number]
 type PaymentSetting =
   TRPCRouterOutput['protected']['settings']['findAllPaymentSettings'][number]
 type Product = TRPCRouterOutput['protected']['products']['findAll'][number]
@@ -61,10 +62,10 @@ export const StepperContent = withForm({
     firstPaymentDateAfterDepositOptions:
       [] as FirstPaymentDateAfterDepositOption[],
     isLoading: false,
-    meetings: [] as Meeting[],
     onReset: undefined as (() => void) | undefined,
     paymentSettings: [] as PaymentSetting[],
-    products: [] as Product[]
+    products: [] as Product[],
+    scheduledEvents: [] as ScheduledEvent[]
   },
   render: function Render(props) {
     const stepper = useStepper()

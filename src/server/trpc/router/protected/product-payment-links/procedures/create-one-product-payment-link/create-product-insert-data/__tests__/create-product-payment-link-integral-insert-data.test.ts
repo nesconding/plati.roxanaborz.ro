@@ -1,23 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import {
-  createProductPaymentLinkIntegralInsertData,
-  type ProductPaymentLinkIntegralInsertData
-} from '../create-product-payment-link-integral-insert-data'
-import { mockRegularUser } from '#test/fixtures/users'
 import { mockPaymentSettings } from '#test/fixtures/payment-settings'
-import { createMockMeeting } from '#test/fixtures/meetings'
+import { createMockMeeting } from '#test/fixtures/scheduledEvents'
+import { mockRegularUser } from '#test/fixtures/users'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
 import { PaymentStatusType } from '~/shared/enums/payment-status'
+import {
+  createProductPaymentLinkIntegralInsertData,
+  type ProductPaymentLinkIntegralInsertData
+} from '../create-product-payment-link-integral-insert-data'
 
 describe('createProductPaymentLinkIntegralInsertData', () => {
   const mockProduct = {
     id: 'prod_123',
+    membershipDurationMonths: 12,
     name: 'Test Product',
-    price: '1000.00',
-    membershipDurationMonths: 12
+    price: '1000.00'
   }
 
   const mockSetting = {
@@ -28,13 +28,13 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
   }
 
   const mockFormData = {
-    productId: 'prod_123',
     callerName: 'John Caller',
-    setterName: 'Jane Setter',
     contractId: 'contract_123',
     paymentMethodType: PaymentMethodType.Card,
-    meetingId: 'meeting_123',
     paymentSettingId: 'settings_123',
+    productId: 'prod_123',
+    scheduledEventUri: 'meeting_123',
+    setterName: 'Jane Setter',
     type: PaymentLinkType.Integral as const
   }
 
@@ -46,8 +46,8 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
       data: mockFormData,
       eurToRonRate,
       expiresAt,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -68,7 +68,7 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
     expect(result.productId).toBe('prod_123')
     expect(result.productName).toBe('Test Product')
 
-    // Verify customer data from meeting
+    // Verify customer data from scheduledEvent
     expect(result.customerEmail).toBe('test@example.com')
     expect(result.customerName).toBe('Test Customer')
 
@@ -91,8 +91,8 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
       data: mockFormData,
       eurToRonRate,
       expiresAt,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -114,8 +114,8 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
       data: mockFormData,
       eurToRonRate,
       expiresAt,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: eurSetting as any,
       user: mockRegularUser as any
     })
@@ -140,8 +140,8 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
       data: mockFormData,
       eurToRonRate,
       expiresAt,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: noTaxSetting as any,
       user: mockRegularUser as any
     })
@@ -162,8 +162,8 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
       data: mockFormData,
       eurToRonRate,
       expiresAt,
-      meeting: createMockMeeting(),
       product: expensiveProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -180,8 +180,8 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
       data: mockFormData,
       eurToRonRate: '4.95',
       expiresAt,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -205,8 +205,8 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
       data: bankTransferFormData,
       eurToRonRate,
       expiresAt,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -219,8 +219,8 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
       data: mockFormData,
       eurToRonRate,
       expiresAt,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -248,7 +248,7 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
       'totalAmountToPayInCents'
     ]
 
-    requiredFields.forEach(field => {
+    requiredFields.forEach((field) => {
       expect(result).toHaveProperty(field)
       expect(result[field]).toBeDefined()
     })
