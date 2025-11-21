@@ -542,6 +542,7 @@ export async function createProductOrdersData(
       customerEmail: paymentLink.customerEmail,
       customerName: paymentLink.customerName!,
       id: createId(),
+      productName: paymentLink.productName,
       productPaymentLinkId: paymentLink.id,
       status: OrderStatusType.Completed,
       stripePaymentIntentId: paymentLink.stripePaymentIntentId,
@@ -566,6 +567,7 @@ export async function createProductOrdersData(
       customerEmail: paymentLink.customerEmail,
       customerName: paymentLink.customerName!,
       id: createId(),
+      productName: paymentLink.productName,
       productPaymentLinkId: paymentLink.id,
       status: OrderStatusType.PendingCardPayment,
       stripePaymentIntentId: paymentLink.stripePaymentIntentId,
@@ -579,6 +581,7 @@ export async function createProductOrdersData(
       customerEmail: paymentLink.customerEmail,
       customerName: paymentLink.customerName!,
       id: createId(),
+      productName: paymentLink.productName,
       productPaymentLinkId: paymentLink.id,
       status: OrderStatusType.Cancelled,
       stripePaymentIntentId: paymentLink.stripePaymentIntentId,
@@ -637,10 +640,13 @@ export async function createMembershipsData(
     }
 
     membershipsList.push({
+      customerEmail: order.customerEmail,
+      customerName: order.customerName,
       delayedStartDate,
       endDate: endDate.toISOString(),
       id: createId(),
       parentOrderId: order.id,
+      productName: order.productName,
       startDate: startDate.toISOString(),
       status
     })
@@ -667,10 +673,13 @@ export async function createMembershipsData(
     // Ensure Paused status exists
     if (statusCounts[MembershipStatusType.Paused] === 0) {
       membershipsList.push({
+        customerEmail: baseOrder.customerEmail,
+        customerName: baseOrder.customerName,
         delayedStartDate: baseMembership.delayedStartDate,
         endDate: baseMembership.endDate,
         id: createId(),
         parentOrderId: baseOrder.id,
+        productName: baseOrder.productName,
         startDate: baseMembership.startDate,
         status: MembershipStatusType.Paused
       })
@@ -679,10 +688,13 @@ export async function createMembershipsData(
     // Ensure Cancelled status exists
     if (statusCounts[MembershipStatusType.Cancelled] === 0) {
       membershipsList.push({
+        customerEmail: baseOrder.customerEmail,
+        customerName: baseOrder.customerName,
         delayedStartDate: baseMembership.delayedStartDate,
         endDate: baseMembership.endDate,
         id: createId(),
         parentOrderId: baseOrder.id,
+        productName: baseOrder.productName,
         startDate: baseMembership.startDate,
         status: MembershipStatusType.Cancelled
       })
@@ -691,9 +703,12 @@ export async function createMembershipsData(
     // Ensure Active status exists (most likely already present)
     if (statusCounts[MembershipStatusType.Active] === 0) {
       membershipsList.push({
+        customerEmail: baseOrder.customerEmail,
+        customerName: baseOrder.customerName,
         endDate: baseMembership.endDate,
         id: createId(),
         parentOrderId: baseOrder.id,
+        productName: baseOrder.productName,
         startDate: baseMembership.startDate,
         status: MembershipStatusType.Active
       })
@@ -702,10 +717,13 @@ export async function createMembershipsData(
     // Ensure Delayed status exists
     if (statusCounts[MembershipStatusType.Delayed] === 0) {
       membershipsList.push({
+        customerEmail: baseOrder.customerEmail,
+        customerName: baseOrder.customerName,
         delayedStartDate: DatesService.addDays(new Date(), 14).toISOString(),
         endDate: baseMembership.endDate,
         id: createId(),
         parentOrderId: baseOrder.id,
+        productName: baseOrder.productName,
         startDate: baseMembership.startDate,
         status: MembershipStatusType.Delayed
       })
@@ -772,6 +790,7 @@ export async function createProductSubscriptionsData(
       parentOrderId: order.id,
       paymentMethod: paymentLink.paymentMethodType,
       productId: paymentLink.productId,
+      productName: paymentLink.productName,
       remainingPayments,
       startDate: new Date().toISOString(),
       status
@@ -808,6 +827,7 @@ export async function createProductSubscriptionsData(
         parentOrderId: baseSubscription.parentOrderId,
         paymentMethod: baseSubscription.paymentMethod,
         productId: baseSubscription.productId,
+        productName: baseSubscription.productName,
         remainingPayments: baseSubscription.remainingPayments,
         startDate: baseSubscription.startDate,
         status: SubscriptionStatusType.OnHold
@@ -825,6 +845,7 @@ export async function createProductSubscriptionsData(
         parentOrderId: baseSubscription.parentOrderId,
         paymentMethod: baseSubscription.paymentMethod,
         productId: baseSubscription.productId,
+        productName: baseSubscription.productName,
         remainingPayments: 0,
         startDate: baseSubscription.startDate,
         status: SubscriptionStatusType.Completed
@@ -842,6 +863,7 @@ export async function createProductSubscriptionsData(
         parentOrderId: baseSubscription.parentOrderId,
         paymentMethod: baseSubscription.paymentMethod,
         productId: baseSubscription.productId,
+        productName: baseSubscription.productName,
         remainingPayments: baseSubscription.remainingPayments,
         startDate: baseSubscription.startDate,
         status: SubscriptionStatusType.Cancelled
@@ -859,6 +881,7 @@ export async function createProductSubscriptionsData(
         parentOrderId: baseSubscription.parentOrderId,
         paymentMethod: baseSubscription.paymentMethod,
         productId: baseSubscription.productId,
+        productName: baseSubscription.productName,
         remainingPayments: 5,
         startDate: baseSubscription.startDate,
         status: SubscriptionStatusType.Active
@@ -1045,6 +1068,7 @@ export async function createExtensionOrdersData(
       extensionPaymentLinkId: paymentLink.id,
       id: createId(),
       membershipId: paymentLink.membershipId,
+      productName: paymentLink.productName,
       status: OrderStatusType.Completed,
       stripePaymentIntentId: paymentLink.stripePaymentIntentId,
       type:
@@ -1093,6 +1117,7 @@ export async function createExtensionSubscriptionsData(
       nextPaymentDate: paymentLink.firstPaymentDateAfterDeposit!,
       parentOrderId: order.id,
       paymentMethod: paymentLink.paymentMethodType,
+      productName: paymentLink.productName,
       remainingPayments: 1,
       startDate: new Date().toISOString(),
       status: SubscriptionStatusType.Active

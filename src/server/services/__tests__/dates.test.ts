@@ -23,8 +23,7 @@ describe('DatesService', () => {
     it('should use the constant PAYMENT_LINK_EXPIRES_AT_HOURS', () => {
       const now = new Date()
       const result = DatesService.createPaymentLinkExpiresAt()
-      const hoursDiff =
-        (result.getTime() - now.getTime()) / (1000 * 60 * 60)
+      const hoursDiff = (result.getTime() - now.getTime()) / (1000 * 60 * 60)
 
       // Should be approximately 24 hours (within 1 second tolerance for execution time)
       expect(hoursDiff).toBeGreaterThanOrEqual(

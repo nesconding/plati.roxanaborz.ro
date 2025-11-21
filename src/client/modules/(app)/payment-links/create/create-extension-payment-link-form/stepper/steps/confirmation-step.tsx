@@ -8,6 +8,7 @@ import { FieldGroup } from '~/client/components/ui/field'
 import {
   Item,
   ItemContent,
+  ItemDescription,
   ItemHeader,
   ItemTitle
 } from '~/client/components/ui/item'
@@ -15,32 +16,29 @@ import { Label } from '~/client/components/ui/label'
 import { ScrollArea, ScrollBar } from '~/client/components/ui/scroll-area'
 import { Separator } from '~/client/components/ui/separator'
 import { cn } from '~/client/lib/utils'
-import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
+import { CreateExtensionPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
 import { useTRPC } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
 import { DatesService } from '~/server/services/dates'
-import { CreateProductPaymentLinkFormDefaultValues } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
-import { CreateProductPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
+import { CreateExtensionPaymentLinkFormDefaultValues } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
+import { CreateExtensionPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 
 export const ConfirmationStep = withForm({
-  defaultValues: CreateProductPaymentLinkFormDefaultValues,
+  defaultValues: CreateExtensionPaymentLinkFormDefaultValues,
   render: function Render({ form }) {
     const t = useTranslations(
-      `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateProductPaymentLinkFormStep.Confirmation}.sections`
+      `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateExtensionPaymentLinkFormStep.Confirmation}.sections`
     )
     const trpc = useTRPC()
-    const findAllMeetings = useQuery(
-      trpc.protected.meetings.findAll.queryOptions()
-    )
     const findAllProducts = useQuery(
       trpc.protected.products.findAll.queryOptions()
     )
-    const findAllContracts = useQuery(
-      trpc.protected.contracts.findAll.queryOptions()
-    )
     const findAllPaymentSettings = useQuery(
       trpc.protected.settings.findAllPaymentSettings.queryOptions()
+    )
+    const findAllMemberships = useQuery(
+      trpc.protected.memberships.findAll.queryOptions()
     )
     const getEURToRONRate = useQuery(
       trpc.protected.settings.getEURToRONRate.queryOptions()
@@ -53,71 +51,79 @@ export const ConfirmationStep = withForm({
 
     // Participants
     const participants =
-      form.state.values[CreateProductPaymentLinkFormSection.Participants]
-    const meeting = findAllMeetings.data?.find(
-      (meeting) => meeting.id === participants.meetingId
-    )
+      form.state.values[CreateExtensionPaymentLinkFormSection.Participants]
 
     const callerName =
       participants.callerName && participants.callerName !== ''
         ? participants.callerName
         : undefined
+    const callerEmail =
+      participants.callerEmail && participants.callerEmail !== ''
+        ? participants.callerEmail
+        : undefined
     const setterName =
       participants.setterName && participants.setterName !== ''
         ? participants.setterName
         : undefined
+    const setterEmail =
+      participants.setterEmail && participants.setterEmail !== ''
+        ? participants.setterEmail
+        : undefined
 
-    // Product
-    const product = findAllProducts.data?.find(
-      (product) =>
-        product.id ===
-        form.state.values[CreateProductPaymentLinkFormSection.Product].productId
-    )
-
-    const contract = findAllContracts.data?.find(
-      (contract) =>
-        contract.id ===
-        form.state.values[CreateProductPaymentLinkFormSection.Product]
-          .contractId
+    // Extension
+    const extension = findAllProducts.data
+      ?.flatMap((product) => product.extensions)
+      .find(
+        (extension) =>
+          extension.id ===
+          form.state.values[CreateExtensionPaymentLinkFormSection.Extension]
+            .extensionId
+      )
+    const membership = findAllMemberships.data?.find(
+      (membership) =>
+        membership.id ===
+        form.state.values[CreateExtensionPaymentLinkFormSection.Extension]
+          .membershipId
     )
 
     // Payment info
     const paymentSetting = findAllPaymentSettings.data?.find(
       (paymentSetting) =>
         paymentSetting.id ===
-        form.state.values[CreateProductPaymentLinkFormSection.PaymentInfo]
+        form.state.values[CreateExtensionPaymentLinkFormSection.PaymentInfo]
           .paymentSettingId
     )
     const paymentMethodType =
-      form.state.values[CreateProductPaymentLinkFormSection.PaymentInfo]
+      form.state.values[CreateExtensionPaymentLinkFormSection.PaymentInfo]
         .paymentMethodType
 
     // Installments
     const hasInstallments =
-      form.state.values[CreateProductPaymentLinkFormSection.Installments]
+      form.state.values[CreateExtensionPaymentLinkFormSection.Installments]
         .hasInstallments
-    const productInstallment = product?.installments?.find(
-      (productInstallment) =>
-        productInstallment.id ===
-        form.state.values[CreateProductPaymentLinkFormSection.Installments]
-          .productInstallmentId
+    const extensionInstallment = extension?.installments?.find(
+      (extensionInstallment) =>
+        extensionInstallment.id ===
+        form.state.values[CreateExtensionPaymentLinkFormSection.Installments]
+          .extensionInstallmentId
     )
 
     // Deposit
     const hasDeposit =
-      form.state.values[CreateProductPaymentLinkFormSection.Deposit].hasDeposit
+      form.state.values[CreateExtensionPaymentLinkFormSection.Deposit]
+        .hasDeposit
     const depositAmount =
-      form.state.values[CreateProductPaymentLinkFormSection.Deposit]
+      form.state.values[CreateExtensionPaymentLinkFormSection.Deposit]
         .depositAmount
     const firstPaymentDateAfterDepositOption =
       findAllFirstPaymentDateAfterDepositOptions.data?.find(
         (firstPaymentDateAfterDepositOption) =>
           firstPaymentDateAfterDepositOption.id ===
-          form.state.values[CreateProductPaymentLinkFormSection.Deposit]
+          form.state.values[CreateExtensionPaymentLinkFormSection.Deposit]
             .firstPaymentDateAfterDepositOptionId
       )
 
-    if (!product || !contract || !paymentSetting || !eurToRonRate) {
+    if (!extension || !membership || !paymentSetting || !eurToRonRate) {
       return null
     }
 
@@ -132,70 +138,57 @@ export const ConfirmationStep = withForm({
           <div className='grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 py-4 px-6'>
             <Label className='col-span-full'>{t('participants.title')}</Label>
 
-            <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('participants.items.client-name')}</ItemHeader>
+            <Item className='py-0 col-span-3'>
+              <ItemHeader>{t('participants.items.client')}</ItemHeader>
               <ItemContent>
-                <ItemTitle>{meeting?.participant_names}</ItemTitle>
+                <ItemTitle>{membership?.customerName}</ItemTitle>
+                <ItemDescription>{membership?.customerEmail}</ItemDescription>
               </ItemContent>
             </Item>
 
-            <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('participants.items.client-email')}</ItemHeader>
-              <ItemContent>
-                <ItemTitle>{meeting?.participant_emails}</ItemTitle>
-              </ItemContent>
-            </Item>
-
-            <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('participants.items.setter-name')}</ItemHeader>
-              <ItemContent>
-                <ItemTitle>{setterName ?? '-'}</ItemTitle>
-              </ItemContent>
-            </Item>
-
-            <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('participants.items.caller-name')}</ItemHeader>
+            <Item className='py-0 col-span-1'>
+              <ItemHeader>{t('participants.items.caller')}</ItemHeader>
               <ItemContent>
                 <ItemTitle>{callerName ?? '-'}</ItemTitle>
+                <ItemDescription>{callerEmail ?? '-'}</ItemDescription>
+              </ItemContent>
+            </Item>
+
+            <Item className='py-0 col-span-1'>
+              <ItemHeader>{t('participants.items.setter')}</ItemHeader>
+              <ItemContent>
+                <ItemTitle>{setterName ?? '-'}</ItemTitle>
+                <ItemDescription>{setterEmail ?? '-'}</ItemDescription>
               </ItemContent>
             </Item>
 
             <Separator className='col-span-full my-2' />
 
-            <Label className='col-span-full'>{t('product.title')}</Label>
+            <Label className='col-span-full'>{t('extension.title')}</Label>
 
             <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('product.items.product-name')}</ItemHeader>
+              <ItemHeader>{t('extension.items.extension-months')}</ItemHeader>
 
               <ItemContent>
-                <ItemTitle>{product?.name}</ItemTitle>
+                <ItemTitle>{extension?.extensionMonths}</ItemTitle>
               </ItemContent>
             </Item>
 
             <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('product.items.product-price')}</ItemHeader>
+              <ItemHeader>{t('extension.items.extension-price')}</ItemHeader>
 
               <ItemContent>
                 <ItemTitle>
                   {PricingService.formatPrice(
                     paymentSetting.currency === PaymentCurrencyType.EUR
-                      ? product.price
+                      ? extension.price
                       : PricingService.convertEURtoRON(
-                          product.price,
+                          extension.price,
                           eurToRonRate
                         ),
                     paymentSetting.currency
                   )}
                 </ItemTitle>
-              </ItemContent>
-            </Item>
-
-            <Item className='py-0 col-span-full'>
-              <ItemHeader className='py-0'>
-                {t('product.items.contract')}
-              </ItemHeader>
-              <ItemContent>
-                <ItemTitle>{contract?.name}</ItemTitle>
               </ItemContent>
             </Item>
 
@@ -250,7 +243,7 @@ export const ConfirmationStep = withForm({
               </ItemContent>
             </Item>
 
-            {productInstallment && (
+            {extensionInstallment && (
               <>
                 <Separator className='col-span-full my-2' />
 
@@ -263,7 +256,7 @@ export const ConfirmationStep = withForm({
                     {t('installments.items.installment-count')}
                   </ItemHeader>
                   <ItemContent>
-                    <ItemTitle>{productInstallment.count}</ItemTitle>
+                    <ItemTitle>{extensionInstallment.count}</ItemTitle>
                   </ItemContent>
                 </Item>
 
@@ -279,9 +272,9 @@ export const ConfirmationStep = withForm({
                     <ItemTitle>
                       {PricingService.formatPrice(
                         paymentSetting.currency === PaymentCurrencyType.EUR
-                          ? productInstallment.pricePerInstallment
+                          ? extensionInstallment.pricePerInstallment
                           : PricingService.convertEURtoRON(
-                              productInstallment.pricePerInstallment,
+                              extensionInstallment.pricePerInstallment,
                               eurToRonRate
                             ),
                         paymentSetting.currency
@@ -303,12 +296,12 @@ export const ConfirmationStep = withForm({
                       {PricingService.formatPrice(
                         PricingService.calculateInstallmentsAmountToPay({
                           extraTaxRate: 0,
-                          installmentsCount: productInstallment.count,
+                          installmentsCount: extensionInstallment.count,
                           pricePerInstallment:
                             paymentSetting.currency === PaymentCurrencyType.EUR
-                              ? productInstallment.pricePerInstallment
+                              ? extensionInstallment.pricePerInstallment
                               : PricingService.convertEURtoRON(
-                                  productInstallment.pricePerInstallment,
+                                  extensionInstallment.pricePerInstallment,
                                   eurToRonRate
                                 ),
                           tvaRate: 0
@@ -385,9 +378,9 @@ export const ConfirmationStep = withForm({
                         extraTaxRate: paymentSetting.extraTaxRate,
                         price:
                           paymentSetting.currency === PaymentCurrencyType.EUR
-                            ? product.price
+                            ? extension.price
                             : PricingService.convertEURtoRON(
-                                product.price,
+                                extension.price,
                                 eurToRonRate
                               ),
                         tvaRate: paymentSetting.tvaRate
@@ -412,9 +405,9 @@ export const ConfirmationStep = withForm({
                           extraTaxRate: paymentSetting.extraTaxRate,
                           price:
                             paymentSetting.currency === PaymentCurrencyType.EUR
-                              ? product.price
+                              ? extension.price
                               : PricingService.convertEURtoRON(
-                                  product.price,
+                                  extension.price,
                                   eurToRonRate
                                 ),
                           tvaRate: paymentSetting.tvaRate
@@ -457,9 +450,9 @@ export const ConfirmationStep = withForm({
                           extraTaxRate: paymentSetting.extraTaxRate,
                           price:
                             paymentSetting.currency === PaymentCurrencyType.EUR
-                              ? product.price
+                              ? extension.price
                               : PricingService.convertEURtoRON(
-                                  product.price,
+                                  extension.price,
                                   eurToRonRate
                                 ),
                           tvaRate: paymentSetting.tvaRate
@@ -472,14 +465,14 @@ export const ConfirmationStep = withForm({
               </>
             )}
 
-            {hasInstallments && productInstallment && !hasDeposit && (
+            {hasInstallments && extensionInstallment && !hasDeposit && (
               <>
                 <Item>
                   <ItemHeader>
                     {t('payment.items.installments-count')}
                   </ItemHeader>
                   <ItemContent>
-                    <ItemTitle>{productInstallment.count}</ItemTitle>
+                    <ItemTitle>{extensionInstallment.count}</ItemTitle>
                   </ItemContent>
                 </Item>
 
@@ -496,12 +489,12 @@ export const ConfirmationStep = withForm({
                       {PricingService.formatPrice(
                         PricingService.calculateInstallmentsAmountToPay({
                           extraTaxRate: paymentSetting.extraTaxRate,
-                          installmentsCount: productInstallment.count,
+                          installmentsCount: extensionInstallment.count,
                           pricePerInstallment:
                             paymentSetting.currency === PaymentCurrencyType.EUR
-                              ? productInstallment.pricePerInstallment
+                              ? extensionInstallment.pricePerInstallment
                               : PricingService.convertEURtoRON(
-                                  productInstallment.pricePerInstallment,
+                                  extensionInstallment.pricePerInstallment,
                                   eurToRonRate
                                 ),
                           tvaRate: paymentSetting.tvaRate
@@ -525,12 +518,12 @@ export const ConfirmationStep = withForm({
                       {PricingService.formatPrice(
                         PricingService.calculateInstallmentsAmountToPay({
                           extraTaxRate: paymentSetting.extraTaxRate,
-                          installmentsCount: productInstallment.count,
+                          installmentsCount: extensionInstallment.count,
                           pricePerInstallment:
                             paymentSetting.currency === PaymentCurrencyType.EUR
-                              ? productInstallment.pricePerInstallment
+                              ? extensionInstallment.pricePerInstallment
                               : PricingService.convertEURtoRON(
-                                  productInstallment.pricePerInstallment,
+                                  extensionInstallment.pricePerInstallment,
                                   eurToRonRate
                                 ),
                           tvaRate: paymentSetting.tvaRate
@@ -544,7 +537,7 @@ export const ConfirmationStep = withForm({
             )}
 
             {hasInstallments &&
-              productInstallment &&
+              extensionInstallment &&
               hasDeposit &&
               depositAmount && (
                 <>
@@ -557,13 +550,13 @@ export const ConfirmationStep = withForm({
                         {PricingService.formatPrice(
                           PricingService.calculateInstallmentsAmountToPay({
                             extraTaxRate: paymentSetting.extraTaxRate,
-                            installmentsCount: productInstallment.count,
+                            installmentsCount: extensionInstallment.count,
                             pricePerInstallment:
                               paymentSetting.currency ===
                               PaymentCurrencyType.EUR
-                                ? productInstallment.pricePerInstallment
+                                ? extensionInstallment.pricePerInstallment
                                 : PricingService.convertEURtoRON(
-                                    productInstallment.pricePerInstallment,
+                                    extensionInstallment.pricePerInstallment,
                                     eurToRonRate
                                   ),
                             tvaRate: paymentSetting.tvaRate
@@ -605,13 +598,13 @@ export const ConfirmationStep = withForm({
                             {
                               depositAmount: depositAmount,
                               extraTaxRate: paymentSetting.extraTaxRate,
-                              installmentsCount: productInstallment.count,
+                              installmentsCount: extensionInstallment.count,
                               pricePerInstallment:
                                 paymentSetting.currency ===
                                 PaymentCurrencyType.EUR
-                                  ? productInstallment.pricePerInstallment
+                                  ? extensionInstallment.pricePerInstallment
                                   : PricingService.convertEURtoRON(
-                                      productInstallment.pricePerInstallment,
+                                      extensionInstallment.pricePerInstallment,
                                       eurToRonRate
                                     ),
                               tvaRate: paymentSetting.tvaRate
@@ -634,13 +627,13 @@ export const ConfirmationStep = withForm({
                             {
                               depositAmount: depositAmount,
                               extraTaxRate: paymentSetting.extraTaxRate,
-                              installmentsCount: productInstallment.count,
+                              installmentsCount: extensionInstallment.count,
                               pricePerInstallment:
                                 paymentSetting.currency ===
                                 PaymentCurrencyType.EUR
-                                  ? productInstallment.pricePerInstallment
+                                  ? extensionInstallment.pricePerInstallment
                                   : PricingService.convertEURtoRON(
-                                      productInstallment.pricePerInstallment,
+                                      extensionInstallment.pricePerInstallment,
                                       eurToRonRate
                                     ),
                               tvaRate: paymentSetting.tvaRate
@@ -661,7 +654,7 @@ export const ConfirmationStep = withForm({
                       {t('payment.items.installments-count')}
                     </ItemHeader>
                     <ItemContent>
-                      <ItemTitle>{productInstallment.count}</ItemTitle>
+                      <ItemTitle>{extensionInstallment.count}</ItemTitle>
                     </ItemContent>
                   </Item>
 
@@ -682,13 +675,13 @@ export const ConfirmationStep = withForm({
                             {
                               depositAmount: depositAmount,
                               extraTaxRate: paymentSetting.extraTaxRate,
-                              installmentsCount: productInstallment.count,
+                              installmentsCount: extensionInstallment.count,
                               pricePerInstallment:
                                 paymentSetting.currency ===
                                 PaymentCurrencyType.EUR
-                                  ? productInstallment.pricePerInstallment
+                                  ? extensionInstallment.pricePerInstallment
                                   : PricingService.convertEURtoRON(
-                                      productInstallment.pricePerInstallment,
+                                      extensionInstallment.pricePerInstallment,
                                       eurToRonRate
                                     ),
                               tvaRate: paymentSetting.tvaRate

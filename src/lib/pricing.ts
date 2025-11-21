@@ -13,17 +13,6 @@ class PricingServiceImpl {
   }
 
   /**
-   * Convert RON to EUR
-   *
-   * @param ronAmount - The amount in RON
-   * @param eurToRonRate - The exchange rate from EUR to RON
-   * @returns The amount in EUR
-   */
-  convertRONtoEUR(ronAmount: Numeric, eurToRonRate: Numeric): Decimal {
-    return new Decimal(ronAmount).div(new Decimal(eurToRonRate))
-  }
-
-  /**
    * Multiply two numbers
    *
    * @param multiplicand - The number to multiply

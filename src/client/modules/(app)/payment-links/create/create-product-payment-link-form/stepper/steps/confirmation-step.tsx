@@ -8,6 +8,7 @@ import { FieldGroup } from '~/client/components/ui/field'
 import {
   Item,
   ItemContent,
+  ItemDescription,
   ItemHeader,
   ItemTitle
 } from '~/client/components/ui/item'
@@ -55,16 +56,25 @@ export const ConfirmationStep = withForm({
     const participants =
       form.state.values[CreateProductPaymentLinkFormSection.Participants]
     const scheduledEvent = findAllScheduledEvents.data?.find(
-      (scheduledEvent) => scheduledEvent.id === participants.scheduledEventUri
+      (scheduledEvent) => scheduledEvent.id === participants.scheduledEventId
     )
 
     const callerName =
       participants.callerName && participants.callerName !== ''
         ? participants.callerName
         : undefined
+    const callerEmail =
+      participants.callerEmail && participants.callerEmail !== ''
+        ? participants.callerEmail
+        : undefined
+
     const setterName =
       participants.setterName && participants.setterName !== ''
         ? participants.setterName
+        : undefined
+    const setterEmail =
+      participants.setterEmail && participants.setterEmail !== ''
+        ? participants.setterEmail
         : undefined
 
     // Product
@@ -133,30 +143,36 @@ export const ConfirmationStep = withForm({
             <Label className='col-span-full'>{t('participants.title')}</Label>
 
             <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('participants.items.client-name')}</ItemHeader>
+              <ItemHeader>{t('participants.items.client')}</ItemHeader>
               <ItemContent>
-                <ItemTitle>{scheduledEvent?.participant_names}</ItemTitle>
+                <ItemTitle>{scheduledEvent?.inviteeName}</ItemTitle>
+                <ItemDescription>
+                  {scheduledEvent?.inviteeEmail}
+                </ItemDescription>
               </ItemContent>
             </Item>
 
-            <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('participants.items.client-email')}</ItemHeader>
+            <Item className='py-0 col-span-1'>
+              <ItemHeader>{t('participants.items.closer')}</ItemHeader>
               <ItemContent>
-                <ItemTitle>{scheduledEvent?.participant_emails}</ItemTitle>
+                <ItemTitle>{scheduledEvent?.closerName}</ItemTitle>
+                <ItemDescription>{scheduledEvent?.closerEmail}</ItemDescription>
               </ItemContent>
             </Item>
 
-            <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('participants.items.setter-name')}</ItemHeader>
-              <ItemContent>
-                <ItemTitle>{setterName ?? '-'}</ItemTitle>
-              </ItemContent>
-            </Item>
-
-            <Item className='py-0 col-span-2'>
-              <ItemHeader>{t('participants.items.caller-name')}</ItemHeader>
+            <Item className='py-0 col-span-1'>
+              <ItemHeader>{t('participants.items.caller')}</ItemHeader>
               <ItemContent>
                 <ItemTitle>{callerName ?? '-'}</ItemTitle>
+                <ItemDescription>{callerEmail ?? '-'}</ItemDescription>
+              </ItemContent>
+            </Item>
+
+            <Item className='py-0 col-span-1'>
+              <ItemHeader>{t('participants.items.setter')}</ItemHeader>
+              <ItemContent>
+                <ItemTitle>{setterName ?? '-'}</ItemTitle>
+                <ItemDescription>{setterEmail ?? '-'}</ItemDescription>
               </ItemContent>
             </Item>
 

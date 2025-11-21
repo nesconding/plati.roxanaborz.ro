@@ -1,7 +1,15 @@
 'use client'
 
 import type * as Stepperize from '@stepperize/react'
-import { StepBack, StepForward, Wand2 } from 'lucide-react'
+import {
+  CheckCircle,
+  CreditCard,
+  MousePointerClick,
+  StepBack,
+  StepForward,
+  View,
+  Wand2
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type React from 'react'
 import { withForm } from '~/client/components/form/config'
@@ -9,10 +17,8 @@ import { Button } from '~/client/components/ui/button'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle
+  CardHeader
 } from '~/client/components/ui/card'
 import { Spinner } from '~/client/components/ui/spinner'
 import { cn } from '~/client/lib/utils'
@@ -40,7 +46,15 @@ const STEPS_FORM_SECTIONS = {
   ]
 } as const
 
-// type Contracts = TRPCRouterOutput['protected']['contracts']['findAll']
+const STEPS_ICONS = {
+  [CreateExtensionPaymentLinkFormStep.BaseInfo]: <MousePointerClick />,
+  [CreateExtensionPaymentLinkFormStep.PaymentInfo]: <CreditCard />,
+  [CreateExtensionPaymentLinkFormStep.Confirmation]: <View />,
+  [CreateExtensionPaymentLinkFormStep.Success]: <CheckCircle />
+} as const
+
+type CreateOneExtensionPaymentLink =
+  TRPCRouterOutput['protected']['extensionPaymentLinks']['createOne']
 type FirstPaymentDateAfterDepositOptions =
   TRPCRouterOutput['protected']['settings']['findAllFirstPaymentDateAfterDepositOptions']
 type PaymentSettings =
@@ -52,8 +66,9 @@ export const StepperContent = withForm({
   defaultValues: CreateExtensionPaymentLinkFormDefaultValues,
   props: {
     className: '',
-    // contracts: [] as Contracts,
-    // createOnePaymentLinkResponse: undefined as CreateOnePaymentLink | undefined,
+    createOnePaymentLinkResponse: undefined as
+      | CreateOneExtensionPaymentLink
+      | undefined,
     eurToRonRate: '',
     firstPaymentDateAfterDepositOptions:
       [] as FirstPaymentDateAfterDepositOptions,
@@ -80,16 +95,13 @@ export const StepperContent = withForm({
             return <BaseInfoStep {...props} />
 
           case CreateExtensionPaymentLinkFormStep.PaymentInfo:
-            // return <PaymentInfoStep {...props} />
-            return <div>PaymentInfoStep</div>
+            return <PaymentInfoStep {...props} />
 
           case CreateExtensionPaymentLinkFormStep.Confirmation:
-            // return <ConfirmationStep {...props} />
-            return <div>ConfirmationStep</div>
+            return <ConfirmationStep {...props} />
 
           case CreateExtensionPaymentLinkFormStep.Success:
-            // return <SuccessStep {...props} />
-            return <div>SuccessStep</div>
+            return <SuccessStep {...props} />
         }
       }
 
@@ -173,6 +185,16 @@ export const StepperContent = withForm({
       props.form.handleSubmit()
     }
 
+    const currentIndex = stepper.all.findIndex(
+      (step) => step.id === stepper.current.id
+    )
+    const visibleSteps =
+      currentIndex === 0
+        ? stepper.all.slice(0, 3)
+        : currentIndex === stepper.all.length - 1
+          ? stepper.all.slice(-3)
+          : stepper.all.slice(currentIndex - 1, currentIndex + 2)
+
     return (
       <form
         className={props.className}
@@ -193,10 +215,21 @@ export const StepperContent = withForm({
                 CreateExtensionPaymentLinkFormStep.Confirmation
             })}
           >
-            <CardTitle>{t(`steps.${stepper.current.id}.title`)}</CardTitle>
-            <CardDescription className='text-wrap line-clamp-2 h-10'>
-              {t(`steps.${stepper.current.id}.description`)}
-            </CardDescription>
+            <Stepper.Navigation>
+              {visibleSteps.map((step, index) => (
+                <Stepper.Step
+                  className={cn('pointer-events-none', {
+                    'col-start-1': index === 0,
+                    'col-start-2': index === 1,
+                    'col-start-3': index === 2
+                  })}
+                  icon={STEPS_ICONS[step.id]}
+                  key={step.id}
+                  of={step.id}
+                  withSeparator={index !== 2}
+                />
+              ))}
+            </Stepper.Navigation>
           </CardHeader>
 
           <CardContent

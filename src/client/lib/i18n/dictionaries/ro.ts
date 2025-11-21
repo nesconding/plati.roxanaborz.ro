@@ -1637,7 +1637,7 @@ const dictionary = {
                   title: 'Alege un produs'
                 },
                 'scheduledEvent-select': {
-                  placeholder: 'Selecteazǎ o întâlnire',
+                  placeholder: 'Cautǎ o întâlnire',
                   title: 'Alege o întâlnire',
                   values: {
                     'not-found': 'Nu s-a gǎsit nicio întâlnire',
@@ -1766,7 +1766,7 @@ const dictionary = {
                 description: 'Link-ul de plată a fost creat cu succes.',
                 title: 'Link-ul de plată a fost creat'
               }
-            }
+            },
 
             steps: {
               [CreateExtensionPaymentLinkFormStep.BaseInfo]: {
@@ -1777,10 +1777,6 @@ const dictionary = {
                     description:
                       'Alege o prelungire pentru care se va crea link-ul de plată.',
                     fields: {
-                      callerName: {
-                        placeholder: 'Introduceți numele caller-ului',
-                        title: 'Nume caller'
-                      },
                       extensionId: {
                         item: {
                           extensionMonths:
@@ -1803,76 +1799,76 @@ const dictionary = {
                             [MembershipStatusType.Paused]: 'Pauzǎ'
                           }
                         }
+                      }
+                    },
+                    legend: 'Prelungire'
+                  },
+                  [CreateProductPaymentLinkFormSection.Participants]: {
+                    description:
+                      'Alege participanții pentru care se va crea link-ul de plată.',
+                    fields: {
+                      callerEmail: {
+                        placeholder: 'Introduceți email-ul caller-ului',
+                        title: 'Email caller'
+                      },
+                      callerName: {
+                        placeholder: 'Introduceți numele caller-ului',
+                        title: 'Nume caller'
+                      },
+                      closerEmail: {
+                        placeholder: 'Introduceți email-ul closer-ului',
+                        title: 'Email closer'
+                      },
+                      closerName: {
+                        placeholder: 'Introduceți numele closer-ului',
+                        title: 'Nume closer'
+                      },
+                      setterEmail: {
+                        placeholder: 'Introduceți email-ul setter-ului',
+                        title: 'Email setter'
                       },
                       setterName: {
                         placeholder: 'Introduceți numele setter-ului',
                         title: 'Nume setter'
                       }
                     },
-                    legend: 'Prelungire'
+                    legend: 'Participanți'
+                  },
+                  [CreateProductPaymentLinkFormSection.Product]: {
+                    description:
+                      'Alege un produs pentru care se va crea link-ul de plată.',
+                    fields: {
+                      contractId: {
+                        placeholder: 'Selecteazǎ un contract',
+                        title: 'Alege un contract'
+                      },
+                      extensionId: {
+                        item: {
+                          extensionMonths:
+                            '{extensionMonths, plural, =1 {o lunǎ} other {# luni}}',
+                          formattedPrice: '({formattedPrice} fǎrǎ TVA)'
+                        },
+                        placeholder: 'Selecteazǎ o prelungire',
+                        title: 'Alege o prelungire'
+                      },
+                      productId: {
+                        item: {
+                          formattedPrice: '({formattedPrice} fǎrǎ TVA)'
+                        },
+                        placeholder: 'Selecteazǎ un produs',
+                        title: 'Alege un produs'
+                      },
+                      productType: {
+                        placeholder: 'Selecteazǎ tipul produsului',
+                        title: 'Tip produs',
+                        values: {
+                          [PaymentProductType.Product]: 'Produs de bazǎ',
+                          [PaymentProductType.Extension]: 'Prelungire'
+                        }
+                      }
+                    },
+                    legend: 'Produs'
                   }
-                  // [CreateProductPaymentLinkFormSection.Participants]: {
-                  //   description:
-                  //     'Alege participanții pentru care se va crea link-ul de plată.',
-                  //   fields: {
-                  //     callerName: {
-                  //       placeholder: 'Introduceți numele caller-ului',
-                  //       title: 'Nume caller'
-                  //     },
-                  //     scheduledEventUri: {
-                  //       placeholder: 'Selecteazǎ o întâlnire',
-                  //       title: 'Alege o întâlnire',
-                  //       values: {
-                  //         'not-found': 'Nu s-a gǎsit nicio întâlnire',
-                  //         placeholder: 'Cautǎ o întâlnire',
-                  //         status: {
-                  //           active: 'Activǎ',
-                  //           canceled: 'Anulatǎ'
-                  //         }
-                  //       }
-                  //     },
-                  //     setterName: {
-                  //       placeholder: 'Introduceți numele setter-ului',
-                  //       title: 'Nume setter'
-                  //     }
-                  //   },
-                  //   legend: 'Participanți'
-                  // },
-                  // [CreateProductPaymentLinkFormSection.Product]: {
-                  //   description:
-                  //     'Alege un produs pentru care se va crea link-ul de plată.',
-                  //   fields: {
-                  //     contractId: {
-                  //       placeholder: 'Selecteazǎ un contract',
-                  //       title: 'Alege un contract'
-                  //     },
-                  //     extensionId: {
-                  //       item: {
-                  //         extensionMonths:
-                  //           '{extensionMonths, plural, =1 {o lunǎ} other {# luni}}',
-                  //         formattedPrice: '({formattedPrice} fǎrǎ TVA)'
-                  //       },
-                  //       placeholder: 'Selecteazǎ o prelungire',
-                  //       title: 'Alege o prelungire'
-                  //     },
-                  //     productId: {
-                  //       item: {
-                  //         formattedPrice: '({formattedPrice} fǎrǎ TVA)'
-                  //       },
-                  //       placeholder: 'Selecteazǎ un produs',
-                  //       title: 'Alege un produs'
-                  //     },
-                  //     productType: {
-                  //       placeholder: 'Selecteazǎ tipul produsului',
-                  //       title: 'Tip produs',
-                  //       values: {
-                  //         [PaymentProductType.Product]: 'Produs de bazǎ',
-                  //         [PaymentProductType.Extension]: 'Prelungire'
-                  //       }
-                  //     }
-                  //   },
-                  //   legend: 'Produs'
-                  // }
                 },
                 title: 'Detalii de bazǎ'
               },
@@ -1907,7 +1903,7 @@ const dictionary = {
                       default:
                         'Alege opțiunile de rate pentru crearea link-ului de plată.',
                       'disabled-no-installments':
-                        'Nu există opțiuni de rate pentru produsul',
+                        'Nu există opțiuni de rate pentru <bold>prelungirea de {extensionMonths, plural, =1 {o lunǎ} other {# luni}}</bold> a produsului <bold>{productName}</bold>',
                       'disabled-payment-method-tbi':
                         'Nu există opțiuni de rate pentru <bold>plata prin TBI</bold>.'
                     },
@@ -1924,16 +1920,6 @@ const dictionary = {
                       },
                       hasInstallments: {
                         title: 'Activează rate'
-                      },
-                      productInstallmentId: {
-                        item: {
-                          count: '{count, plural, =1 {o ratǎ} other {# rate}}',
-                          formattedPrice:
-                            '({count} x {formattedPrice} = {formattedTotalPrice} farǎ TVA)'
-                        },
-                        placeholder:
-                          'Selecteazǎ opțiunea de rate pentru produs',
-                        title: 'Alege opțiunea de rate pentru produs'
                       }
                     },
                     legend: 'Opțiuni de rate'
@@ -1943,7 +1929,7 @@ const dictionary = {
                       default:
                         'Alege opțiunile de avans pentru crearea link-ului de plată.',
                       'disabled-no-deposit':
-                        'Nu există opțiunea de avans pentru produsul',
+                        'Nu există opțiunea de avans pentru <bold>prelungirea de {extensionMonths, plural, =1 {o lunǎ} other {# luni}}</bold> a produsului <bold>{productName}</bold>',
                       'disabled-payment-method-tbi':
                         'Nu există opțiunea de avans pentru <bold>plata prin TBI</bold>.'
                     },
@@ -2022,8 +2008,8 @@ const dictionary = {
                   participants: {
                     items: {
                       'caller-name': 'Nume caller',
-                      'client-email': 'Email client,',
-                      'client-name': 'Nume client',
+                      client: 'Client',
+                      closer: 'Closer',
                       'setter-name': 'Nume setter'
                     },
                     title: 'Participanți'
@@ -2080,6 +2066,12 @@ const dictionary = {
               }
             }
           },
+          'create-payment-link-form': {
+            tabs: {
+              [PaymentProductType.Extension]: 'Prelungire',
+              [PaymentProductType.Product]: 'Produs'
+            }
+          },
           'create-product-payment-link-form': {
             buttons: {
               'next-step': 'Pasul următor',
@@ -2099,28 +2091,38 @@ const dictionary = {
 
             steps: {
               [CreateProductPaymentLinkFormStep.BaseInfo]: {
-                description:
-                  'Configurați detaliile de bazǎ pentru crearea link-ului de platǎ.',
                 forms: {
                   [CreateProductPaymentLinkFormSection.Participants]: {
                     description:
                       'Alege participanții pentru care se va crea link-ul de plată.',
                     fields: {
+                      callerEmail: {
+                        placeholder: 'Introduceți email-ul caller-ului',
+                        title: 'Email caller'
+                      },
                       callerName: {
                         placeholder: 'Introduceți numele caller-ului',
                         title: 'Nume caller'
                       },
-                      scheduledEventUri: {
-                        placeholder: 'Selecteazǎ o întâlnire',
+                      scheduledEventId: {
+                        placeholder: 'Cautǎ o întâlnire',
                         title: 'Alege o întâlnire',
                         values: {
+                          client: 'Client:',
+                          closer: 'Closer:',
                           'not-found': 'Nu s-a gǎsit nicio întâlnire',
-                          placeholder: 'Cautǎ o întâlnire',
+                          placeholder: 'Introduceți cel puțin 3 caractere',
                           status: {
                             active: 'Activǎ',
                             canceled: 'Anulatǎ'
-                          }
+                          },
+                          'type-to-search':
+                            'Introduceți cel puțin 3 caractere pentru a căuta o întâlnire'
                         }
+                      },
+                      setterEmail: {
+                        placeholder: 'Introduceți email-ul setter-ului',
+                        title: 'Email setter'
                       },
                       setterName: {
                         placeholder: 'Introduceți numele setter-ului',
@@ -2312,10 +2314,10 @@ const dictionary = {
                   },
                   participants: {
                     items: {
-                      'caller-name': 'Nume caller',
-                      'client-email': 'Email client,',
-                      'client-name': 'Nume client',
-                      'setter-name': 'Nume setter'
+                      caller: 'Caller',
+                      client: 'Client',
+                      closer: 'Closer',
+                      setter: 'Setter'
                     },
                     title: 'Participanți'
                   },
@@ -2373,7 +2375,10 @@ const dictionary = {
           },
           'payment-links-table': {
             columns: {
+              callerEmail: 'Email caller',
               callerName: 'Nume caller',
+              closerEmail: 'Email closer',
+              closerName: 'Nume closer',
               contract: { name: 'Nume contract' },
               contractId: 'Id contract (valoare interna)',
               'copy-link': 'Copiază link',
@@ -2421,6 +2426,7 @@ const dictionary = {
                 'Suma rǎmasǎ de platǎ per rata in cenți (valoare interna)',
               searchCreatedAt: 'Adǎugat la (valoare interna)',
               searchExpiresAt: 'Expirǎ la (valoare interna)',
+              setterEmail: 'Email setter',
               setterName: 'Numele setter',
               status: 'Status',
               stripeClientSecret: 'Secret platǎ Stripe (valoare interna)',

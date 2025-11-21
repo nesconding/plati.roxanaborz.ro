@@ -9,23 +9,23 @@ import {
   FieldLegend,
   FieldSet
 } from '~/client/components/ui/field'
-import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
+import { CreateExtensionPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
 import type { TRPCRouterOutput } from '~/client/trpc/react'
-import { CreateProductPaymentLinkFormDefaultValues as defaultValues } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
-import { CreateProductPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
+import { CreateExtensionPaymentLinkFormDefaultValues } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
+import { CreateExtensionPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 
 type PaymentSetting =
   TRPCRouterOutput['protected']['settings']['findAllPaymentSettings'][number]
 
 export const PaymentInfoFormSection = withForm({
-  defaultValues,
+  defaultValues: CreateExtensionPaymentLinkFormDefaultValues,
   props: {
     paymentSettings: [] as PaymentSetting[]
   },
   render: function Render({ form, paymentSettings }) {
     const t = useTranslations(
-      `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateProductPaymentLinkFormStep.PaymentInfo}.forms.${CreateProductPaymentLinkFormSection.PaymentInfo}`
+      `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateExtensionPaymentLinkFormStep.PaymentInfo}.forms.${CreateExtensionPaymentLinkFormSection.PaymentInfo}`
     )
 
     return (
@@ -35,7 +35,7 @@ export const PaymentInfoFormSection = withForm({
 
         <FieldGroup className='sm:flex-row sm:items-start sm:gap-4'>
           <form.AppField
-            name={`${CreateProductPaymentLinkFormSection.PaymentInfo}.paymentSettingId`}
+            name={`${CreateExtensionPaymentLinkFormSection.PaymentInfo}.paymentSettingId`}
           >
             {(field) => (
               <field.Select
@@ -71,7 +71,7 @@ export const PaymentInfoFormSection = withForm({
           </form.AppField>
 
           <form.AppField
-            name={`${CreateProductPaymentLinkFormSection.PaymentInfo}.paymentMethodType`}
+            name={`${CreateExtensionPaymentLinkFormSection.PaymentInfo}.paymentMethodType`}
           >
             {(field) => (
               <field.Select

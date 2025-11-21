@@ -26,33 +26,42 @@ export async function POST(req: Request) {
     const body = await req.text()
     const signature = (await headers()).get('stripe-signature')
 
-    if (!signature) {
-      console.error('[Webhook] Missing Stripe signature')
-      return NextResponse.json(
-        { error: 'No signature provided' },
-        { status: 400 }
-      )
-    }
-
-    // Step 2: Verify webhook signature
+    // Step 2: Verify webhook signature (or skip in test mode)
     let event: Stripe.Event
-    try {
-      event = stripe.webhooks.constructEvent(
-        body,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET!
-      )
-    } catch (err) {
-      console.error(
-        '[Webhook] Signature verification failed:',
-        err instanceof Error ? err.message : 'Unknown error'
-      )
-      return NextResponse.json(
-        {
-          error: `Webhook signature verification failed: ${err instanceof Error ? err.message : 'Unknown error'}`
-        },
-        { status: 400 }
-      )
+
+    // Check if signature verification should be skipped (E2E test mode)
+    if (process.env.SKIP_STRIPE_WEBHOOK_SIGNATURE === 'true') {
+      console.log('[Webhook] Skipping signature verification (test mode)')
+      // Parse the body directly without signature verification
+      event = JSON.parse(body) as Stripe.Event
+    } else {
+      // Production mode - require signature verification
+      if (!signature) {
+        console.error('[Webhook] Missing Stripe signature')
+        return NextResponse.json(
+          { error: 'No signature provided' },
+          { status: 400 }
+        )
+      }
+
+      try {
+        event = stripe.webhooks.constructEvent(
+          body,
+          signature,
+          process.env.STRIPE_WEBHOOK_SECRET!
+        )
+      } catch (err) {
+        console.error(
+          '[Webhook] Signature verification failed:',
+          err instanceof Error ? err.message : 'Unknown error'
+        )
+        return NextResponse.json(
+          {
+            error: `Webhook signature verification failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+          },
+          { status: 400 }
+        )
+      }
     }
 
     console.log(`[Webhook] Received event: ${event.type}`)

@@ -12,7 +12,6 @@ import {
 } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper'
 import { CreateExtensionPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
 import { StepperContent } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/stepper-content'
-import { StepperNavigation } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/stepper-navigation'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
 import {
   CreateExtensionPaymentLinkFormDefaultValues,
@@ -21,8 +20,8 @@ import {
 } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
 import { CreateExtensionPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
 
-type ProductPaymentLinkCreateOneResponse =
-  TRPCRouterOutput['protected']['productPaymentLinks']['createOne']
+type ExtensionPaymentLinkCreateOneResponse =
+  TRPCRouterOutput['protected']['extensionPaymentLinks']['createOne']
 
 export function CreateExtensionPaymentLinkForm() {
   return (
@@ -37,8 +36,8 @@ function CreateExtensionPaymentLinkFormInner() {
     'modules.(app).payment-links._components.create-extension-payment-link-form'
   )
   const stepper = useStepper()
-  // const [createOnePaymentLinkResponse, setCreateOnePaymentLinkResponse] =
-  //   useState<ProductPaymentLinkCreateOneResponse>()
+  const [createOnePaymentLinkResponse, setCreateOnePaymentLinkResponse] =
+    useState<ExtensionPaymentLinkCreateOneResponse>()
   const trpc = useTRPC()
 
   const findAllContracts = useQuery(
@@ -61,7 +60,7 @@ function CreateExtensionPaymentLinkFormInner() {
   )
 
   const createPaymentLink = useMutation(
-    trpc.protected.productPaymentLinks.createOne.mutationOptions()
+    trpc.protected.extensionPaymentLinks.createOne.mutationOptions()
   )
 
   const defaultValues: CreateExtensionPaymentLinkFormValues = {
@@ -84,35 +83,35 @@ function CreateExtensionPaymentLinkFormInner() {
   const form = useAppForm({
     defaultValues,
     onSubmit: async ({ value, formApi }) => {
-      // await createPaymentLink.mutateAsync(value, {
-      //   onError: (error) => {
-      //     toast.error(t('response.error.title'), {
-      //       className: '!text-destructive-foreground',
-      //       classNames: {
-      //         description: '!text-muted-foreground',
-      //         icon: 'text-destructive',
-      //         title: '!text-destructive'
-      //       },
-      //       description:
-      //         error instanceof Error
-      //           ? error.message
-      //           : t('response.error.description')
-      //     })
-      //   },
-      //   onSuccess: (data) => {
-      //     toast.success(t('response.success.title'), {
-      //       classNames: {
-      //         description: '!text-muted-foreground',
-      //         icon: 'text-primary'
-      //       },
-      //       description: t('response.success.description')
-      //     })
-      //     setCreateOnePaymentLinkResponse(data)
-      //     stepper.goTo(CreateProductPaymentLinkFormStep.Success)
-      //     formApi.reset()
-      //     createPaymentLink.reset()
-      //   }
-      // })
+      await createPaymentLink.mutateAsync(value, {
+        onError: (error) => {
+          toast.error(t('response.error.title'), {
+            className: '!text-destructive-foreground',
+            classNames: {
+              description: '!text-muted-foreground',
+              icon: 'text-destructive',
+              title: '!text-destructive'
+            },
+            description:
+              error instanceof Error
+                ? error.message
+                : t('response.error.description')
+          })
+        },
+        onSuccess: (data) => {
+          toast.success(t('response.success.title'), {
+            classNames: {
+              description: '!text-muted-foreground',
+              icon: 'text-primary'
+            },
+            description: t('response.success.description')
+          })
+          setCreateOnePaymentLinkResponse(data)
+          stepper.goTo(CreateExtensionPaymentLinkFormStep.Success)
+          formApi.reset()
+          createPaymentLink.reset()
+        }
+      })
     },
     validators: { onSubmit: CreateExtensionPaymentLinkFormSchema }
   })
@@ -136,17 +135,14 @@ function CreateExtensionPaymentLinkFormInner() {
     stepper.reset()
     form.reset()
     createPaymentLink.reset()
-    // setCreateOnePaymentLinkResponse(undefined)
+    setCreateOnePaymentLinkResponse(undefined)
   }
 
   return (
     <div className='flex flex-col gap-4 w-full'>
-      <StepperNavigation />
-
       <StepperContent
         className='col-span-3'
-        // contracts={findAllContracts.data}
-        // createOnePaymentLinkResponse={createOnePaymentLinkResponse}
+        createOnePaymentLinkResponse={createOnePaymentLinkResponse}
         eurToRonRate={getEURToRONRate.data}
         firstPaymentDateAfterDepositOptions={
           findAllFirstPaymentDateAfterDepositOptions.data

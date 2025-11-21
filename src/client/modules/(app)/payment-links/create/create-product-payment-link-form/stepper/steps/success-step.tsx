@@ -18,10 +18,10 @@ import { cn } from '~/client/lib/utils'
 import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper/config'
 import type { TRPCRouterOutput } from '~/client/trpc/react'
 
-type ProductPaymentLinkCreateOneResponse =
+type CreateOneExtensionPaymentLink =
   TRPCRouterOutput['protected']['productPaymentLinks']['createOne']
 
-function getPaymentLinkUrl(paymentLink: ProductPaymentLinkCreateOneResponse) {
+function getPaymentLinkUrl(paymentLink: CreateOneExtensionPaymentLink) {
   return new URL(
     `${globalThis.location.origin}/checkout/${paymentLink.id}`
   ).toString()
@@ -32,7 +32,7 @@ export function SuccessStep({
   createOnePaymentLinkResponse
 }: {
   onReset?: () => void
-  createOnePaymentLinkResponse?: ProductPaymentLinkCreateOneResponse
+  createOnePaymentLinkResponse?: CreateOneExtensionPaymentLink
 }) {
   const [isUrlCopied, setIsUrlCopied] = useState(false)
   const t = useTranslations(

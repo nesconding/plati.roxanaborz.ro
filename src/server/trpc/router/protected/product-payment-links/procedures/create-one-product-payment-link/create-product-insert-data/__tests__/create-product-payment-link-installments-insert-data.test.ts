@@ -33,7 +33,7 @@ describe('createProductPaymentLinkInstallmentsInsertData', () => {
     paymentSettingId: 'settings_123',
     productId: 'prod_123',
     productInstallmentId: 'installment_123',
-    scheduledEventUri: 'meeting_123',
+    scheduledEventId: 'meeting_123',
     setterName: 'Jane Setter',
     type: PaymentLinkType.Installments
   }

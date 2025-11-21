@@ -11,11 +11,11 @@ import {
   FieldLegend,
   FieldSet
 } from '~/client/components/ui/field'
-import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
+import { CreateExtensionPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
 import type { TRPCRouterOutput } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
-import { CreateProductPaymentLinkFormDefaultValues } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
-import { CreateProductPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
+import { CreateExtensionPaymentLinkFormDefaultValues } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
+import { CreateExtensionPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 
@@ -24,7 +24,7 @@ type PaymentSetting =
   TRPCRouterOutput['protected']['settings']['findAllPaymentSettings'][number]
 
 export const InstallmentsFormSection = withForm({
-  defaultValues: CreateProductPaymentLinkFormDefaultValues,
+  defaultValues: CreateExtensionPaymentLinkFormDefaultValues,
   props: {
     eurToRonRate: '',
     paymentSettings: [] as PaymentSetting[],
@@ -32,33 +32,41 @@ export const InstallmentsFormSection = withForm({
   },
   render: function Render({ form, paymentSettings, eurToRonRate, products }) {
     const t = useTranslations(
-      `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateProductPaymentLinkFormStep.PaymentInfo}.forms.${CreateProductPaymentLinkFormSection.Installments}`
+      `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateExtensionPaymentLinkFormStep.PaymentInfo}.forms.${CreateExtensionPaymentLinkFormSection.Installments}`
     )
 
     const {
       isInstallmentsSectionDisabledNoInstallments,
       isPaymentMethodTBI,
-      productInstallments,
+      extensionInstallments,
+      extensionMonths,
       productName
     } = useStore(form.store, ({ values }) => {
-      const productId =
-        values[CreateProductPaymentLinkFormSection.Product].productId
+      const extensionId =
+        values[CreateExtensionPaymentLinkFormSection.Extension].extensionId
 
-      const product = products.find((product) => product.id === productId)
-      const productInstallments = product?.installments ?? []
+      const extension = products
+        .flatMap((product) => product.extensions)
+        .find((extension) => extension.id === extensionId)
+      const extensionInstallments = extension?.installments ?? []
+
+      const productName =
+        products.find((product) => product.id === extension?.productId)?.name ??
+        ''
 
       const isPaymentMethodTBI =
-        values[CreateProductPaymentLinkFormSection.PaymentInfo]
+        values[CreateExtensionPaymentLinkFormSection.PaymentInfo]
           .paymentMethodType === PaymentMethodType.TBI
 
       const isInstallmentsSectionDisabledNoInstallments =
-        !productInstallments || productInstallments.length === 0
+        !extensionInstallments || extensionInstallments.length === 0
 
       return {
+        extensionInstallments,
+        extensionMonths: extension?.extensionMonths ?? '',
         isInstallmentsSectionDisabledNoInstallments,
         isPaymentMethodTBI,
-        productInstallments,
-        productName: product?.name ?? ''
+        productName
       }
     })
 
@@ -73,12 +81,11 @@ export const InstallmentsFormSection = withForm({
       }
 
       if (isInstallmentsSectionDisabledNoInstallments) {
-        return (
-          <span className='flex items-center gap-1 w-full flex-wrap'>
-            <span>{t('description.disabled-no-installments')}</span>
-            {productName}
-          </span>
-        )
+        return t.rich('description.disabled-no-installments', {
+          bold: (chunks) => <span className='font-semibold'>{chunks}</span>,
+          extensionMonths,
+          productName
+        })
       }
 
       return t('description.default')
@@ -91,14 +98,14 @@ export const InstallmentsFormSection = withForm({
 
         <FieldGroup aria-disabled={isSectionDisabled}>
           <form.AppField
-            name={`${CreateProductPaymentLinkFormSection.Installments}.hasInstallments`}
+            name={`${CreateExtensionPaymentLinkFormSection.Installments}.hasInstallments`}
           >
             {(field) => {
               function onCheckedChange(checked: boolean) {
                 field.handleChange(checked)
                 if (!checked) {
                   form.resetField(
-                    `${CreateProductPaymentLinkFormSection.Installments}.productInstallmentId`
+                    `${CreateExtensionPaymentLinkFormSection.Installments}.extensionInstallmentId`
                   )
                 }
               }
@@ -115,10 +122,10 @@ export const InstallmentsFormSection = withForm({
           <form.Subscribe
             selector={({
               values: {
-                [CreateProductPaymentLinkFormSection.Installments]: {
+                [CreateExtensionPaymentLinkFormSection.Installments]: {
                   hasInstallments
                 },
-                [CreateProductPaymentLinkFormSection.PaymentInfo]: {
+                [CreateExtensionPaymentLinkFormSection.PaymentInfo]: {
                   paymentSettingId
                 }
               }
@@ -137,7 +144,7 @@ export const InstallmentsFormSection = withForm({
 
               return (
                 <form.AppField
-                  name={`${CreateProductPaymentLinkFormSection.Installments}.productInstallmentId`}
+                  name={`${CreateExtensionPaymentLinkFormSection.Installments}.extensionInstallmentId`}
                   validators={{
                     onSubmit: !isFieldDisabled
                       ? z.string().nonempty()
@@ -150,12 +157,12 @@ export const InstallmentsFormSection = withForm({
                         icon={isFieldDisabled ? undefined : CalendarSync}
                         isDisabled={isFieldDisabled}
                         isRequired={!isFieldDisabled}
-                        label={t('fields.productInstallmentId.title')}
-                        options={productInstallments}
+                        label={t('fields.extensionInstallmentId.title')}
+                        options={extensionInstallments}
                         placeholder={
                           isFieldDisabled
                             ? undefined
-                            : t('fields.productInstallmentId.placeholder')
+                            : t('fields.extensionInstallmentId.placeholder')
                         }
                         renderItem={(installment) => {
                           const count = installment.count
@@ -182,13 +189,13 @@ export const InstallmentsFormSection = withForm({
                           return (
                             <div className='flex justify-between gap-2 w-full font-medium items-center'>
                               <p>
-                                {t('fields.productInstallmentId.item.count', {
+                                {t('fields.extensionInstallmentId.item.count', {
                                   count
                                 })}
                               </p>
                               <p className='text-muted-foreground max-sm:hidden text-right'>
                                 {t(
-                                  'fields.productInstallmentId.item.formattedPrice',
+                                  'fields.extensionInstallmentId.item.formattedPrice',
                                   {
                                     count,
                                     formattedPrice,
@@ -205,78 +212,6 @@ export const InstallmentsFormSection = withForm({
                   }}
                 </form.AppField>
               )
-              // }
-
-              // return (
-              //   <form.AppField
-              //     name={`${CreateProductPaymentLinkFormSection.Installments}.extensionInstallmentId`}
-              //     validators={{
-              //       onSubmit: !isFieldDisabled
-              //         ? z.string().nonempty()
-              //         : undefined
-              //     }}
-              //   >
-              //     {(field) => {
-              //       return (
-              //         <field.Select
-              //           icon={isFieldDisabled ? undefined : CalendarSync}
-              //           isDisabled={isFieldDisabled}
-              //           isRequired={!isFieldDisabled}
-              //           label={t('fields.extensionInstallmentId.title')}
-              //           options={extensionInstallments}
-              //           placeholder={
-              //             isFieldDisabled
-              //               ? undefined
-              //               : t('fields.extensionInstallmentId.placeholder')
-              //           }
-              //           renderItem={(installment) => {
-              //             const count = installment.count
-
-              //             const pricePerInstallment =
-              //               currency === PaymentCurrencyType.EUR
-              //                 ? installment.pricePerInstallment
-              //                 : PricingService.convertEURtoRON(
-              //                     installment.pricePerInstallment,
-              //                     eurToRonRate
-              //                   )
-              //             const formattedPrice = PricingService.formatPrice(
-              //               pricePerInstallment,
-              //               currency
-              //             )
-
-              //             const totalPrice = PricingService.multiply(
-              //               pricePerInstallment,
-              //               installment.count
-              //             )
-              //             const formattedTotalPrice =
-              //               PricingService.formatPrice(totalPrice, currency)
-
-              //             return (
-              //               <div className='flex justify-between gap-2 w-full font-medium items-center'>
-              //                 <p>
-              //                   {t('fields.extensionInstallmentId.item.count', {
-              //                     count
-              //                   })}
-              //                 </p>
-              //                 <p className='text-muted-foreground max-sm:hidden text-right'>
-              //                   {t(
-              //                     'fields.extensionInstallmentId.item.formattedPrice',
-              //                     {
-              //                       count,
-              //                       formattedPrice,
-              //                       formattedTotalPrice
-              //                     }
-              //                   )}
-              //                 </p>
-              //               </div>
-              //             )
-              //           }}
-              //           valueKey='id'
-              //         />
-              //       )
-              //     }}
-              //   </form.AppField>
-              // )
             }}
           </form.Subscribe>
         </FieldGroup>

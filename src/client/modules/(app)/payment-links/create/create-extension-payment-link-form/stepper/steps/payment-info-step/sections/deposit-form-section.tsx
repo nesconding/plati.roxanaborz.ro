@@ -4,7 +4,6 @@ import { useStore } from '@tanstack/react-form'
 import Decimal from 'decimal.js-light'
 import { BanknoteArrowUp, Calendar1, CircleAlert, Dot } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import type React from 'react'
 import { z } from 'zod'
 import { withForm } from '~/client/components/form/config'
 import {
@@ -15,11 +14,11 @@ import {
   FieldSet
 } from '~/client/components/ui/field'
 import { cn } from '~/client/lib/utils'
-import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
+import { CreateExtensionPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
 import type { TRPCRouterOutput } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
-import { CreateProductPaymentLinkFormDefaultValues as defaultValues } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
-import { CreateProductPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
+import { CreateExtensionPaymentLinkFormDefaultValues } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
+import { CreateExtensionPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { NumericString } from '~/shared/validation/utils'
@@ -31,7 +30,7 @@ type FirstPaymentDateAfterDepositOption =
   TRPCRouterOutput['protected']['settings']['findAllFirstPaymentDateAfterDepositOptions'][number]
 
 export const DepositFormSection = withForm({
-  defaultValues,
+  defaultValues: CreateExtensionPaymentLinkFormDefaultValues,
   props: {
     eurToRonRate: '',
     firstPaymentDateAfterDepositOptions:
@@ -47,7 +46,7 @@ export const DepositFormSection = withForm({
     products
   }) {
     const t = useTranslations(
-      `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateProductPaymentLinkFormStep.PaymentInfo}.forms.${CreateProductPaymentLinkFormSection.Deposit}`
+      `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateExtensionPaymentLinkFormStep.PaymentInfo}.forms.${CreateExtensionPaymentLinkFormSection.Deposit}`
     )
 
     const {
@@ -57,43 +56,51 @@ export const DepositFormSection = withForm({
       formattedMinDepositAmountRON,
       isDepositSectionDisabledNoDeposit,
       isPaymentMethodTBI,
-      productName,
-      tvaRate
+      extensionMonths,
+      tvaRate,
+      productName
     } = useStore(form.store, ({ values }) => {
       const paymentSetting = paymentSettings.find(
         (paymentSetting) =>
           paymentSetting.id ===
-          values[CreateProductPaymentLinkFormSection.PaymentInfo]
+          values[CreateExtensionPaymentLinkFormSection.PaymentInfo]
             .paymentSettingId
       )!
       const currency = paymentSetting.currency
       const tvaRate = paymentSetting.tvaRate
 
-      const product = products.find(
-        (product) =>
-          product.id ===
-          values[CreateProductPaymentLinkFormSection.Product].productId
-      )
+      const extension = products
+        .flatMap((product) => product.extensions)
+        .find(
+          (extension) =>
+            extension.id ===
+            values[CreateExtensionPaymentLinkFormSection.Extension].extensionId
+        )
 
-      const isDepositSectionDisabledNoDeposit = !product?.isDepositAmountEnabled
+      const productName =
+        products.find((product) => product.id === extension?.productId)?.name ??
+        ''
+
+      const isDepositSectionDisabledNoDeposit =
+        !extension?.isDepositAmountEnabled
 
       const isPaymentMethodTBI =
-        values[CreateProductPaymentLinkFormSection.PaymentInfo]
+        values[CreateExtensionPaymentLinkFormSection.PaymentInfo]
           .paymentMethodType === PaymentMethodType.TBI
 
-      const minDepositAmount = product?.minDepositAmount ?? '0'
+      const minDepositAmount = extension?.minDepositAmount ?? '0'
 
       const priceWithoutTVA =
-        (values[CreateProductPaymentLinkFormSection.Installments]
+        (values[CreateExtensionPaymentLinkFormSection.Installments]
           .hasInstallments &&
-        values[CreateProductPaymentLinkFormSection.Installments]
-          .productInstallmentId
+        values[CreateExtensionPaymentLinkFormSection.Installments]
+          .extensionInstallmentId
           ? (() => {
-              const installment = product?.installments.find(
+              const installment = extension?.installments.find(
                 (installment) =>
                   installment.id ===
-                  values[CreateProductPaymentLinkFormSection.Installments]
-                    .productInstallmentId
+                  values[CreateExtensionPaymentLinkFormSection.Installments]
+                    .extensionInstallmentId
               )
               if (!installment) return '0'
               return PricingService.multiply(
@@ -101,7 +108,7 @@ export const DepositFormSection = withForm({
                 installment.count
               )
             })()
-          : product?.price) ?? '0'
+          : extension?.price) ?? '0'
 
       const priceWithTVA = PricingService.addTax(priceWithoutTVA, tvaRate)
 
@@ -124,12 +131,13 @@ export const DepositFormSection = withForm({
 
       return {
         currency,
+        extensionMonths: extension?.extensionMonths ?? '',
         formattedMinDepositAmountEUR,
         formattedMinDepositAmountRON,
         isDepositSectionDisabledNoDeposit,
         isPaymentMethodTBI,
         maxDepositAmount,
-        productName: product?.name ?? '',
+        productName,
         tvaRate
       }
     })
@@ -144,12 +152,11 @@ export const DepositFormSection = withForm({
       }
 
       if (isDepositSectionDisabledNoDeposit) {
-        return (
-          <span className='flex items-center gap-1 w-full flex-wrap'>
-            <span>{t('description.disabled-no-deposit')}</span>
-            {productName}
-          </span>
-        )
+        return t.rich('description.disabled-no-deposit', {
+          bold: (chunks) => <span className='font-semibold'>{chunks}</span>,
+          extensionMonths,
+          productName
+        })
       }
 
       return t('description.default')
@@ -162,7 +169,7 @@ export const DepositFormSection = withForm({
 
         <FieldGroup>
           <form.AppField
-            name={`${CreateProductPaymentLinkFormSection.Deposit}.hasDeposit`}
+            name={`${CreateExtensionPaymentLinkFormSection.Deposit}.hasDeposit`}
           >
             {(field) => (
               <field.Switch
@@ -172,10 +179,10 @@ export const DepositFormSection = withForm({
                   field.handleChange(checked)
                   if (!checked) {
                     form.resetField(
-                      `${CreateProductPaymentLinkFormSection.Deposit}.depositAmount`
+                      `${CreateExtensionPaymentLinkFormSection.Deposit}.depositAmount`
                     )
                     form.resetField(
-                      `${CreateProductPaymentLinkFormSection.Deposit}.firstPaymentDateAfterDepositOptionId`
+                      `${CreateExtensionPaymentLinkFormSection.Deposit}.firstPaymentDateAfterDepositOptionId`
                     )
                   }
                 }}
@@ -186,7 +193,7 @@ export const DepositFormSection = withForm({
           <form.Subscribe
             selector={({
               values: {
-                [CreateProductPaymentLinkFormSection.Deposit]: { hasDeposit }
+                [CreateExtensionPaymentLinkFormSection.Deposit]: { hasDeposit }
               }
             }) => hasDeposit}
           >
@@ -197,7 +204,7 @@ export const DepositFormSection = withForm({
                 <FieldGroup className='sm:flex-row sm:items-start max-sm:gap-7!'>
                   <FieldGroup>
                     <form.AppField
-                      name={`${CreateProductPaymentLinkFormSection.Deposit}.depositAmount`}
+                      name={`${CreateExtensionPaymentLinkFormSection.Deposit}.depositAmount`}
                       validators={{
                         onSubmit: !isFieldDisabled ? NumericString() : undefined
                       }}
@@ -236,46 +243,50 @@ export const DepositFormSection = withForm({
                           (paymentSetting) =>
                             paymentSetting.id ===
                             values[
-                              CreateProductPaymentLinkFormSection.PaymentInfo
+                              CreateExtensionPaymentLinkFormSection.PaymentInfo
                             ].paymentSettingId
                         )!
                         const currency = paymentSetting.currency
                         const tvaRate = paymentSetting.tvaRate
                         const extraTaxRate = paymentSetting.extraTaxRate
 
-                        const product = products.find(
-                          (product) =>
-                            product.id ===
-                            values[CreateProductPaymentLinkFormSection.Product]
-                              .productId
-                        )
+                        const extension = products
+                          .flatMap((product) => product.extensions)
+                          .find(
+                            (extension) =>
+                              extension.id ===
+                              values[
+                                CreateExtensionPaymentLinkFormSection.Extension
+                              ].extensionId
+                          )
 
                         const minDepositAmount =
-                          product?.minDepositAmount ?? '0'
+                          extension?.minDepositAmount ?? '0'
 
                         const priceWithoutTVA =
                           (values[
-                            CreateProductPaymentLinkFormSection.Installments
+                            CreateExtensionPaymentLinkFormSection.Installments
                           ].hasInstallments &&
                           values[
-                            CreateProductPaymentLinkFormSection.Installments
-                          ].productInstallmentId
+                            CreateExtensionPaymentLinkFormSection.Installments
+                          ].extensionInstallmentId
                             ? (() => {
-                                const installment = product?.installments.find(
-                                  (installment) =>
-                                    installment.id ===
-                                    values[
-                                      CreateProductPaymentLinkFormSection
-                                        .Installments
-                                    ].productInstallmentId
-                                )
+                                const installment =
+                                  extension?.installments.find(
+                                    (installment) =>
+                                      installment.id ===
+                                      values[
+                                        CreateExtensionPaymentLinkFormSection
+                                          .Installments
+                                      ].extensionInstallmentId
+                                  )
                                 if (!installment) return '0'
                                 return PricingService.multiply(
                                   installment.pricePerInstallment,
                                   installment.count
                                 )
                               })()
-                            : product?.price) ?? '0'
+                            : extension?.price) ?? '0'
 
                         const priceWithTVA = PricingService.addTax(
                           PricingService.addTax(priceWithoutTVA, tvaRate),
@@ -387,7 +398,7 @@ export const DepositFormSection = withForm({
                         }
 
                         const depositAmount =
-                          values[CreateProductPaymentLinkFormSection.Deposit]
+                          values[CreateExtensionPaymentLinkFormSection.Deposit]
                             .depositAmount
                         if (!depositAmount) return undefined
 
@@ -417,7 +428,7 @@ export const DepositFormSection = withForm({
                   </FieldGroup>
 
                   <form.AppField
-                    name={`${CreateProductPaymentLinkFormSection.Deposit}.firstPaymentDateAfterDepositOptionId`}
+                    name={`${CreateExtensionPaymentLinkFormSection.Deposit}.firstPaymentDateAfterDepositOptionId`}
                     validators={{
                       onSubmit: !isFieldDisabled
                         ? z.string().nonempty()

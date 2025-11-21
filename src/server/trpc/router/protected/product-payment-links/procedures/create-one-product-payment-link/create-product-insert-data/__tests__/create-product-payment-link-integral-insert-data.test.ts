@@ -33,7 +33,7 @@ describe('createProductPaymentLinkIntegralInsertData', () => {
     paymentMethodType: PaymentMethodType.Card,
     paymentSettingId: 'settings_123',
     productId: 'prod_123',
-    scheduledEventUri: 'meeting_123',
+    scheduledEventId: 'meeting_123',
     setterName: 'Jane Setter',
     type: PaymentLinkType.Integral as const
   }

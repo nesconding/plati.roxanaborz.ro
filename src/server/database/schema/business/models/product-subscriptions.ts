@@ -12,7 +12,7 @@ export const product_subscriptions = business.table('product_subscriptions', {
   ...id,
 
   customerEmail: text('customer_email').notNull(),
-  customerName: text('customer_name').notNull(),
+  customerName: text('customer_name'),
   membershipId: text('membership_id')
     .notNull()
     .references(() => memberships.id, { onDelete: 'no action' }),
@@ -27,6 +27,7 @@ export const product_subscriptions = business.table('product_subscriptions', {
   productId: text('product_id')
     .notNull()
     .references(() => products.id, { onDelete: 'no action' }),
+  productName: text('product_name').notNull(),
   remainingPayments: integer('remaining_payments').notNull(),
   startDate: timestamp('start_date', { mode: 'string', withTimezone: true }),
   status: subscription_status_type('status').notNull(),

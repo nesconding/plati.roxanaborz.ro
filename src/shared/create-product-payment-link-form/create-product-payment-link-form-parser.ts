@@ -13,8 +13,10 @@ import { CreateProductPaymentLinkFormSection } from './enums/create-product-paym
 
 // Participants
 const participantsSchema = z.object({
+  callerEmail: z.string(),
   callerName: z.string(),
-  scheduledEventUri: z.string().nonempty(),
+  scheduledEventId: z.string().nonempty(),
+  setterEmail: z.string(),
   setterName: z.string()
 })
 
@@ -219,6 +221,9 @@ export namespace CreateProductPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .callerEmail,
           callerName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .callerName,
@@ -232,9 +237,12 @@ export namespace CreateProductPaymentLinkFormParser {
               .paymentSettingId,
           productId:
             result.data[CreateProductPaymentLinkFormSection.Product].productId,
-          scheduledEventUri:
+          scheduledEventId:
             result.data[CreateProductPaymentLinkFormSection.Participants]
-              .scheduledEventUri,
+              .scheduledEventId,
+          setterEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .setterEmail,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,
@@ -248,6 +256,9 @@ export namespace CreateProductPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .callerEmail,
           callerName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .callerName,
@@ -269,9 +280,12 @@ export namespace CreateProductPaymentLinkFormParser {
               .paymentSettingId,
           productId:
             result.data[CreateProductPaymentLinkFormSection.Product].productId,
-          scheduledEventUri:
+          scheduledEventId:
             result.data[CreateProductPaymentLinkFormSection.Participants]
-              .scheduledEventUri,
+              .scheduledEventId,
+          setterEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .setterEmail,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,
@@ -285,6 +299,9 @@ export namespace CreateProductPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .callerEmail,
           callerName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .callerName,
@@ -304,9 +321,12 @@ export namespace CreateProductPaymentLinkFormParser {
           productInstallmentId:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .productInstallmentId,
-          scheduledEventUri:
+          scheduledEventId:
             result.data[CreateProductPaymentLinkFormSection.Participants]
-              .scheduledEventUri,
+              .scheduledEventId,
+          setterEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .setterEmail,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,
@@ -320,6 +340,9 @@ export namespace CreateProductPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .callerEmail,
           callerName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .callerName,
@@ -347,9 +370,12 @@ export namespace CreateProductPaymentLinkFormParser {
           productInstallmentId:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .productInstallmentId,
-          scheduledEventUri:
+          scheduledEventId:
             result.data[CreateProductPaymentLinkFormSection.Participants]
-              .scheduledEventUri,
+              .scheduledEventId,
+          setterEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .setterEmail,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,

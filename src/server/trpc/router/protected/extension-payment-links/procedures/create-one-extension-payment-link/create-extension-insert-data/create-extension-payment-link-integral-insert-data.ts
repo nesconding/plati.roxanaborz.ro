@@ -15,7 +15,7 @@ export type ExtensionPaymentLinkIntegralInsertData = {
   createdById: string
   currency: PaymentCurrencyType
   customerEmail: string
-  customerName: string
+  customerName: string | null
   eurToRonRate: string
   expiresAt: string
   extensionId: string
@@ -44,7 +44,7 @@ export function createExtensionPaymentLinkIntegralInsertData({
 }: {
   data: CreateExtensionPaymentLinkIntegralFormData
   customerEmail: string
-  customerName: string
+  customerName: string | null
   eurToRonRate: string
   expiresAt: Date
   extension: typeof ProductsExtensionsTableValidators.$types.select

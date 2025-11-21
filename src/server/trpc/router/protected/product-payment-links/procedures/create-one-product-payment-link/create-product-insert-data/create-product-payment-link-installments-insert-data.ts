@@ -1,5 +1,5 @@
+import type { TRPCRouterOutput } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
-import type { ScheduledEvent } from '~/server/services/scheduledEvents'
 import type { CreateProductPaymentLinkInstallmentsFormData } from '~/shared/create-product-payment-link-form/data'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
@@ -15,11 +15,14 @@ import type {
 
 export type ProductPaymentLinkInstallmentsInsertData = {
   callerName: string
+  callerEmail: string
+  closerEmail: string
+  closerName: string
   contractId: string
   createdById: string
   currency: PaymentCurrencyType
   customerEmail: string
-  customerName: string
+  customerName: string | null
   eurToRonRate: string
   expiresAt: string
   extraTaxRate: string
@@ -32,6 +35,7 @@ export type ProductPaymentLinkInstallmentsInsertData = {
   productId: string
   productName: string
   setterName: string
+  setterEmail: string
   status: PaymentStatusType
   totalAmountToPay: string
   totalAmountToPayInCents: string
@@ -39,6 +43,8 @@ export type ProductPaymentLinkInstallmentsInsertData = {
   type: PaymentLinkType.Installments
 }
 
+type ScheduledEvent =
+  TRPCRouterOutput['protected']['scheduledEvents']['findAll'][number]
 export function createProductPaymentLinkInstallmentsInsertData({
   data,
   eurToRonRate,
@@ -79,12 +85,15 @@ export function createProductPaymentLinkInstallmentsInsertData({
     PricingService.convertToCents(totalAmountToPay)
 
   return {
+    callerEmail: data.callerEmail,
     callerName: data.callerName,
+    closerEmail: scheduledEvent.closerEmail,
+    closerName: scheduledEvent.closerName,
     contractId: data.contractId,
     createdById: user.id,
     currency: setting.currency,
-    customerEmail: scheduledEvent.participant_emails,
-    customerName: scheduledEvent.participant_names,
+    customerEmail: scheduledEvent.inviteeEmail,
+    customerName: scheduledEvent.inviteeName,
     eurToRonRate: eurToRonRate,
     expiresAt: expiresAt.toISOString(),
     extraTaxRate: setting.extraTaxRate,
@@ -97,6 +106,7 @@ export function createProductPaymentLinkInstallmentsInsertData({
     productInstallmentId: baseProductInstallment.id,
     productInstallmentsCount: baseProductInstallment.count,
     productName: product.name,
+    setterEmail: data.setterEmail,
     setterName: data.setterName,
     status: PaymentStatusType.Created,
     totalAmountToPay: totalAmountToPay.toString(),

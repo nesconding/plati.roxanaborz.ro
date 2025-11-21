@@ -37,11 +37,13 @@ export async function createProductPaymentLinkInsertData({
   db: typeof database
   user: typeof UsersTableValidators.$types.select
 }): Promise<ProductPaymentLinkInsertData> {
+  console.log(data.scheduledEventId)
+
   const [constants, scheduledEvent, product, setting] = await Promise.all([
     db.query.constants.findFirst(),
     db.query.calendly_scheduled_events.findFirst({
       where: (calendly_scheduled_events, { eq }) =>
-        eq(calendly_scheduled_events.uri, data.scheduledEventUri)
+        eq(calendly_scheduled_events.id, data.scheduledEventId)
     }),
     db.query.products.findFirst({
       where: (products, { eq }) => eq(products.id, data.productId)

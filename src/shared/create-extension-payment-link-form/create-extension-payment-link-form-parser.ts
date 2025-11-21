@@ -23,6 +23,16 @@ const extension = z.object({
   membershipId: z.cuid2()
 })
 
+// Participants
+const participants = z.object({
+  callerEmail: z.string(),
+  callerName: z.string(),
+  closerEmail: z.string(),
+  closerName: z.string(),
+  setterEmail: z.string(),
+  setterName: z.string()
+})
+
 // Installments
 const isNotRecurring = z.object({
   extensionInstallmentId: z.literal(''),
@@ -53,6 +63,7 @@ export namespace CreateExtensionPaymentLinkFormParser {
   export namespace Validation {
     const base = z.object({
       [CreateExtensionPaymentLinkFormSection.Extension]: extension,
+      [CreateExtensionPaymentLinkFormSection.Participants]: participants,
       [CreateExtensionPaymentLinkFormSection.PaymentInfo]: paymentInfo
     })
 
@@ -230,6 +241,18 @@ export namespace CreateExtensionPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .callerEmail,
+          callerName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .callerName,
+          closerEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .closerEmail,
+          closerName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .closerName,
           extensionId:
             result.data[CreateExtensionPaymentLinkFormSection.Extension]
               .extensionId,
@@ -242,6 +265,12 @@ export namespace CreateExtensionPaymentLinkFormParser {
           paymentSettingId:
             result.data[CreateExtensionPaymentLinkFormSection.PaymentInfo]
               .paymentSettingId,
+          setterEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .setterEmail,
+          setterName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .setterName,
           type: PaymentLinkType.Integral
         } satisfies CreateExtensionPaymentLinkIntegralFormData
 
@@ -252,6 +281,18 @@ export namespace CreateExtensionPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .callerEmail,
+          callerName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .callerName,
+          closerEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .closerEmail,
+          closerName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .closerName,
           depositAmount:
             result.data[CreateExtensionPaymentLinkFormSection.Deposit]
               .depositAmount,
@@ -273,6 +314,12 @@ export namespace CreateExtensionPaymentLinkFormParser {
           paymentSettingId:
             result.data[CreateExtensionPaymentLinkFormSection.PaymentInfo]
               .paymentSettingId,
+          setterEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .setterEmail,
+          setterName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .setterName,
           type: PaymentLinkType.Deposit
         } satisfies CreateExtensionPaymentLinkDepositFormData
 
@@ -283,6 +330,18 @@ export namespace CreateExtensionPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .callerEmail,
+          callerName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .callerName,
+          closerEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .closerEmail,
+          closerName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .closerName,
           extensionId:
             result.data[CreateExtensionPaymentLinkFormSection.Extension]
               .extensionId,
@@ -301,6 +360,12 @@ export namespace CreateExtensionPaymentLinkFormParser {
           paymentSettingId:
             result.data[CreateExtensionPaymentLinkFormSection.PaymentInfo]
               .paymentSettingId,
+          setterEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .setterEmail,
+          setterName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .setterName,
           type: PaymentLinkType.Installments
         } satisfies CreateExtensionPaymentLinkInstallmentsFormData
 
@@ -311,6 +376,18 @@ export namespace CreateExtensionPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .callerEmail,
+          callerName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .callerName,
+          closerEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .closerEmail,
+          closerName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .closerName,
           depositAmount:
             result.data[CreateExtensionPaymentLinkFormSection.Deposit]
               .depositAmount,
@@ -338,6 +415,12 @@ export namespace CreateExtensionPaymentLinkFormParser {
           paymentSettingId:
             result.data[CreateExtensionPaymentLinkFormSection.PaymentInfo]
               .paymentSettingId,
+          setterEmail:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .setterEmail,
+          setterName:
+            result.data[CreateExtensionPaymentLinkFormSection.Participants]
+              .setterName,
           type: PaymentLinkType.InstallmentsDeposit
         } satisfies CreateExtensionPaymentLinkInstallmentsDataDepositFormData
 

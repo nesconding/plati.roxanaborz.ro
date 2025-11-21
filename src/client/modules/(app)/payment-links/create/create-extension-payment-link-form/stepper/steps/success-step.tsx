@@ -15,13 +15,13 @@ import {
   TooltipTrigger
 } from '~/client/components/ui/tooltip'
 import { cn } from '~/client/lib/utils'
-import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
+import { CreateExtensionPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
 import type { TRPCRouterOutput } from '~/client/trpc/react'
 
-type ProductPaymentLinkCreateOneResponse =
-  TRPCRouterOutput['protected']['productPaymentLinks']['createOne']
+type CreateOneExtensionPaymentLink =
+  TRPCRouterOutput['protected']['extensionPaymentLinks']['createOne']
 
-function getPaymentLinkUrl(paymentLink: ProductPaymentLinkCreateOneResponse) {
+function getPaymentLinkUrl(paymentLink: CreateOneExtensionPaymentLink) {
   return new URL(
     `${globalThis.location.origin}/checkout/${paymentLink.id}`
   ).toString()
@@ -32,11 +32,11 @@ export function SuccessStep({
   createOnePaymentLinkResponse
 }: {
   onReset?: () => void
-  createOnePaymentLinkResponse?: ProductPaymentLinkCreateOneResponse
+  createOnePaymentLinkResponse?: CreateOneExtensionPaymentLink
 }) {
   const [isUrlCopied, setIsUrlCopied] = useState(false)
   const t = useTranslations(
-    `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateProductPaymentLinkFormStep.Success}`
+    `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateExtensionPaymentLinkFormStep.Success}`
   )
 
   if (!createOnePaymentLinkResponse) return null

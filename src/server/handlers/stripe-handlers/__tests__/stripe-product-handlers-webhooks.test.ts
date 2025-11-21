@@ -166,7 +166,10 @@ describe('StripeProductHandlers - Webhook Handlers', () => {
       mockRelationalFindFirst('products', undefined)
 
       await expect(
-        handler.handleProductIntegralPayment('pi_123', mockIntegralMetadata as any)
+        handler.handleProductIntegralPayment(
+          'pi_123',
+          mockIntegralMetadata as any
+        )
       ).rejects.toThrow('Product not found')
     })
   })
@@ -266,7 +269,10 @@ describe('StripeProductHandlers - Webhook Handlers', () => {
       mockRelationalFindFirst('products', undefined)
 
       await expect(
-        handler.handleProductDepositPayment('pi_123', mockDepositMetadata as any)
+        handler.handleProductDepositPayment(
+          'pi_123',
+          mockDepositMetadata as any
+        )
       ).rejects.toThrow('Product not found')
     })
   })
@@ -379,22 +385,22 @@ describe('StripeProductHandlers - Webhook Handlers', () => {
 
   describe('handleProductInstallmentsDepositPayment', () => {
     const mockInstallmentsDepositMetadata = {
-        type: PaymentLinkType.InstallmentsDeposit,
-        paymentProductType: PaymentProductType.Product,
-        productPaymentLinkId: 'ppl_installments_deposit_123',
-        productId: 'prod_123',
-        customerEmail: 'customer@example.com',
-        customerName: 'Test Customer',
-        totalAmountToPayInCents: '600000',
-        depositAmountInCents: '100000',
-        remainingAmountToPayInCents: '500000',
-        productInstallmentsCount: 12,
-        productInstallmentAmountToPayInCents: '50000',
-        remainingInstallmentAmountToPayInCents: '41667',
-        firstPaymentDateAfterDeposit: '2024-02-01T00:00:00.000Z',
-        currency: PaymentCurrencyType.RON,
-        paymentMethodType: PaymentMethodType.Card
-      }
+      type: PaymentLinkType.InstallmentsDeposit,
+      paymentProductType: PaymentProductType.Product,
+      productPaymentLinkId: 'ppl_installments_deposit_123',
+      productId: 'prod_123',
+      customerEmail: 'customer@example.com',
+      customerName: 'Test Customer',
+      totalAmountToPayInCents: '600000',
+      depositAmountInCents: '100000',
+      remainingAmountToPayInCents: '500000',
+      productInstallmentsCount: 12,
+      productInstallmentAmountToPayInCents: '50000',
+      remainingInstallmentAmountToPayInCents: '41667',
+      firstPaymentDateAfterDeposit: '2024-02-01T00:00:00.000Z',
+      currency: PaymentCurrencyType.RON,
+      paymentMethodType: PaymentMethodType.Card
+    }
 
     const mockPaymentIntent = {
       id: 'pi_installments_deposit_123',
@@ -460,7 +466,8 @@ describe('StripeProductHandlers - Webhook Handlers', () => {
           status: MembershipStatusType.Delayed,
           delayedStartDate:
             mockInstallmentsDepositMetadata.firstPaymentDateAfterDeposit,
-          startDate: mockInstallmentsDepositMetadata.firstPaymentDateAfterDeposit,
+          startDate:
+            mockInstallmentsDepositMetadata.firstPaymentDateAfterDeposit,
           endDate: expect.any(String)
         })
       )

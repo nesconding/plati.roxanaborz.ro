@@ -402,11 +402,13 @@ class CalendlyHandlersImpl {
    * Sync Calendly scheduled events with database
    * Updates startTime, endTime, closerName, closerEmail for events that have changed
    * Deletes events that no longer exist in Calendly
+   * Inserts new events from Calendly that don't exist in database
    */
   async syncScheduledEvents(): Promise<{
     checkedCount: number
     updatedCount: number
     deletedCount: number
+    insertedCount: number
     errors: Array<{ uri: string; error: string }>
   }> {
     try {
@@ -434,6 +436,7 @@ class CalendlyHandlersImpl {
       let checkedCount = 0
       let updatedCount = 0
       let deletedCount = 0
+      let insertedCount = 0
       const errors: Array<{ uri: string; error: string }> = []
 
       // Step 4: Process updates - only update if fields have changed
@@ -450,8 +453,10 @@ class CalendlyHandlersImpl {
 
         // Check if any field has changed
         const hasChanged =
-          dbEvent.startTime !== calendlyEvent.startTime ||
-          dbEvent.endTime !== calendlyEvent.endTime ||
+          new Date(dbEvent.startTime).getTime() !==
+            new Date(calendlyEvent.startTime).getTime() ||
+          new Date(dbEvent.endTime).getTime() !==
+            new Date(calendlyEvent.endTime).getTime() ||
           dbEvent.closerName !== calendlyEvent.closerName ||
           dbEvent.closerEmail !== calendlyEvent.closerEmail
 
@@ -462,8 +467,8 @@ class CalendlyHandlersImpl {
               .set({
                 closerEmail: calendlyEvent.closerEmail,
                 closerName: calendlyEvent.closerName,
-                endTime: calendlyEvent.endTime,
-                startTime: calendlyEvent.startTime
+                endTime: new Date(calendlyEvent.endTime).toISOString(),
+                startTime: new Date(calendlyEvent.startTime).toISOString()
               })
               .where(eq(calendly_scheduled_events.uri, dbEvent.uri))
 
@@ -506,16 +511,78 @@ class CalendlyHandlersImpl {
         }
       }
 
+      // Step 6: Insert new events that exist in Calendly but not in DB
+      console.log('[CalendlyHandlers] Checking for new events to insert')
+      const dbEventsMap = new Map(dbEvents.map((event) => [event.uri, event]))
+
+      for (const calendlyEvent of calendlyEvents) {
+        if (!dbEventsMap.has(calendlyEvent.uri)) {
+          try {
+            // Fetch invitee data for this event
+            const invitee = await CalendlyService.getEventInvitees(
+              calendlyEvent.uri
+            )
+
+            if (!invitee) {
+              console.warn(
+                `[CalendlyHandlers] No invitee found for event: ${calendlyEvent.uri}`
+              )
+              continue
+            }
+
+            // Extract phone number from questions_and_answers
+            const phoneQuestion = invitee.questions_and_answers?.find(
+              (qa) =>
+                qa.question.toLowerCase() === 'număr de telefon' ||
+                qa.question.toLowerCase() === 'numar de telefon' ||
+                qa.question.toLowerCase() === 'numărul de telefon' ||
+                qa.question.toLowerCase() === 'numarul de telefon'
+            )
+
+            // Insert new event
+            await this.db.insert(calendly_scheduled_events).values({
+              closerEmail: calendlyEvent.closerEmail,
+              closerName: calendlyEvent.closerName,
+              endTime: calendlyEvent.endTime,
+              inviteeEmail: invitee.email,
+              inviteeName: invitee.name,
+              inviteePhoneNumber: phoneQuestion?.answer || null,
+              inviteeUri: invitee.uri,
+              name: calendlyEvent.name,
+              startTime: calendlyEvent.startTime,
+              status: 'active' as CalendlyScheduledEventsStatusType,
+              uri: calendlyEvent.uri
+            })
+
+            insertedCount++
+            console.log(
+              `[CalendlyHandlers] Inserted new event: ${calendlyEvent.uri}`
+            )
+          } catch (error) {
+            errors.push({
+              error: error instanceof Error ? error.message : 'Unknown error',
+              uri: calendlyEvent.uri
+            })
+            console.error(
+              `[CalendlyHandlers] Failed to insert event ${calendlyEvent.uri}:`,
+              error
+            )
+          }
+        }
+      }
+
       console.log('[CalendlyHandlers] Sync completed successfully')
       console.log(`[CalendlyHandlers] - Checked: ${checkedCount}`)
       console.log(`[CalendlyHandlers] - Updated: ${updatedCount}`)
       console.log(`[CalendlyHandlers] - Deleted: ${deletedCount}`)
+      console.log(`[CalendlyHandlers] - Inserted: ${insertedCount}`)
       console.log(`[CalendlyHandlers] - Errors: ${errors.length}`)
 
       return {
         checkedCount,
         deletedCount,
         errors,
+        insertedCount,
         updatedCount
       }
     } catch (cause) {

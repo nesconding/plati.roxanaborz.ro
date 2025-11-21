@@ -183,7 +183,7 @@ class CalendlyServiceImpl {
   private async fetchCalendly<T>(
     url: string,
     schema: z.ZodType<T>,
-    logger: ReturnType<typeof createLogger>,
+    logger: ReturnType<typeof createLogger> | null,
     rateLimiter: ReturnType<typeof createRateLimiter>,
     description: string,
     retryCount = 0
@@ -192,7 +192,7 @@ class CalendlyServiceImpl {
 
     await rateLimiter.waitIfNeeded()
 
-    logger.log(`Fetching ${description}`, { url })
+    logger?.log(`Fetching ${description}`, { url })
 
     const response = await fetch(url, {
       headers: {
@@ -204,12 +204,12 @@ class CalendlyServiceImpl {
 
     // Handle 429 (Rate Limit Exceeded) - wait 1 minute and retry
     if (response.status === 429) {
-      logger.log(
+      logger?.log(
         `Rate limit exceeded (429) for ${description}. Waiting 60 seconds before retry...`
       )
       await new Promise((resolve) => setTimeout(resolve, 60000)) // Wait 1 minute
 
-      logger.log(`Retrying ${description} after rate limit wait`)
+      logger?.log(`Retrying ${description} after rate limit wait`)
       return this.fetchCalendly(
         url,
         schema,
@@ -223,12 +223,12 @@ class CalendlyServiceImpl {
     // Handle 500 (Internal Server Error) - retry with exponential backoff
     if (response.status === 500 && retryCount < maxRetries) {
       const waitTime = Math.min(1000 * 2 ** retryCount, 10000) // Exponential backoff, max 10s
-      logger.log(
+      logger?.log(
         `Internal server error (500) for ${description}. Retry ${retryCount + 1}/${maxRetries} in ${waitTime / 1000}s...`
       )
       await new Promise((resolve) => setTimeout(resolve, waitTime))
 
-      logger.log(`Retrying ${description} (attempt ${retryCount + 1})`)
+      logger?.log(`Retrying ${description} (attempt ${retryCount + 1})`)
       return this.fetchCalendly(
         url,
         schema,
@@ -242,7 +242,7 @@ class CalendlyServiceImpl {
     // Handle other error responses
     if (!response.ok) {
       const errorText = await response.text()
-      logger.error(`Failed to fetch ${description}`, {
+      logger?.error(`Failed to fetch ${description}`, {
         error: errorText,
         status: response.status
       })
@@ -253,22 +253,24 @@ class CalendlyServiceImpl {
     const { success, data, error } = schema.safeParse(json)
 
     if (!success) {
-      logger.error(`Failed to parse ${description}`, error)
+      logger?.error(`Failed to parse ${description}`, error)
       throw new Error(`Failed to parse ${description}`, { cause: error })
     }
 
-    logger.log(`Successfully fetched ${description}`)
+    logger?.log(`Successfully fetched ${description}`)
     return data
   }
 
   /**
-   * Fetch invitees for a single event
+   * Get invitee data for a specific event
+   * Returns the first invitee or null if none found
    */
-  private async getEventInvitees(
-    eventUri: string,
-    logger: ReturnType<typeof createLogger>,
-    rateLimiter: ReturnType<typeof createRateLimiter>
+  async getEventInvitees(
+    eventUri: string
   ): Promise<CalendlyGetEventInviteesResponse['collection'][number] | null> {
+    const logger = createLogger('CalendlyService.getEventInvitees')
+    const rateLimiter = createRateLimiter(490)
+
     try {
       const response = await this.fetchCalendly(
         `${eventUri}/invitees`,
@@ -286,11 +288,35 @@ class CalendlyServiceImpl {
   }
 
   /**
+   * Private helper method used by batchProcessEvents
+   */
+  private async getEventInviteesInternal(
+    eventUri: string,
+    logger: ReturnType<typeof createLogger> | null,
+    rateLimiter: ReturnType<typeof createRateLimiter>
+  ): Promise<CalendlyGetEventInviteesResponse['collection'][number] | null> {
+    try {
+      const response = await this.fetchCalendly(
+        `${eventUri}/invitees`,
+        GetEventInviteesResponseSchema,
+        logger,
+        rateLimiter,
+        'event invitees'
+      )
+
+      return response.collection[0] || null
+    } catch (error) {
+      logger?.error(`Failed to fetch invitees for event ${eventUri}`, error)
+      return null
+    }
+  }
+
+  /**
    * Process events in parallel batches with rate limiting
    */
   private async batchProcessEvents(
     events: CalendlyGetEventsResponse['collection'],
-    logger: ReturnType<typeof createLogger>,
+    logger: ReturnType<typeof createLogger> | null,
     rateLimiter: ReturnType<typeof createRateLimiter>,
     progressBar: cliProgress.SingleBar | null,
     batchSize = 50
@@ -335,14 +361,14 @@ class CalendlyServiceImpl {
       const chunkResults = await Promise.all(
         chunk.map(async (event) => {
           // Get invitee data
-          const invitee = await this.getEventInvitees(
+          const invitee = await this.getEventInviteesInternal(
             event.uri,
             logger,
             rateLimiter
           )
 
           if (!invitee) {
-            logger.error(`No invitee found for event ${event.uri}`)
+            logger?.error(`No invitee found for event ${event.uri}`)
             return null
           }
 
@@ -682,7 +708,7 @@ class CalendlyServiceImpl {
 
       const results = await this.batchProcessEvents(
         eventsData,
-        logger,
+        null,
         rateLimiter,
         eventsBar,
         50 // Process 50 events at a time

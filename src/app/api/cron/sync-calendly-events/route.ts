@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET
 
     if (!cronSecret) {
-      console.error('[Cron] CRON_SECRET not configured in environment variables')
+      console.error(
+        '[Cron] CRON_SECRET not configured in environment variables'
+      )
       return NextResponse.json(
         { error: 'Cron job not configured' },
         { status: 500 }
@@ -36,30 +38,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 2: Execute sync
-    console.log('[Cron] Starting Calendly events sync...')
-    const startTime = Date.now()
 
-    const result = await CalendlyHandlers.syncScheduledEvents()
+    triggerHandler()
 
-    const duration = Date.now() - startTime
-    console.log(`[Cron] Completed Calendly events sync in ${duration}ms`)
-    console.log(`[Cron] Checked ${result.checkedCount} events`)
-    console.log(`[Cron] Updated ${result.updatedCount} events`)
-    console.log(`[Cron] Deleted ${result.deletedCount} events`)
-
-    if (result.errors.length > 0) {
-      console.warn(`[Cron] Encountered ${result.errors.length} errors:`, result.errors)
-    }
-
-    // Step 3: Return result
     return NextResponse.json(
       {
-        checkedCount: result.checkedCount,
-        deletedCount: result.deletedCount,
-        duration: `${duration}ms`,
-        errors: result.errors,
-        timestamp: new Date().toISOString(),
-        updatedCount: result.updatedCount
+        started: true
       },
       { status: 200 }
     )
@@ -82,4 +66,33 @@ export async function GET() {
     { error: 'Method not allowed. Use POST.' },
     { status: 405 }
   )
+}
+
+async function triggerHandler() {
+  console.log('[Cron] Starting Calendly events sync...')
+  const startTime = Date.now()
+
+  const result = await CalendlyHandlers.syncScheduledEvents()
+
+  const duration = Date.now() - startTime
+  console.log(`[Cron] Completed Calendly events sync in ${duration}ms`)
+  console.log(`[Cron] Checked ${result.checkedCount} events`)
+  console.log(`[Cron] Updated ${result.updatedCount} events`)
+  console.log(`[Cron] Deleted ${result.deletedCount} events`)
+
+  if (result.errors.length > 0) {
+    console.warn(
+      `[Cron] Encountered ${result.errors.length} errors:`,
+      result.errors
+    )
+  }
+
+  console.log('[Cron] Calendly events sync result:', {
+    checkedCount: result.checkedCount,
+    deletedCount: result.deletedCount,
+    duration: `${duration}ms`,
+    errors: result.errors,
+    insertedCount: result.insertedCount,
+    updatedCount: result.updatedCount
+  })
 }

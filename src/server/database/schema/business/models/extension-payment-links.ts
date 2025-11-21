@@ -18,12 +18,16 @@ export const extension_payment_links = business.table(
   'extension_payment_links',
   {
     ...id,
+    callerEmail: text('caller_email'),
+    callerName: text('caller_name'),
+    closerEmail: text('closer_email'),
+    closerName: text('closer_name'),
     createdById: text('created_by_id')
       .notNull()
       .references(() => users.id, { onDelete: 'no action' }),
     currency: payment_currency_type('currency').notNull(),
     customerEmail: text('customer_email').notNull(),
-    customerName: text('customer_name').notNull(),
+    customerName: text('customer_name'),
     depositAmount: numeric('deposit_amount'),
     depositAmountInCents: numeric('deposit_amount_in_cents'),
     eurToRonRate: numeric('eur_to_ron_rate'),
@@ -71,6 +75,8 @@ export const extension_payment_links = business.table(
     remainingInstallmentAmountToPayInCents: numeric(
       'remaining_installment_amount_to_pay_in_cents'
     ),
+    setterEmail: text('setter_email'),
+    setterName: text('setter_name'),
     status: payment_status_type('status').notNull(),
     stripeClientSecret: text('stripe_client_secret').notNull(),
     stripePaymentIntentId: text('stripe_payment_intent_id').notNull(),

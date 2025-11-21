@@ -13,13 +13,14 @@ export const extension_orders = business.table('extension_orders', {
   ...id,
 
   customerEmail: text('customer_email').notNull(),
-  customerName: text('customer_name').notNull(),
+  customerName: text('customer_name'),
   extensionPaymentLinkId: text('extension_payment_link_id')
     .notNull()
     .references(() => extension_payment_links.id, { onDelete: 'no action' }),
   membershipId: text('membership_id')
     .notNull()
     .references(() => memberships.id, { onDelete: 'no action' }),
+  productName: text('product_name').notNull(),
   status: order_status_type('status').notNull(),
   stripePaymentIntentId: text('stripe_payment_intent_id').notNull(),
   type: order_type('type').notNull(),

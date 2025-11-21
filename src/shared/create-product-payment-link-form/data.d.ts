@@ -3,55 +3,63 @@ import type { PaymentMethodType } from '~/shared/enums/payment-method-type'
 
 export type CreateProductPaymentLinkIntegralFormData = {
   callerName: string
+  callerEmail: string
   contractId: string
-  scheduledEventUri: string
+  scheduledEventId: string
   paymentMethodType: PaymentMethodType
   paymentSettingId: string
   productId: string
   setterName: string
+  setterEmail: string
   type: PaymentLinkType.Integral
 }
 
 export type CreateProductPaymentLinkDepositFormData = {
   callerName: string
+  callerEmail: string
   contractId: string
   depositAmount: string
   firstPaymentDateAfterDepositOptionId: string
   hasDeposit: true
-  scheduledEventUri: string
+  scheduledEventId: string
   paymentMethodType: PaymentMethodType
   paymentSettingId: string
   productId: string
   setterName: string
+  setterEmail: string
   type: PaymentLinkType.Deposit
 }
 
 export type CreateProductPaymentLinkInstallmentsFormData = {
   callerName: string
+  callerEmail: string
   contractId: string
   hasInstallments: true
   productInstallmentId: string
-  scheduledEventUri: string
+  scheduledEventId: string
   paymentMethodType: PaymentMethodType
   paymentSettingId: string
   productId: string
   setterName: string
+  setterEmail: string
   type: PaymentLinkType.Installments
 }
 
 export type CreateProductPaymentLinkInstallmentsDepositFormData = {
   callerName: string
+  callerEmail: string
   contractId: string
   depositAmount: string
   firstPaymentDateAfterDepositOptionId: string
   hasDeposit: true
   hasInstallments: true
   productInstallmentId: string
-  scheduledEventUri: string
+  scheduledEventId: string
   paymentMethodType: PaymentMethodType
   paymentSettingId: string
   productId: string
   setterName: string
+  setterEmail: string
   type: PaymentLinkType.InstallmentsDeposit
 }
 

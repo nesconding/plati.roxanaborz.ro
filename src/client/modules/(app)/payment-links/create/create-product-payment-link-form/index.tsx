@@ -12,7 +12,6 @@ import {
 } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper'
 import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper/config'
 import { StepperContent } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper/stepper-content'
-import { StepperNavigation } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper/stepper-navigation'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
 import {
   CreateProductPaymentLinkFormDefaultValues,
@@ -141,8 +140,6 @@ function CreateProductPaymentLinkFormInner() {
 
   return (
     <div className='flex flex-col gap-4 w-full'>
-      <StepperNavigation />
-
       <StepperContent
         className='col-span-3'
         contracts={findAllContracts.data}
