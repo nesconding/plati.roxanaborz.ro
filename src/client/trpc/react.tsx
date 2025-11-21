@@ -26,7 +26,7 @@ function getQueryClient() {
 function getUrl() {
   const base = (() => {
     if (typeof window !== 'undefined') return ''
-    return `https://${process.env.VERCEL_URL}`
+    return process.env.BASE_URL!
   })()
   return `${base}/api/trpc`
 }

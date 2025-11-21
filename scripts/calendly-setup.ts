@@ -1,13 +1,13 @@
 import { CalendlyHandlers } from '~/server/handlers/calendly-handlers'
 
-const BASE_URL = process.env.VERCEL_URL || 'crow-polite-firstly.ngrok-free.app'
+const BASE_URL = process.env.BASE_URL || 'plati.roxanaborz.ro'
 
 async function main() {
   try {
     console.log('[Calendly Setup] Starting Calendly webhook setup')
     // Setup webhook via CalendlyHandlers
     const webhook = await CalendlyHandlers.setupWebhook(
-      `https://${BASE_URL}/api/webhooks/calendly`
+      `${BASE_URL}/api/webhooks/calendly`
     )
     console.log(
       '[Calendly Setup] Calendly webhook setup completed successfully',

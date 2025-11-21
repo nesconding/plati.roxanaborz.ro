@@ -16,10 +16,12 @@ import {
 } from '@react-email/components'
 
 interface ChangeEmailVerificationEmail {
+  baseUrl: string
   url: string
 }
 
 export const ChangeEmailVerificationEmail = ({
+  baseUrl,
   url
 }: ChangeEmailVerificationEmail) => {
   const previewText = 'Link de autentificare pentru Plați RB'
@@ -70,7 +72,7 @@ export const ChangeEmailVerificationEmail = ({
               <Img
                 alt='Plați RB'
                 className='mx-auto my-0 w-40'
-                src='https://plati.roxanaborz.ro/logo.png'
+                src={`${baseUrl}/logo.png`}
               />
             </Section>
 

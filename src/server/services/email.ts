@@ -15,6 +15,7 @@ class EmailServiceImpl {
       await resend.emails.send({
         from: process.env.RESEND_SENDER_EMAIL!,
         react: MagicLinkEmail({
+          baseUrl: process.env.BASE_URL!,
           url: data.url
         }),
         subject: 'Link-ul de autentificare - Plați RB',
@@ -40,6 +41,7 @@ class EmailServiceImpl {
       await resend.emails.send({
         from: process.env.RESEND_SENDER_EMAIL!,
         react: ChangeEmailVerificationEmail({
+          baseUrl: process.env.BASE_URL!,
           url: data.url
         }),
         subject: 'Solicitare de actualizare a email-ului - Plați RB',

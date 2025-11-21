@@ -16,10 +16,11 @@ import {
 } from '@react-email/components'
 
 interface MagicLinkEmailProps {
+  baseUrl: string
   url: string
 }
 
-export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => {
+export const MagicLinkEmail = ({ baseUrl, url }: MagicLinkEmailProps) => {
   const previewText =
     'Link-ul dumneavoastră de autentificare pentru a vă conecta în platforma Plați RB'
 
@@ -69,7 +70,7 @@ export const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => {
               <Img
                 alt='Plați RB'
                 className='mx-auto my-0 w-40'
-                src='https://plati.roxanaborz.ro/logo.png'
+                src={`${baseUrl}/logo.png`}
               />
             </Section>
 
