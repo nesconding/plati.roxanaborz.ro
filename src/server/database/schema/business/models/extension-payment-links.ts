@@ -13,6 +13,7 @@ import { products_extensions } from '~/server/database/schema/product/models/pro
 import { products_extensions_installments } from '~/server/database/schema/product/models/products-extensions-installments'
 import { business } from '~/server/database/schema/schemas'
 import { id, softDeleteTimestamps } from '~/server/database/schema/utils'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
 
 export const extension_payment_links = business.table(
   'extension_payment_links',
@@ -65,7 +66,9 @@ export const extension_payment_links = business.table(
         onDelete: 'no action'
       }),
     paymentMethodType: payment_method_type('payment_method_type').notNull(),
-    paymentProductType: payment_product_type('payment_product_type').notNull(),
+    paymentProductType: payment_product_type('payment_product_type')
+      .default(PaymentProductType.Extension)
+      .notNull(),
     productName: text('product_name').notNull(),
     remainingAmountToPay: numeric('remaining_amount_to_pay'),
     remainingAmountToPayInCents: numeric('remaining_amount_to_pay_in_cents'),
