@@ -1,6 +1,6 @@
 import { CalendlyHandlers } from '~/server/handlers/calendly-handlers'
 
-const BASE_URL = process.env.BASE_URL || 'plati.roxanaborz.ro'
+const BASE_URL = process.env.BASE_URL || 'https://plati.roxanaborz.ro'
 
 async function main() {
   try {
