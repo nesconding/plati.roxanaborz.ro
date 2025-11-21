@@ -11,7 +11,10 @@ import {
 } from '#test/fixtures/subscriptions'
 import { mockActiveMembership } from '#test/fixtures/memberships'
 import { mockParentOrder } from '#test/fixtures/orders'
-import { mockProductPaymentLinkDeposit, mockProductPaymentLinkInstallments } from '#test/fixtures/payment-links'
+import {
+  mockProductPaymentLinkDeposit,
+  mockProductPaymentLinkInstallments
+} from '#test/fixtures/payment-links'
 import { MembershipStatusType } from '~/shared/enums/membership-status-type'
 import { OrderStatusType } from '~/shared/enums/order-status-type'
 import { OrderType } from '~/shared/enums/order-type'

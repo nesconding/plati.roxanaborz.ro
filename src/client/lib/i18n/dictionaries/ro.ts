@@ -1,7 +1,10 @@
+import { CreateExtensionPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
 import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper/config'
 import { CheckoutFormSection } from '~/client/modules/checkout/checkout-form/schema'
 import { CheckoutFormStep } from '~/client/modules/checkout/checkout-form/stepper/config'
+import { CreateExtensionPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
 import { CreateProductPaymentLinkFormSection } from '~/shared/create-product-payment-link-form/enums/create-product-payment-link-form-sections'
+import { MembershipStatusType } from '~/shared/enums/membership-status-type'
 import { OrderStatusType } from '~/shared/enums/order-status-type'
 import { OrderType } from '~/shared/enums/order-type'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
@@ -1624,13 +1627,17 @@ const dictionary = {
                 title: 'Link-ul de plată a fost creat'
               }
             },
-            'select-product-and-meeting': {
+            'select-product-and-scheduledEvent': {
               description:
                 'Alege un produs și o întâlnire pentru care se va crea link-ul de plată.',
 
               fields: {
-                'meeting-select': {
-                  placeholder: 'Selecteazǎ o întâlnire',
+                'product-select': {
+                  placeholder: 'Selecteazǎ un produs',
+                  title: 'Alege un produs'
+                },
+                'scheduledEvent-select': {
+                  placeholder: 'Cautǎ o întâlnire',
                   title: 'Alege o întâlnire',
                   values: {
                     'not-found': 'Nu s-a gǎsit nicio întâlnire',
@@ -1640,10 +1647,6 @@ const dictionary = {
                       canceled: 'Anulatǎ'
                     }
                   }
-                },
-                'product-select': {
-                  placeholder: 'Selecteazǎ un produs',
-                  title: 'Alege un produs'
                 }
               },
               legend: 'Alege un produs și o întâlnire'
@@ -1748,7 +1751,328 @@ const dictionary = {
 
       'payment-links': {
         _components: {
+          'create-extension-payment-link-form': {
+            buttons: {
+              'next-step': 'Pasul următor',
+              'previous-step': 'Pasul anterior',
+              submit: { default: 'Generează', loading: 'Se generează...' }
+            },
+            response: {
+              error: {
+                description: 'A apărut o eroare la crearea link-ului de plată.',
+                title: 'Link-ul de plată nu a fost creat'
+              },
+              success: {
+                description: 'Link-ul de plată a fost creat cu succes.',
+                title: 'Link-ul de plată a fost creat'
+              }
+            },
+
+            steps: {
+              [CreateExtensionPaymentLinkFormStep.BaseInfo]: {
+                description:
+                  'Configurați detaliile de bazǎ pentru crearea link-ului de platǎ.',
+                forms: {
+                  [CreateExtensionPaymentLinkFormSection.Extension]: {
+                    description:
+                      'Alege o prelungire pentru care se va crea link-ul de plată.',
+                    fields: {
+                      extensionId: {
+                        item: {
+                          extensionMonths:
+                            '{extensionMonths, plural, =1 {o lunǎ} other {# luni}}',
+                          formattedPrice: '({formattedPrice} fǎrǎ TVA)'
+                        },
+                        placeholder: 'Selecteazǎ o prelungire',
+                        title: 'Alege o prelungire'
+                      },
+                      membershipId: {
+                        placeholder: 'Selecteazǎ un membership',
+                        title: 'Alege un membership',
+                        values: {
+                          'not-found': 'Nu s-a gǎsit nici un membership',
+                          placeholder: 'Cautǎ un membership',
+                          status: {
+                            [MembershipStatusType.Active]: 'Activǎ',
+                            [MembershipStatusType.Cancelled]: 'Anulatǎ',
+                            [MembershipStatusType.Delayed]: 'Intarziatǎ',
+                            [MembershipStatusType.Paused]: 'Pauzǎ'
+                          }
+                        }
+                      }
+                    },
+                    legend: 'Prelungire'
+                  },
+                  [CreateProductPaymentLinkFormSection.Participants]: {
+                    description:
+                      'Alege participanții pentru care se va crea link-ul de plată.',
+                    fields: {
+                      callerEmail: {
+                        placeholder: 'Introduceți email-ul caller-ului',
+                        title: 'Email caller'
+                      },
+                      callerName: {
+                        placeholder: 'Introduceți numele caller-ului',
+                        title: 'Nume caller'
+                      },
+                      closerEmail: {
+                        placeholder: 'Introduceți email-ul closer-ului',
+                        title: 'Email closer'
+                      },
+                      closerName: {
+                        placeholder: 'Introduceți numele closer-ului',
+                        title: 'Nume closer'
+                      },
+                      setterEmail: {
+                        placeholder: 'Introduceți email-ul setter-ului',
+                        title: 'Email setter'
+                      },
+                      setterName: {
+                        placeholder: 'Introduceți numele setter-ului',
+                        title: 'Nume setter'
+                      }
+                    },
+                    legend: 'Participanți'
+                  },
+                  [CreateProductPaymentLinkFormSection.Product]: {
+                    description:
+                      'Alege un produs pentru care se va crea link-ul de plată.',
+                    fields: {
+                      contractId: {
+                        placeholder: 'Selecteazǎ un contract',
+                        title: 'Alege un contract'
+                      },
+                      extensionId: {
+                        item: {
+                          extensionMonths:
+                            '{extensionMonths, plural, =1 {o lunǎ} other {# luni}}',
+                          formattedPrice: '({formattedPrice} fǎrǎ TVA)'
+                        },
+                        placeholder: 'Selecteazǎ o prelungire',
+                        title: 'Alege o prelungire'
+                      },
+                      productId: {
+                        item: {
+                          formattedPrice: '({formattedPrice} fǎrǎ TVA)'
+                        },
+                        placeholder: 'Selecteazǎ un produs',
+                        title: 'Alege un produs'
+                      },
+                      productType: {
+                        placeholder: 'Selecteazǎ tipul produsului',
+                        title: 'Tip produs',
+                        values: {
+                          [PaymentProductType.Product]: 'Produs de bazǎ',
+                          [PaymentProductType.Extension]: 'Prelungire'
+                        }
+                      }
+                    },
+                    legend: 'Produs'
+                  }
+                },
+                title: 'Detalii de bazǎ'
+              },
+              [CreateExtensionPaymentLinkFormStep.PaymentInfo]: {
+                description:
+                  'Configurați detaliile de platǎ pentru crearea link-ului.',
+                forms: {
+                  [CreateExtensionPaymentLinkFormSection.PaymentInfo]: {
+                    description:
+                      'Alege țara de facturare și metoda de platǎ pentru crearea link-ului.',
+                    fields: {
+                      paymentMethodType: {
+                        item: {
+                          [PaymentMethodType.BankTransfer]: 'Transfer bancar',
+                          [PaymentMethodType.Card]: 'Card',
+                          [PaymentMethodType.TBI]: 'TBI'
+                        },
+                        placeholder: 'Selecteazǎ metoda de platǎ',
+                        title: 'Metoda de platǎ'
+                      },
+                      paymentSettingId: {
+                        itemDetails:
+                          '<muted>Monedǎ: <bold>{currency}</bold> TVA: <bold>{tvaRate}%</bold> Comision extra: <bold>{extraTaxRate}%</bold></muted>',
+                        placeholder: 'Selecteazǎ o setare de platǎ',
+                        title: 'Setare de platǎ'
+                      }
+                    },
+                    legend: 'Detalii platǎ'
+                  },
+                  [CreateExtensionPaymentLinkFormSection.Installments]: {
+                    description: {
+                      default:
+                        'Alege opțiunile de rate pentru crearea link-ului de plată.',
+                      'disabled-no-installments':
+                        'Nu există opțiuni de rate pentru <bold>prelungirea de {extensionMonths, plural, =1 {o lunǎ} other {# luni}}</bold> a produsului <bold>{productName}</bold>',
+                      'disabled-payment-method-tbi':
+                        'Nu există opțiuni de rate pentru <bold>plata prin TBI</bold>.'
+                    },
+                    fields: {
+                      extensionInstallmentId: {
+                        item: {
+                          count: '{count, plural, =1 {o ratǎ} other {# rate}}',
+                          formattedPrice:
+                            '({count} x {formattedPrice} = {formattedTotalPrice} farǎ TVA)'
+                        },
+                        placeholder:
+                          'Selecteazǎ opțiunea de rate pentru prelungire',
+                        title: 'Alege opțiunea de rate pentru prelungire'
+                      },
+                      hasInstallments: {
+                        title: 'Activează rate'
+                      }
+                    },
+                    legend: 'Opțiuni de rate'
+                  },
+                  [CreateExtensionPaymentLinkFormSection.Deposit]: {
+                    description: {
+                      default:
+                        'Alege opțiunile de avans pentru crearea link-ului de plată.',
+                      'disabled-no-deposit':
+                        'Nu există opțiunea de avans pentru <bold>prelungirea de {extensionMonths, plural, =1 {o lunǎ} other {# luni}}</bold> a produsului <bold>{productName}</bold>',
+                      'disabled-payment-method-tbi':
+                        'Nu există opțiunea de avans pentru <bold>plata prin TBI</bold>.'
+                    },
+                    fields: {
+                      depositAmount: {
+                        placeholder: 'Introduceți suma pentru avans',
+                        title:
+                          'Suma pentru avans ({tvaRate, plural, =0 {farǎ TVA} other {cu #% TVA}})',
+                        warning: {
+                          max: {
+                            [PaymentCurrencyType.EUR]:
+                              '<bold>ATENTIE!</bold> Suma selectata este <bold>mai mare sau egalǎ</bold> decat <bold>{formattedPriceInEUR}</bold> {tvaRate, plural, =0 {farǎ <bold>TVA</bold>} other {cu <bold>#% TVA</bold>}}, prețul întreg al produsului.',
+                            [PaymentCurrencyType.RON]:
+                              '<bold>ATENTIE!</bold> Suma selectata este <bold>mai mare sau egalǎ</bold> decat <bold>{formattedPriceInRON}</bold> (<bold>{formattedPriceInEUR}</bold> {tvaRate, plural, =0 {farǎ <bold>TVA</bold>} other {cu <bold>#% TVA</bold>}} calculat la <bold>{formattedEUR}</bold> = <bold>{formattedEURToRONRate}</bold>), prețul întreg al produsului.'
+                          },
+                          min: {
+                            [PaymentCurrencyType.EUR]:
+                              '<bold>ATENTIE!</bold> Suma selectata este <bold>mai mica</bold> decat <bold>{formattedMinDepositAmountEUR}</bold> ({tvaRate, plural, =0 {farǎ <bold>TVA</bold>} other {cu <bold>#% TVA</bold>}}) minimul pe care trebuie sa-l achite un client ca sa primeasca acces la platforma de curs si la mentor. <bold>Asigura-te ca-l anunti si stie aceste lucruri.</bold>',
+                            [PaymentCurrencyType.RON]:
+                              '<bold>ATENTIE!</bold> Suma selectata este <bold>mai mica</bold> decat <bold>{formattedMinDepositAmountRON}</bold> (<bold>{formattedMinDepositAmountEUR}</bold> {tvaRate, plural, =0 {farǎ <bold>TVA</bold>} other {cu <bold>#% TVA</bold>}} calculat la <bold>{formattedEUR}</bold> = <bold>{formattedEURToRONRate}</bold>) minimul pe care trebuie sa-l achite un client ca sa primeasca acces la platforma de curs si la mentor. <bold>Asigura-te ca-l anunti si stie aceste lucruri.</bold>'
+                          }
+                        }
+                      },
+                      firstPaymentDateAfterDepositOptionId: {
+                        info: {
+                          [PaymentMethodType.BankTransfer]:
+                            '<bold>Pentru transfer bancar:</bold> se genereaza direct ordin on-hold{daysCount, plural, =0 {.} =1 { dupa maxim o zi.} other { dupa maxim # de zile.}}',
+                          [PaymentMethodType.Card]:
+                            '<bold>Plata cu cardul:</bold> Se debiteaza direct{daysCount, plural, =0 {.} =1 { dupa maxim o zi.} other { dupa maxim # de zile.}}'
+                        },
+                        placeholder: 'Selecteazǎ data primei plati',
+                        title: 'Data primei plati',
+                        value:
+                          'În maxim {daysCount, plural, =1 {o zi} other {# zile}} card/transfer bancar'
+                      },
+                      hasDeposit: {
+                        title: 'Activează plata avans'
+                      }
+                    },
+                    info: {
+                      notice: {
+                        [PaymentCurrencyType.EUR]:
+                          'Asigura-te că-i transmiti clientului sa aiba pe card o suma mai mare decat suma stabilita ca avans/rata/integral pentru ca pot interveni diverse comisioane bancare sau taxe extra.',
+                        [PaymentCurrencyType.RON]:
+                          'Pentru plata avansului care deblocheaza accesul la program, pretul s-a calculat astfel: 1 EUR = {eurToRonRate}. Asadar, {formattedMinDepositAmountEUR} = <bold>{formattedMinDepositAmountRON} cu TVA</bold> (suma mimima ce trebuie incasata ca omul sa primeasca acces si la platforma si la mentor). Asigura-te că-i transmiti clientului sa aiba pe card o suma mai mare decat suma stabilita ca avans/rata/integral pentru ca pot interveni diverse comisioane bancare sau taxe extra.'
+                      },
+                      warning:
+                        '<bold>ATENTIE!</bold> In cazul in care clientul achita o suma de avans mai mica de <bold>{formattedMinDepositAmountEUR} cu TVA</bold> primeste acces doar la grupurile de Facebook si WhatsApp (acolo unde exista).'
+                    },
+                    legend: 'Opțiunea de avans'
+                  }
+                },
+                title: 'Configurare platǎ'
+              },
+              [CreateExtensionPaymentLinkFormStep.Confirmation]: {
+                description:
+                  'Confirmați detaliile pentru crearea link-ului de plată.',
+                sections: {
+                  deposit: {
+                    items: {
+                      'deposit-amount': 'Suma avansului',
+                      'first-payment-after-deposit': 'Prima platǎ dupa avans',
+                      'first-payment-date-after-deposit':
+                        'Data primei plati dupa avans'
+                    },
+                    title: 'Opțiuni de rate'
+                  },
+                  installments: {
+                    items: {
+                      'installment-count': 'Număr rate',
+                      'installment-price': 'Preț per rată (fără TVA)',
+                      'installment-total-price': 'Preț total (fără TVA)'
+                    },
+                    title: 'Opțiuni de rate'
+                  },
+                  participants: {
+                    items: {
+                      'caller-name': 'Nume caller',
+                      client: 'Client',
+                      closer: 'Closer',
+                      'setter-name': 'Nume setter'
+                    },
+                    title: 'Participanți'
+                  },
+                  payment: {
+                    items: {
+                      'deposit-amount': 'Suma avans (cu TVA)',
+                      'installment-amount-to-pay':
+                        'Suma de platǎ per rată (cu TVA)',
+                      'installments-count': 'Număr rate',
+                      'remaining-amount-to-pay':
+                        'Suma rǎmasǎ de platǎ (cu TVA)',
+                      'remaining-amount-to-pay-per-installment':
+                        'Suma rǎmasǎ de platǎ per rata (cu TVA)',
+                      'total-amount-to-pay': 'Suma totalǎ de platǎ (cu TVA)'
+                    },
+                    title: 'Platǎ'
+                  },
+                  'payment-info': {
+                    items: {
+                      currency: 'Monedǎ',
+                      'extra-tax-rate': 'Comision extra',
+                      'payment-method': 'Metoda de platǎ',
+                      'payment-method-values': {
+                        [PaymentMethodType.BankTransfer]: 'Transfer bancar',
+                        [PaymentMethodType.Card]: 'Card',
+                        [PaymentMethodType.TBI]: 'TBI'
+                      },
+                      'payment-setting-label': 'Setare de platǎ',
+                      'tva-rate': 'TVA'
+                    },
+                    title: 'Detalii platǎ'
+                  },
+                  product: {
+                    items: {
+                      contract: 'Contract',
+                      'product-name': 'Nume produs',
+                      'product-price': 'Preț produs (fără TVA)'
+                    },
+                    title: 'Produs'
+                  }
+                },
+                title: 'Confirmați detaliile'
+              },
+              [CreateExtensionPaymentLinkFormStep.Success]: {
+                buttons: {
+                  copy: { copied: 'Link copiat', copy: 'Copiază link' },
+                  'go-to-payment-links': 'Vezi link-urile de plată',
+                  'start-again': 'Începe din nou'
+                },
+                description:
+                  'Link-ul de plată a fost creat cu succes. Acum poți partaja clientului link-ul de plată.',
+                title: 'Link-ul de plată a fost creat'
+              }
+            }
+          },
           'create-payment-link-form': {
+            tabs: {
+              [PaymentProductType.Extension]: 'Prelungire',
+              [PaymentProductType.Product]: 'Produs'
+            }
+          },
+          'create-product-payment-link-form': {
             buttons: {
               'next-step': 'Pasul următor',
               'previous-step': 'Pasul anterior',
@@ -1767,28 +2091,38 @@ const dictionary = {
 
             steps: {
               [CreateProductPaymentLinkFormStep.BaseInfo]: {
-                description:
-                  'Configurați detaliile de bazǎ pentru crearea link-ului de platǎ.',
                 forms: {
                   [CreateProductPaymentLinkFormSection.Participants]: {
                     description:
                       'Alege participanții pentru care se va crea link-ul de plată.',
                     fields: {
+                      callerEmail: {
+                        placeholder: 'Introduceți email-ul caller-ului',
+                        title: 'Email caller'
+                      },
                       callerName: {
                         placeholder: 'Introduceți numele caller-ului',
                         title: 'Nume caller'
                       },
-                      meetingId: {
-                        placeholder: 'Selecteazǎ o întâlnire',
+                      scheduledEventId: {
+                        placeholder: 'Cautǎ o întâlnire',
                         title: 'Alege o întâlnire',
                         values: {
+                          client: 'Client:',
+                          closer: 'Closer:',
                           'not-found': 'Nu s-a gǎsit nicio întâlnire',
-                          placeholder: 'Cautǎ o întâlnire',
+                          placeholder: 'Introduceți cel puțin 3 caractere',
                           status: {
                             active: 'Activǎ',
                             canceled: 'Anulatǎ'
-                          }
+                          },
+                          'type-to-search':
+                            'Introduceți cel puțin 3 caractere pentru a căuta o întâlnire'
                         }
+                      },
+                      setterEmail: {
+                        placeholder: 'Introduceți email-ul setter-ului',
+                        title: 'Email setter'
                       },
                       setterName: {
                         placeholder: 'Introduceți numele setter-ului',
@@ -1980,10 +2314,10 @@ const dictionary = {
                   },
                   participants: {
                     items: {
-                      'caller-name': 'Nume caller',
-                      'client-email': 'Email client,',
-                      'client-name': 'Nume client',
-                      'setter-name': 'Nume setter'
+                      caller: 'Caller',
+                      client: 'Client',
+                      closer: 'Closer',
+                      setter: 'Setter'
                     },
                     title: 'Participanți'
                   },
@@ -2041,7 +2375,10 @@ const dictionary = {
           },
           'payment-links-table': {
             columns: {
+              callerEmail: 'Email caller',
               callerName: 'Nume caller',
+              closerEmail: 'Email closer',
+              closerName: 'Nume closer',
               contract: { name: 'Nume contract' },
               contractId: 'Id contract (valoare interna)',
               'copy-link': 'Copiază link',
@@ -2089,6 +2426,7 @@ const dictionary = {
                 'Suma rǎmasǎ de platǎ per rata in cenți (valoare interna)',
               searchCreatedAt: 'Adǎugat la (valoare interna)',
               searchExpiresAt: 'Expirǎ la (valoare interna)',
+              setterEmail: 'Email setter',
               setterName: 'Numele setter',
               status: 'Status',
               stripeClientSecret: 'Secret platǎ Stripe (valoare interna)',

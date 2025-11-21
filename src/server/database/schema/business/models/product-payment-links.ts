@@ -17,7 +17,10 @@ import { PaymentProductType } from '~/shared/enums/payment-product-type'
 
 export const product_payment_links = business.table('product_payment_links', {
   ...id,
+  callerEmail: text('caller_email'),
   callerName: text('caller_name'),
+  closerEmail: text('closer_email'),
+  closerName: text('closer_name'),
   contractId: text('contract_id')
     .notNull()
     .references(() => contracts.id, { onDelete: 'no action' }),
@@ -64,6 +67,7 @@ export const product_payment_links = business.table('product_payment_links', {
   remainingInstallmentAmountToPayInCents: numeric(
     'remaining_installment_amount_to_pay_in_cents'
   ),
+  setterEmail: text('setter_email'),
   setterName: text('setter_name'),
   status: payment_status_type('status').notNull(),
   stripeClientSecret: text('stripe_client_secret').notNull(),

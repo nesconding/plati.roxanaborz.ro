@@ -147,7 +147,10 @@ describe('StripeExtensionHandlers', () => {
       mockRelationalFindFirst('memberships', mockActiveMembership)
 
       await expect(
-        handler.handleExtensionIntegralPayment('pi_123', mockIntegralMetadata as any)
+        handler.handleExtensionIntegralPayment(
+          'pi_123',
+          mockIntegralMetadata as any
+        )
       ).rejects.toThrow('Extension not found')
     })
 
@@ -156,7 +159,10 @@ describe('StripeExtensionHandlers', () => {
       mockRelationalFindFirst('memberships', undefined)
 
       await expect(
-        handler.handleExtensionIntegralPayment('pi_123', mockIntegralMetadata as any)
+        handler.handleExtensionIntegralPayment(
+          'pi_123',
+          mockIntegralMetadata as any
+        )
       ).rejects.toThrow('Membership not found')
     })
   })
@@ -237,7 +243,10 @@ describe('StripeExtensionHandlers', () => {
       mockRelationalFindFirst('products_extensions', undefined)
 
       await expect(
-        handler.handleExtensionDepositPayment('pi_123', mockDepositMetadata as any)
+        handler.handleExtensionDepositPayment(
+          'pi_123',
+          mockDepositMetadata as any
+        )
       ).rejects.toThrow('Extension not found')
     })
   })

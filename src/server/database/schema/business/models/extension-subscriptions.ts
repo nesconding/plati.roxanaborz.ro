@@ -14,7 +14,7 @@ export const extension_subscriptions = business.table(
     ...id,
 
     customerEmail: text('customer_email').notNull(),
-    customerName: text('customer_name').notNull(),
+    customerName: text('customer_name'),
     extensionId: text('extension_id')
       .notNull()
       .references(() => products_extensions.id, { onDelete: 'no action' }),
@@ -30,6 +30,7 @@ export const extension_subscriptions = business.table(
       .notNull()
       .references(() => extension_orders.id, { onDelete: 'no action' }),
     paymentMethod: payment_method_type('payment_method').notNull(),
+    productName: text('product_name').notNull(),
     remainingPayments: integer('remaining_payments').notNull(),
     startDate: timestamp('start_date', { mode: 'string', withTimezone: true }),
     status: subscription_status_type('status').notNull(),

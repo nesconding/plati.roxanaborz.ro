@@ -32,7 +32,7 @@ export const InstallmentsFormSection = withForm({
   },
   render: function Render({ form, paymentSettings, eurToRonRate, products }) {
     const t = useTranslations(
-      `modules.(app).payment-links._components.create-payment-link-form.steps.${CreateProductPaymentLinkFormStep.PaymentInfo}.forms.${CreateProductPaymentLinkFormSection.Installments}`
+      `modules.(app).payment-links._components.create-product-payment-link-form.steps.${CreateProductPaymentLinkFormStep.PaymentInfo}.forms.${CreateProductPaymentLinkFormSection.Installments}`
     )
 
     const {

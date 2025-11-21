@@ -13,7 +13,7 @@ type Person = {
   role?: UserRoles
   phoneNumber?: string
 }
-
+//
 function generatePerson(): Person {
   const sex = fakerRO.person.sexType()
   const firstName = fakerRO.person.firstName(sex)

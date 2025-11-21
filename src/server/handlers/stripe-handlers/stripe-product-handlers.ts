@@ -135,6 +135,7 @@ export class StripeProductHandlers {
             await this.db.insert(schema.product_orders).values({
               customerEmail: metadata.customerEmail,
               customerName: metadata.customerName,
+              productName: metadata.productName,
               productPaymentLinkId: metadata.productPaymentLinkId,
               status: OrderStatusType.Completed,
               stripePaymentIntentId: paymentIntent.id,
@@ -315,6 +316,7 @@ export class StripeProductHandlers {
             await this.db.insert(schema.product_orders).values({
               customerEmail: subscription.customerEmail,
               customerName: subscription.customerName,
+              productName: subscription.productName,
               productPaymentLinkId:
                 subscription.parentOrder.productPaymentLink.id,
               status: OrderStatusType.Completed,
@@ -428,6 +430,7 @@ export class StripeProductHandlers {
       .values({
         customerEmail: data.customerEmail,
         customerName: data.customerName,
+        productName: data.productName,
         productPaymentLinkId: data.productPaymentLinkId,
         status: OrderStatusType.Completed,
         stripePaymentIntentId: stripePaymentIntentId,
@@ -441,8 +444,11 @@ export class StripeProductHandlers {
       product.membershipDurationMonths
     )
     await this.db.insert(schema.memberships).values({
+      customerEmail: data.customerEmail,
+      customerName: data.customerName,
       endDate: endDate.toISOString(),
       parentOrderId: productOrder.id,
+      productName: data.productName,
       startDate: startDate.toISOString(),
       status: MembershipStatusType.Active
     })
@@ -471,6 +477,7 @@ export class StripeProductHandlers {
       .values({
         customerEmail: data.customerEmail,
         customerName: data.customerName,
+        productName: data.productName,
         productPaymentLinkId: data.productPaymentLinkId,
         status: OrderStatusType.Completed,
         stripePaymentIntentId: stripePaymentIntentId,
@@ -486,9 +493,12 @@ export class StripeProductHandlers {
     const [membership] = await this.db
       .insert(schema.memberships)
       .values({
+        customerEmail: data.customerEmail,
+        customerName: data.customerName,
         delayedStartDate: data.firstPaymentDateAfterDeposit,
         endDate: endDate.toISOString(),
         parentOrderId: productOrder.id,
+        productName: data.productName,
         startDate: startDate,
         status: MembershipStatusType.Delayed
       })
@@ -502,6 +512,7 @@ export class StripeProductHandlers {
       parentOrderId: productOrder.id,
       paymentMethod: data.paymentMethodType,
       productId: data.productId,
+      productName: data.productName,
       remainingPayments: 1,
       startDate: new Date().toISOString(),
       status: SubscriptionStatusType.Active
@@ -532,6 +543,7 @@ export class StripeProductHandlers {
       .values({
         customerEmail: data.customerEmail,
         customerName: data.customerName,
+        productName: data.productName,
         productPaymentLinkId: data.productPaymentLinkId,
         status: OrderStatusType.Completed,
         stripePaymentIntentId: paymentIntent.id,
@@ -548,8 +560,11 @@ export class StripeProductHandlers {
     const [membership] = await this.db
       .insert(schema.memberships)
       .values({
+        customerEmail: data.customerEmail,
+        customerName: data.customerName,
         endDate: endDate.toISOString(),
         parentOrderId: productOrder.id,
+        productName: data.productName,
         startDate: startDate.toISOString(),
         status: MembershipStatusType.Active
       })
@@ -567,6 +582,7 @@ export class StripeProductHandlers {
       parentOrderId: productOrder.id,
       paymentMethod: data.paymentMethodType,
       productId: data.productId,
+      productName: data.productName,
       remainingPayments: data.productInstallmentsCount - 1, // First installment is already charged
       startDate: new Date().toISOString(),
       status: SubscriptionStatusType.Active
@@ -597,6 +613,7 @@ export class StripeProductHandlers {
       .values({
         customerEmail: data.customerEmail,
         customerName: data.customerName,
+        productName: data.productName,
         productPaymentLinkId: data.productPaymentLinkId,
         status: OrderStatusType.Completed,
         stripePaymentIntentId: paymentIntent.id,
@@ -613,9 +630,12 @@ export class StripeProductHandlers {
     const [membership] = await this.db
       .insert(schema.memberships)
       .values({
+        customerEmail: data.customerEmail,
+        customerName: data.customerName,
         delayedStartDate: data.firstPaymentDateAfterDeposit,
         endDate: endDate.toISOString(),
         parentOrderId: productOrder.id,
+        productName: data.productName,
         startDate: startDate,
         status: MembershipStatusType.Delayed
       })
@@ -630,6 +650,7 @@ export class StripeProductHandlers {
       parentOrderId: productOrder.id,
       paymentMethod: data.paymentMethodType,
       productId: data.productId,
+      productName: data.productName,
       remainingPayments: data.productInstallmentsCount,
       startDate: new Date().toISOString(),
       status: SubscriptionStatusType.Active

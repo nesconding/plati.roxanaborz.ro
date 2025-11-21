@@ -1,6 +1,6 @@
+import type { TRPCRouterOutput } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
 import { DatesService } from '~/server/services/dates'
-import type { Meeting } from '~/server/services/meetings'
 import type { CreateProductPaymentLinkDepositFormData } from '~/shared/create-product-payment-link-form/data'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
@@ -16,11 +16,15 @@ import type {
 
 export type ProductPaymentLinkDepositInsertData = {
   callerName: string
+  callerEmail: string
+  closerEmail: string
+  closerName: string
+  setterEmail: string
   contractId: string
   createdById: string
   currency: PaymentCurrencyType
   customerEmail: string
-  customerName: string
+  customerName: string | null
   depositAmount: string
   depositAmountInCents: string
   eurToRonRate: string
@@ -41,12 +45,14 @@ export type ProductPaymentLinkDepositInsertData = {
   type: PaymentLinkType.Deposit
 }
 
+type ScheduledEvent =
+  TRPCRouterOutput['protected']['scheduledEvents']['findAll'][number]
 export function createProductPaymentLinkDepositInsertData({
   data,
   eurToRonRate,
   expiresAt,
   firstPaymentDateAfterDepositOption,
-  meeting,
+  scheduledEvent,
   product,
   setting,
   user
@@ -55,7 +61,7 @@ export function createProductPaymentLinkDepositInsertData({
   eurToRonRate: string
   expiresAt: Date
   firstPaymentDateAfterDepositOption: typeof FirstPaymentDateAfterDepositOptionsTableValidators.$types.select
-  meeting: Meeting
+  scheduledEvent: ScheduledEvent
   product: typeof ProductsTableValidators.$types.select
   setting: typeof PaymentsSettingsTableValidators.$types.select
   user: typeof UsersTableValidators.$types.select
@@ -83,12 +89,15 @@ export function createProductPaymentLinkDepositInsertData({
   const totalAmountToPayInCents =
     PricingService.convertToCents(totalAmountToPay)
   return {
+    callerEmail: data.callerEmail,
     callerName: data.callerName,
+    closerEmail: scheduledEvent.closerEmail,
+    closerName: scheduledEvent.closerName,
     contractId: data.contractId,
     createdById: user.id,
     currency: setting.currency,
-    customerEmail: meeting.participant_emails,
-    customerName: meeting.participant_names,
+    customerEmail: scheduledEvent.inviteeEmail,
+    customerName: scheduledEvent.inviteeName,
     depositAmount: data.depositAmount,
     depositAmountInCents: depositAmountInCents.toString(),
     eurToRonRate: eurToRonRate,
@@ -101,6 +110,7 @@ export function createProductPaymentLinkDepositInsertData({
     productName: product.name,
     remainingAmountToPay: remainingAmountToPay.toString(),
     remainingAmountToPayInCents: remainingAmountToPayInCents.toString(),
+    setterEmail: data.setterEmail,
     setterName: data.setterName,
     status: PaymentStatusType.Created,
     totalAmountToPay: totalAmountToPay.toString(),

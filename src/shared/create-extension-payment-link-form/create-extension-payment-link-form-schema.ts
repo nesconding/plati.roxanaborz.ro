@@ -4,8 +4,16 @@ import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { CreateExtensionPaymentLinkFormSection } from './enums/create-extension-payment-link-form-sections'
 
 export const CreateExtensionPaymentLinkFormSchema = z.object({
+  [CreateExtensionPaymentLinkFormSection.Participants]: z.object({
+    callerEmail: z.string(),
+    callerName: z.string(),
+    closerEmail: z.string(),
+    closerName: z.string(),
+    setterEmail: z.string(),
+    setterName: z.string()
+  }),
   [CreateExtensionPaymentLinkFormSection.Extension]: z.object({
-    extensionId: z.string(),
+    extensionId: z.string().nonempty(),
     membershipId: z.string().nonempty()
   }),
   [CreateExtensionPaymentLinkFormSection.PaymentInfo]: z.object({
@@ -14,8 +22,7 @@ export const CreateExtensionPaymentLinkFormSchema = z.object({
   }),
   [CreateExtensionPaymentLinkFormSection.Installments]: z.object({
     extensionInstallmentId: z.string(),
-    hasInstallments: z.boolean(),
-    productInstallmentId: z.string()
+    hasInstallments: z.boolean()
   }),
   [CreateExtensionPaymentLinkFormSection.Deposit]: z.object({
     depositAmount: z.string().optional(),
@@ -29,6 +36,14 @@ export type CreateExtensionPaymentLinkFormValues = z.infer<
 
 export const CreateExtensionPaymentLinkFormDefaultValues: CreateExtensionPaymentLinkFormValues =
   {
+    [CreateExtensionPaymentLinkFormSection.Participants]: {
+      callerEmail: '',
+      callerName: '',
+      closerEmail: '',
+      closerName: '',
+      setterEmail: '',
+      setterName: ''
+    },
     [CreateExtensionPaymentLinkFormSection.Extension]: {
       extensionId: '',
       membershipId: ''
@@ -39,8 +54,7 @@ export const CreateExtensionPaymentLinkFormDefaultValues: CreateExtensionPayment
     },
     [CreateExtensionPaymentLinkFormSection.Installments]: {
       extensionInstallmentId: '',
-      hasInstallments: false,
-      productInstallmentId: ''
+      hasInstallments: false
     },
     [CreateExtensionPaymentLinkFormSection.Deposit]: {
       depositAmount: '',

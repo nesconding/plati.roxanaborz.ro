@@ -13,8 +13,10 @@ import { CreateProductPaymentLinkFormSection } from './enums/create-product-paym
 
 // Participants
 const participantsSchema = z.object({
+  callerEmail: z.string(),
   callerName: z.string(),
-  meetingId: z.string().nonempty(),
+  scheduledEventId: z.string().nonempty(),
+  setterEmail: z.string(),
   setterName: z.string()
 })
 
@@ -219,14 +221,14 @@ export namespace CreateProductPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .callerEmail,
           callerName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .callerName,
           contractId:
             result.data[CreateProductPaymentLinkFormSection.Product].contractId,
-          meetingId:
-            result.data[CreateProductPaymentLinkFormSection.Participants]
-              .meetingId,
           paymentMethodType:
             result.data[CreateProductPaymentLinkFormSection.PaymentInfo]
               .paymentMethodType,
@@ -235,6 +237,12 @@ export namespace CreateProductPaymentLinkFormParser {
               .paymentSettingId,
           productId:
             result.data[CreateProductPaymentLinkFormSection.Product].productId,
+          scheduledEventId:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .scheduledEventId,
+          setterEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .setterEmail,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,
@@ -248,6 +256,9 @@ export namespace CreateProductPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .callerEmail,
           callerName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .callerName,
@@ -261,9 +272,6 @@ export namespace CreateProductPaymentLinkFormParser {
               .firstPaymentDateAfterDepositOptionId,
           hasDeposit:
             result.data[CreateProductPaymentLinkFormSection.Deposit].hasDeposit,
-          meetingId:
-            result.data[CreateProductPaymentLinkFormSection.Participants]
-              .meetingId,
           paymentMethodType:
             result.data[CreateProductPaymentLinkFormSection.PaymentInfo]
               .paymentMethodType,
@@ -272,6 +280,12 @@ export namespace CreateProductPaymentLinkFormParser {
               .paymentSettingId,
           productId:
             result.data[CreateProductPaymentLinkFormSection.Product].productId,
+          scheduledEventId:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .scheduledEventId,
+          setterEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .setterEmail,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,
@@ -285,6 +299,9 @@ export namespace CreateProductPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .callerEmail,
           callerName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .callerName,
@@ -293,9 +310,6 @@ export namespace CreateProductPaymentLinkFormParser {
           hasInstallments:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .hasInstallments,
-          meetingId:
-            result.data[CreateProductPaymentLinkFormSection.Participants]
-              .meetingId,
           paymentMethodType:
             result.data[CreateProductPaymentLinkFormSection.PaymentInfo]
               .paymentMethodType,
@@ -307,6 +321,12 @@ export namespace CreateProductPaymentLinkFormParser {
           productInstallmentId:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .productInstallmentId,
+          scheduledEventId:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .scheduledEventId,
+          setterEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .setterEmail,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,
@@ -320,6 +340,9 @@ export namespace CreateProductPaymentLinkFormParser {
         result.data
       ): {
         const data = {
+          callerEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .callerEmail,
           callerName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .callerName,
@@ -336,9 +359,6 @@ export namespace CreateProductPaymentLinkFormParser {
           hasInstallments:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .hasInstallments,
-          meetingId:
-            result.data[CreateProductPaymentLinkFormSection.Participants]
-              .meetingId,
           paymentMethodType:
             result.data[CreateProductPaymentLinkFormSection.PaymentInfo]
               .paymentMethodType,
@@ -350,6 +370,12 @@ export namespace CreateProductPaymentLinkFormParser {
           productInstallmentId:
             result.data[CreateProductPaymentLinkFormSection.Installments]
               .productInstallmentId,
+          scheduledEventId:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .scheduledEventId,
+          setterEmail:
+            result.data[CreateProductPaymentLinkFormSection.Participants]
+              .setterEmail,
           setterName:
             result.data[CreateProductPaymentLinkFormSection.Participants]
               .setterName,

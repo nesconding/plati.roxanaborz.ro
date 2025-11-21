@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { createProductPaymentLinkInstallmentsDepositInsertData } from '../create-product-payment-link-installments-deposit-insert-data'
-import { mockRegularUser } from '#test/fixtures/users'
 import { mockPaymentSettings } from '#test/fixtures/payment-settings'
-import { createMockMeeting } from '#test/fixtures/meetings'
+import { createMockMeeting } from '#test/fixtures/scheduledEvents'
+import { mockRegularUser } from '#test/fixtures/users'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
 import { PaymentStatusType } from '~/shared/enums/payment-status'
+import { createProductPaymentLinkInstallmentsDepositInsertData } from '../create-product-payment-link-installments-deposit-insert-data'
 
 describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
   const mockProduct = {
     id: 'prod_123',
+    membershipDurationMonths: 12,
     name: 'Test Product',
-    price: '1000.00',
-    membershipDurationMonths: 12
+    price: '1000.00'
   }
 
   const mockSetting = {
@@ -25,27 +25,27 @@ describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
   }
 
   const mockFormData = {
-    productId: 'prod_123',
-    callerName: 'John Caller',
-    setterName: 'Jane Setter',
-    contractId: 'contract_123',
-    paymentMethodType: PaymentMethodType.Card,
     baseProductInstallmentId: 'installment_123',
-    productInstallmentId: 'installment_123',
+    callerName: 'John Caller',
+    contractId: 'contract_123',
     depositAmount: '1000.00',
-    meetingId: 'meeting_123',
-    paymentSettingId: 'settings_123',
-    type: PaymentLinkType.InstallmentsDeposit,
     firstPaymentDateAfterDepositOptionId: 'option_123',
     hasDeposit: true as const,
-    hasInstallments: true as const
+    hasInstallments: true as const,
+    paymentMethodType: PaymentMethodType.Card,
+    paymentSettingId: 'settings_123',
+    productId: 'prod_123',
+    productInstallmentId: 'installment_123',
+    scheduledEventId: 'meeting_123',
+    setterName: 'Jane Setter',
+    type: PaymentLinkType.InstallmentsDeposit
   }
 
   const mockBaseProductInstallment = {
+    count: 12,
     id: 'installment_123',
-    productId: 'prod_123',
     pricePerInstallment: '100.00',
-    count: 12
+    productId: 'prod_123'
   }
 
   const mockFirstPaymentOption = {
@@ -58,13 +58,13 @@ describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
 
   it('should create installments deposit insert data correctly', () => {
     const result = createProductPaymentLinkInstallmentsDepositInsertData({
+      baseProductInstallment: mockBaseProductInstallment as any,
       data: mockFormData,
       eurToRonRate,
-      baseProductInstallment: mockBaseProductInstallment as any,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -82,13 +82,13 @@ describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
 
   it('should calculate amounts correctly', () => {
     const result = createProductPaymentLinkInstallmentsDepositInsertData({
+      baseProductInstallment: mockBaseProductInstallment as any,
       data: mockFormData,
       eurToRonRate,
-      baseProductInstallment: mockBaseProductInstallment as any,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -121,13 +121,13 @@ describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
     }
 
     const result = createProductPaymentLinkInstallmentsDepositInsertData({
+      baseProductInstallment: mockBaseProductInstallment as any,
       data: largeDepositData,
       eurToRonRate,
-      baseProductInstallment: mockBaseProductInstallment as any,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -147,13 +147,13 @@ describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
     }
 
     const result = createProductPaymentLinkInstallmentsDepositInsertData({
+      baseProductInstallment: mockBaseProductInstallment as any,
       data: smallDepositData,
       eurToRonRate,
-      baseProductInstallment: mockBaseProductInstallment as any,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -168,13 +168,13 @@ describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
 
   it('should calculate firstPaymentDateAfterDeposit correctly', () => {
     const result = createProductPaymentLinkInstallmentsDepositInsertData({
+      baseProductInstallment: mockBaseProductInstallment as any,
       data: mockFormData,
       eurToRonRate,
-      baseProductInstallment: mockBaseProductInstallment as any,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -195,13 +195,13 @@ describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
     }
 
     const result = createProductPaymentLinkInstallmentsDepositInsertData({
+      baseProductInstallment: installment6Months as any,
       data: mockFormData,
       eurToRonRate,
-      baseProductInstallment: installment6Months as any,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -225,13 +225,13 @@ describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
     }
 
     const result = createProductPaymentLinkInstallmentsDepositInsertData({
+      baseProductInstallment: mockBaseProductInstallment as any,
       data: mockFormData,
       eurToRonRate,
-      baseProductInstallment: mockBaseProductInstallment as any,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: eurSetting as any,
       user: mockRegularUser as any
     })
@@ -252,13 +252,13 @@ describe('createProductPaymentLinkInstallmentsDepositInsertData', () => {
 
   it('should include all required fields', () => {
     const result = createProductPaymentLinkInstallmentsDepositInsertData({
+      baseProductInstallment: mockBaseProductInstallment as any,
       data: mockFormData,
       eurToRonRate,
-      baseProductInstallment: mockBaseProductInstallment as any,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })

@@ -1,7 +1,15 @@
 'use client'
 
 import type * as Stepperize from '@stepperize/react'
-import { StepBack, StepForward, Wand2 } from 'lucide-react'
+import {
+  CheckCircle,
+  CreditCard,
+  MousePointerClick,
+  StepBack,
+  StepForward,
+  View,
+  Wand2
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type React from 'react'
 import { withForm } from '~/client/components/form/config'
@@ -9,10 +17,8 @@ import { Button } from '~/client/components/ui/button'
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle
+  CardHeader
 } from '~/client/components/ui/card'
 import { Spinner } from '~/client/components/ui/spinner'
 import { cn } from '~/client/lib/utils'
@@ -41,12 +47,20 @@ const STEPS_FORM_SECTIONS = {
   ]
 } as const
 
+const STEPS_ICONS = {
+  [CreateProductPaymentLinkFormStep.BaseInfo]: <MousePointerClick />,
+  [CreateProductPaymentLinkFormStep.PaymentInfo]: <CreditCard />,
+  [CreateProductPaymentLinkFormStep.Confirmation]: <View />,
+  [CreateProductPaymentLinkFormStep.Success]: <CheckCircle />
+} as const
+
 type Contract = TRPCRouterOutput['protected']['contracts']['findAll'][number]
 type CreateOnePaymentLink =
   TRPCRouterOutput['protected']['productPaymentLinks']['createOne']
 type FirstPaymentDateAfterDepositOption =
   TRPCRouterOutput['protected']['settings']['findAllFirstPaymentDateAfterDepositOptions'][number]
-type Meeting = TRPCRouterOutput['protected']['meetings']['findAll'][number]
+type ScheduledEvent =
+  TRPCRouterOutput['protected']['scheduledEvents']['findAll'][number]
 type PaymentSetting =
   TRPCRouterOutput['protected']['settings']['findAllPaymentSettings'][number]
 type Product = TRPCRouterOutput['protected']['products']['findAll'][number]
@@ -61,15 +75,15 @@ export const StepperContent = withForm({
     firstPaymentDateAfterDepositOptions:
       [] as FirstPaymentDateAfterDepositOption[],
     isLoading: false,
-    meetings: [] as Meeting[],
     onReset: undefined as (() => void) | undefined,
     paymentSettings: [] as PaymentSetting[],
-    products: [] as Product[]
+    products: [] as Product[],
+    scheduledEvents: [] as ScheduledEvent[]
   },
   render: function Render(props) {
     const stepper = useStepper()
     const t = useTranslations(
-      'modules.(app).payment-links._components.create-payment-link-form'
+      'modules.(app).payment-links._components.create-product-payment-link-form'
     )
     type Step = (typeof stepper.all)[number]
 
@@ -171,6 +185,16 @@ export const StepperContent = withForm({
       props.form.handleSubmit()
     }
 
+    const currentIndex = stepper.all.findIndex(
+      (step) => step.id === stepper.current.id
+    )
+    const visibleSteps =
+      currentIndex === 0
+        ? stepper.all.slice(0, 3)
+        : currentIndex === stepper.all.length - 1
+          ? stepper.all.slice(-3)
+          : stepper.all.slice(currentIndex - 1, currentIndex + 2)
+
     return (
       <form
         className={props.className}
@@ -191,10 +215,27 @@ export const StepperContent = withForm({
                 CreateProductPaymentLinkFormStep.Confirmation
             })}
           >
-            <CardTitle>{t(`steps.${stepper.current.id}.title`)}</CardTitle>
+            {/* <CardTitle>{t(`steps.${stepper.current.id}.title`)}</CardTitle>
             <CardDescription className='text-wrap line-clamp-2 h-10'>
               {t(`steps.${stepper.current.id}.description`)}
-            </CardDescription>
+            </CardDescription> */}
+
+            <Stepper.Navigation>
+              {visibleSteps.map((step, index) => (
+                <Stepper.Step
+                  className={cn('pointer-events-none', {
+                    'col-start-1': index === 0,
+                    'col-start-2': index === 1,
+                    'col-start-3': index === 2
+                  })}
+                  icon={STEPS_ICONS[step.id]}
+                  key={step.id}
+                  of={step.id}
+                  // title={t(`steps.${step.id}.title`)}
+                  withSeparator={index !== 2}
+                />
+              ))}
+            </Stepper.Navigation>
           </CardHeader>
 
           <CardContent

@@ -80,10 +80,7 @@ export const createMockDeleteBuilder = (returnValue: any) => {
 /**
  * Assert that a database method was called with specific conditions
  */
-export const expectDbMethodCalled = (
-  method: any,
-  times: number = 1
-) => {
+export const expectDbMethodCalled = (method: any, times: number = 1) => {
   expect(method).toHaveBeenCalledTimes(times)
 }
 

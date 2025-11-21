@@ -135,22 +135,11 @@ export class StripeExtensionHandlers {
               customerName: metadata.customerName,
               extensionPaymentLinkId: metadata.extensionPaymentLinkId,
               membershipId: metadata.membershipId,
+              productName: metadata.productName,
               status: OrderStatusType.Completed,
               stripePaymentIntentId: paymentIntent.id,
               type: OrderType.RenewalOrder
             })
-
-            // Extend membership end date
-            await this.db
-              .update(schema.memberships)
-              .set({
-                endDate: DatesService.addMonths(
-                  subscription.membership.endDate,
-                  extension.extensionMonths
-                ).toISOString(),
-                status: MembershipStatusType.Active
-              })
-              .where(eq(schema.memberships.id, subscription.membershipId))
 
             const newRemainingPayments = subscription.remainingPayments - 1
 
@@ -165,6 +154,18 @@ export class StripeExtensionHandlers {
                   status: SubscriptionStatusType.Completed
                 })
                 .where(eq(schema.extension_subscriptions.id, subscription.id))
+
+              // Extend membership end date
+              await this.db
+                .update(schema.memberships)
+                .set({
+                  endDate: DatesService.addMonths(
+                    subscription.membership.endDate,
+                    extension.extensionMonths
+                  ).toISOString(),
+                  status: MembershipStatusType.Active
+                })
+                .where(eq(schema.memberships.id, subscription.membershipId))
             } else {
               // More payments remaining - just decrement count
               await this.db
@@ -255,6 +256,7 @@ export class StripeExtensionHandlers {
         customerName: data.customerName,
         extensionPaymentLinkId: data.extensionPaymentLinkId,
         membershipId: data.membershipId,
+        productName: data.productName,
         status: OrderStatusType.Completed,
         stripePaymentIntentId: stripePaymentIntentId,
         type: OrderType.OneTimePaymentOrder
@@ -288,6 +290,7 @@ export class StripeExtensionHandlers {
         customerName: data.customerName,
         extensionPaymentLinkId: data.extensionPaymentLinkId,
         membershipId: data.membershipId,
+        productName: data.productName,
         status: OrderStatusType.Completed,
         stripePaymentIntentId: stripePaymentIntentId,
         type: OrderType.ParentOrder
@@ -302,6 +305,7 @@ export class StripeExtensionHandlers {
       nextPaymentDate: data.firstPaymentDateAfterDeposit,
       parentOrderId: extensionOrder.id,
       paymentMethod: data.paymentMethodType,
+      productName: data.productName,
       remainingPayments: 1,
       startDate: new Date().toISOString(),
       status: SubscriptionStatusType.Active

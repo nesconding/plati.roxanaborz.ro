@@ -16,7 +16,7 @@ import type {
 export type ExtensionPaymentLinkDepositInsertData = {
   createdById: string
   customerEmail: string
-  customerName: string
+  customerName: string | null
   depositAmount: string
   depositAmountInCents: string
   currency: PaymentCurrencyType
@@ -52,7 +52,7 @@ export function createExtensionPaymentLinkDepositInsertData({
 }: {
   data: CreateExtensionPaymentLinkDepositFormData
   customerEmail: string
-  customerName: string
+  customerName: string | null
   eurToRonRate: string
   expiresAt: Date
   firstPaymentDateAfterDepositOption: typeof FirstPaymentDateAfterDepositOptionsTableValidators.$types.select

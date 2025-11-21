@@ -12,7 +12,8 @@ export const product_orders = business.table('product_orders', {
   ...id,
 
   customerEmail: text('customer_email').notNull(),
-  customerName: text('customer_name').notNull(),
+  customerName: text('customer_name'),
+  productName: text('product_name').notNull(),
   productPaymentLinkId: text('product_payment_link_id')
     .notNull()
     .references(() => product_payment_links.id, { onDelete: 'no action' }),

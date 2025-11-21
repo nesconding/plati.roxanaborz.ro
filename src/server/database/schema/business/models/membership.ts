@@ -10,6 +10,9 @@ import { id, softDeleteTimestamps } from '~/server/database/schema/utils'
 
 export const memberships = business.table('memberships', {
   ...id,
+
+  customerEmail: text('customer_email').notNull(),
+  customerName: text('customer_name'),
   delayedStartDate: timestamp('delayed_start_date', {
     mode: 'string',
     withTimezone: true
@@ -22,12 +25,11 @@ export const memberships = business.table('memberships', {
   parentOrderId: text('parent_order_id')
     .notNull()
     .references(() => product_orders.id, { onDelete: 'no action' }),
-
+  productName: text('product_name').notNull(),
   startDate: timestamp('start_date', {
     mode: 'string',
     withTimezone: true
   }).notNull(),
-
   status: membership_status_type('status').notNull(),
 
   ...softDeleteTimestamps

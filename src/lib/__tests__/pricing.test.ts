@@ -474,8 +474,13 @@ describe('PricingService', () => {
         PricingService.calculateInstallmentsDepositRemainingAmountToPay(params)
 
       // Verify remaining amount = total - deposit
-      const expectedRemaining = result.totalAmountToPay.sub(params.depositAmount)
-      expectDecimalToEqual(result.remainingAmountToPay, expectedRemaining.toString())
+      const expectedRemaining = result.totalAmountToPay.sub(
+        params.depositAmount
+      )
+      expectDecimalToEqual(
+        result.remainingAmountToPay,
+        expectedRemaining.toString()
+      )
 
       // Verify remaining installment = remaining / count
       const expectedRemainingInstallment = result.remainingAmountToPay.div(

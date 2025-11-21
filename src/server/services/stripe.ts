@@ -172,7 +172,7 @@ class StripeServiceImpl {
           customerEmail: data.customerEmail,
           customerName: data.customerName
         },
-        name: data.customerName
+        name: data.customerName ?? undefined
       })
 
       const paymentIntent = await stripe.paymentIntents.create({

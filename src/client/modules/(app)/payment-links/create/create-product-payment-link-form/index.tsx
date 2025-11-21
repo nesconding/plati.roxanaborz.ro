@@ -12,7 +12,6 @@ import {
 } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper'
 import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper/config'
 import { StepperContent } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper/stepper-content'
-import { StepperNavigation } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper/stepper-navigation'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
 import {
   CreateProductPaymentLinkFormDefaultValues,
@@ -34,7 +33,7 @@ export function CreateProductPaymentLinkForm() {
 
 function CreateProductPaymentLinkFormInner() {
   const t = useTranslations(
-    'modules.(app).payment-links._components.create-payment-link-form'
+    'modules.(app).payment-links._components.create-product-payment-link-form'
   )
   const stepper = useStepper()
   const [createOnePaymentLinkResponse, setCreateOnePaymentLinkResponse] =
@@ -50,8 +49,8 @@ function CreateProductPaymentLinkFormInner() {
   const getEURToRONRate = useQuery(
     trpc.protected.settings.getEURToRONRate.queryOptions()
   )
-  const findAllMeetings = useQuery(
-    trpc.protected.meetings.findAll.queryOptions()
+  const findAllScheduledEvents = useQuery(
+    trpc.protected.scheduledEvents.findAll.queryOptions()
   )
   const findAllPaymentSettings = useQuery(
     trpc.protected.settings.findAllPaymentSettings.queryOptions()
@@ -123,7 +122,7 @@ function CreateProductPaymentLinkFormInner() {
     !findAllContracts.data ||
     !findAllFirstPaymentDateAfterDepositOptions.data ||
     !getEURToRONRate.data ||
-    !findAllMeetings.data ||
+    !findAllScheduledEvents.data ||
     !findAllPaymentSettings.data ||
     !findAllProducts.data
   ) {
@@ -140,9 +139,7 @@ function CreateProductPaymentLinkFormInner() {
   }
 
   return (
-    <div className='flex flex-col gap-4 p-4 w-full'>
-      <StepperNavigation />
-
+    <div className='flex flex-col gap-4 w-full'>
       <StepperContent
         className='col-span-3'
         contracts={findAllContracts.data}
@@ -153,10 +150,10 @@ function CreateProductPaymentLinkFormInner() {
         }
         form={form}
         isLoading={isLoading}
-        meetings={findAllMeetings.data}
         onReset={handleOnReset}
         paymentSettings={findAllPaymentSettings.data}
         products={findAllProducts.data}
+        scheduledEvents={findAllScheduledEvents.data}
       />
     </div>
   )

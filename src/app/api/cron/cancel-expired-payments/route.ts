@@ -72,7 +72,9 @@ export async function POST(request: NextRequest) {
       `[Cron] Successfully cancelled ${result.successCount} payment links`
     )
     if (result.errors.length > 0) {
-      console.log(`[Cron] Failed to cancel ${result.errors.length} payment links`)
+      console.log(
+        `[Cron] Failed to cancel ${result.errors.length} payment links`
+      )
     }
 
     // Step 3: Return result

@@ -11,7 +11,7 @@ export default async function PaymentLinksLayout({
       trpc.protected.products.findAll.queryOptions()
     ),
     await queryClient.ensureQueryData(
-      trpc.protected.meetings.findAll.queryOptions()
+      trpc.protected.scheduledEvents.findAll.queryOptions()
     ),
     await queryClient.ensureQueryData(
       trpc.protected.settings.findAllPaymentSettings.queryOptions()

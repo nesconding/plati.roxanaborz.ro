@@ -133,12 +133,12 @@ export const mockStripe = {
     create: vi.fn().mockResolvedValue(createMockStripePaymentIntent()),
     retrieve: vi.fn().mockResolvedValue(createMockStripePaymentIntent()),
     update: vi.fn().mockResolvedValue(createMockStripePaymentIntent()),
-    cancel: vi.fn().mockResolvedValue(
-      createMockStripePaymentIntent({ status: 'canceled' })
-    ),
-    confirm: vi.fn().mockResolvedValue(
-      createMockStripePaymentIntent({ status: 'succeeded' })
-    )
+    cancel: vi
+      .fn()
+      .mockResolvedValue(createMockStripePaymentIntent({ status: 'canceled' })),
+    confirm: vi
+      .fn()
+      .mockResolvedValue(createMockStripePaymentIntent({ status: 'succeeded' }))
   },
   paymentMethods: {
     create: vi.fn().mockResolvedValue(createMockStripePaymentMethod()),

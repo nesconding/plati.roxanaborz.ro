@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { createProductPaymentLinkDepositInsertData } from '../create-product-payment-link-deposit-insert-data'
-import { mockRegularUser } from '#test/fixtures/users'
 import { mockPaymentSettings } from '#test/fixtures/payment-settings'
-import { createMockMeeting } from '#test/fixtures/meetings'
+import { createMockMeeting } from '#test/fixtures/scheduledEvents'
+import { mockRegularUser } from '#test/fixtures/users'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
 import { PaymentStatusType } from '~/shared/enums/payment-status'
+import { createProductPaymentLinkDepositInsertData } from '../create-product-payment-link-deposit-insert-data'
 
 describe('createProductPaymentLinkDepositInsertData', () => {
   const mockProduct = {
     id: 'prod_123',
+    membershipDurationMonths: 12,
     name: 'Test Product',
-    price: '1000.00',
-    membershipDurationMonths: 12
+    price: '1000.00'
   }
 
   const mockSetting = {
@@ -25,17 +25,17 @@ describe('createProductPaymentLinkDepositInsertData', () => {
   }
 
   const mockFormData = {
-    productId: 'prod_123',
     callerName: 'John Caller',
-    setterName: 'Jane Setter',
     contractId: 'contract_123',
-    paymentMethodType: PaymentMethodType.Card,
     depositAmount: '1000.00',
-    meetingId: 'meeting_123',
-    paymentSettingId: 'settings_123',
-    type: PaymentLinkType.Deposit,
     firstPaymentDateAfterDepositOptionId: 'option_123',
-    hasDeposit: true as const
+    hasDeposit: true as const,
+    paymentMethodType: PaymentMethodType.Card,
+    paymentSettingId: 'settings_123',
+    productId: 'prod_123',
+    scheduledEventId: 'meeting_123',
+    setterName: 'Jane Setter',
+    type: PaymentLinkType.Deposit
   }
 
   const mockFirstPaymentOption = {
@@ -52,8 +52,8 @@ describe('createProductPaymentLinkDepositInsertData', () => {
       eurToRonRate,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -74,8 +74,8 @@ describe('createProductPaymentLinkDepositInsertData', () => {
       eurToRonRate,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -100,8 +100,8 @@ describe('createProductPaymentLinkDepositInsertData', () => {
       eurToRonRate,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -127,8 +127,8 @@ describe('createProductPaymentLinkDepositInsertData', () => {
       eurToRonRate,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -150,8 +150,8 @@ describe('createProductPaymentLinkDepositInsertData', () => {
       eurToRonRate,
       expiresAt,
       firstPaymentDateAfterDepositOption: option60Days as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -176,8 +176,8 @@ describe('createProductPaymentLinkDepositInsertData', () => {
       eurToRonRate,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: eurSetting as any,
       user: mockRegularUser as any
     })
@@ -205,8 +205,8 @@ describe('createProductPaymentLinkDepositInsertData', () => {
       eurToRonRate,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })
@@ -223,8 +223,8 @@ describe('createProductPaymentLinkDepositInsertData', () => {
       eurToRonRate,
       expiresAt,
       firstPaymentDateAfterDepositOption: mockFirstPaymentOption as any,
-      meeting: createMockMeeting(),
       product: mockProduct as any,
+      scheduledEvent: createMockMeeting(),
       setting: mockSetting as any,
       user: mockRegularUser as any
     })

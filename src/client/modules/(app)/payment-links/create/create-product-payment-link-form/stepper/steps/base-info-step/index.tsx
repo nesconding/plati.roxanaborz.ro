@@ -8,15 +8,16 @@ import type { TRPCRouterOutput } from '~/client/trpc/react'
 import { CreateProductPaymentLinkFormDefaultValues as defaultValues } from '~/shared/create-product-payment-link-form/create-product-payment-link-form-schema'
 
 type Contract = TRPCRouterOutput['protected']['contracts']['findAll'][number]
-type Meeting = TRPCRouterOutput['protected']['meetings']['findAll'][number]
+type ScheduledEvent =
+  TRPCRouterOutput['protected']['scheduledEvents']['findAll'][number]
 type Product = TRPCRouterOutput['protected']['products']['findAll'][number]
 
 export const BaseInfoStep = withForm({
   defaultValues,
   props: {
     contracts: [] as Contract[],
-    meetings: [] as Meeting[],
-    products: [] as Product[]
+    products: [] as Product[],
+    scheduledEvents: [] as ScheduledEvent[]
   },
   render: function Render(props) {
     return (
