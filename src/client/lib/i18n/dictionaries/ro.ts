@@ -975,10 +975,10 @@ const dictionary = {
 
               columns: {
                 banExpires: 'Banat până la',
-                banExpiresValue: 'Banat până la (valoare interna)',
+                banExpiresValue: 'Banat până la (valoare internǎ)',
                 banned: 'Status ban',
                 createdAt: 'Adăugat la',
-                createdAtValue: 'Adăugat la (valoare interna)',
+                createdAtValue: 'Adăugat la (valoare internǎ)',
                 email: 'E-mail',
                 emailVerified: 'E-mail verificat',
                 firstName: 'Prenume',
@@ -989,7 +989,7 @@ const dictionary = {
                 phoneNumber: 'Număr de telefon',
                 role: 'Rol',
                 updatedAt: 'Actualizat la',
-                updatedAtValue: 'Actualizat la (valoare interna)'
+                updatedAtValue: 'Actualizat la (valoare internǎ)'
               },
               description:
                 'Ești sigur că vrei să exporti utilizatorii selectați?',
@@ -1508,16 +1508,16 @@ const dictionary = {
               // },
               // depositAmountInRON: 'Avans de plată',
               // firstPaymentDateAfterDeposit: 'Data primei plăți',
-              // firstPaymentDateValue: 'Data primei plăți (valoare interna)',
+              // firstPaymentDateValue: 'Data primei plăți (valoare internǎ)',
               // amountToPay: 'Suma de plată',
               // createdBy: {
               //   name: 'Nume creator',
               //   email: 'Email creator'
               // },
               // expiresAt: 'Expirǎ la',
-              // expiresAtValue: 'Expirǎ la (valoare interna)',
+              // expiresAtValue: 'Expirǎ la (valoare internǎ)',
               // createdAt: 'Creat la',
-              // createdAtValue: 'Creat la (valoare interna)',
+              // createdAtValue: 'Creat la (valoare internǎ)',
               // customerEmail: 'Email client',
               // customerFirstName: 'Prenume client',
               // customerLastName: 'Nume client',
@@ -2380,77 +2380,86 @@ const dictionary = {
               closerEmail: 'Email closer',
               closerName: 'Nume closer',
               contract: { name: 'Nume contract' },
-              contractId: 'Id contract (valoare interna)',
+              contractId: 'Id contract',
               'copy-link': 'Copiază link',
               createdAt: 'Adǎugat la',
+              createdAtValue: 'Adǎugat la (valoare internǎ)',
               createdBy: {
                 email: 'Email creator',
                 name: 'Nume creator'
               },
-              createdById: 'Id creator (valoare interna)',
+              createdById: 'Id creator',
               currency: 'Monedǎ',
               customerEmail: 'Email client',
               customerName: 'Nume client',
-              deletedAt: 'Șters la (valoare interna)',
+              deletedAt: 'Șters la',
+              deletedAtValue: 'Șters la (valoare internǎ)',
               depositAmount: 'Suma avansului',
-              depositAmountInCents: 'Suma avansului in cenți(valoare interna)',
+              depositAmountInCents: 'Suma avansului in cenți',
               eurToRonRate: 'Curs EUR/RON',
               expiresAt: 'Expirǎ la',
-              extensionId: 'Id prelungire (valoare interna)',
-              extensionInstallmentAmountToPay:
-                'Suma de platǎ per rata (prelungire)',
-              extensionInstallmentAmountToPayInCents:
-                'Suma de platǎ per rata in cenți (prelungire) (valoare interna)',
-              extensionInstallmentId: 'Id rata prelungire (valoare interna)',
-              extensionInstallmentsCount: 'Rate (prelungire)',
+              expiresAtValue: 'Expirǎ la (valoare internǎ)',
+              extensionId: 'Id prelungire',
               extraTaxRate: 'Comision extra',
               firstPaymentDateAfterDeposit: 'Data primei plăți',
-              firstPaymentDateValue: 'Data primei plăți (valoare interna)',
+              firstPaymentDateAfterDepositValue:
+                'Data primei plăți (valoare internǎ)',
               id: 'Id',
-              membershipId: 'Id abonament (valoare interna)',
+              installmentAmountToPay: 'Suma de platǎ per ratǎ',
+              installmentAmountToPayInCents: 'Suma de platǎ per ratǎ in cenți',
+              installmentId: 'Id ratǎ',
+              installmentsCount: 'Numǎr rate',
+              membershipId: 'Id abonament',
               paymentMethodType: 'Metoda de platǎ',
+              paymentMethodTypeValue: 'Metoda de platǎ (valoare internǎ)',
               paymentMethodTypeValues: {
                 [PaymentMethodType.BankTransfer]: 'Transfer bancar',
                 [PaymentMethodType.Card]: 'Card',
                 [PaymentMethodType.TBI]: 'TBI'
               },
               paymentProductType: 'Tip produs',
+              paymentProductTypeValue: 'Tip produs (valoare internǎ)',
               paymentProductTypeValues: {
                 [PaymentProductType.Product]: 'Produs de bazǎ',
                 [PaymentProductType.Extension]: 'Prelungire'
               },
-              productId: 'Id produs (valoare interna)',
-              productInstallmentAmountToPay: 'Suma de platǎ per rata',
-              productInstallmentAmountToPayInCents:
-                'Suma de platǎ per rata in cenți (valoare interna)',
-              productInstallmentId: 'Id rata (valoare interna)',
-              productInstallmentsCount: 'Rate',
+              productId: 'Id produs',
               productName: 'Nume produs',
               remainingAmountToPay: 'Suma rǎmasǎ de platǎ',
-              remainingAmountToPayInCents:
-                'Suma rǎmasǎ de platǎ in cenți (valoare interna)',
+              remainingAmountToPayInCents: 'Suma rǎmasǎ de platǎ in cenți',
               remainingInstallmentAmountToPay: 'Suma rǎmasǎ de platǎ per rata',
               remainingInstallmentAmountToPayInCents:
-                'Suma rǎmasǎ de platǎ per rata in cenți (valoare interna)',
-              searchCreatedAt: 'Adǎugat la (valoare interna)',
-              searchExpiresAt: 'Expirǎ la (valoare interna)',
+                'Suma rǎmasǎ de platǎ per rata in cenți',
               setterEmail: 'Email setter',
               setterName: 'Numele setter',
               status: 'Status',
-              stripeClientSecret: 'Secret platǎ Stripe (valoare interna)',
-              stripePaymentIntentId: 'Id platǎ Stripe (valoare interna)',
+              statusValue: 'Status (valoare internǎ)',
+              statusValues: {
+                [PaymentStatusType.Created]: 'Creat',
+                [PaymentStatusType.Processing]: 'În procesare',
+                [PaymentStatusType.Succeeded]: 'Plătit',
+                [PaymentStatusType.RequiresConfirmation]: 'Necesitǎ confirmare',
+                [PaymentStatusType.RequiresAction]: 'Necesitǎ acțiune',
+                [PaymentStatusType.RequiresCapture]: 'Necesitǎ captură',
+                [PaymentStatusType.Canceled]: 'Anulat',
+                [PaymentStatusType.Expired]: 'Expirat',
+                [PaymentStatusType.PaymentFailed]: 'Eșuat',
+                [PaymentStatusType.RequiresPaymentMethod]:
+                  'Necesitǎ metoda plată'
+              },
               totalAmountToPay: 'Suma totalǎ de platǎ',
-              totalAmountToPayInCents:
-                'Suma totalǎ de platǎ in cenți (valoare interna)',
+              totalAmountToPayInCents: 'Suma totalǎ de platǎ in cenți',
               tvaRate: 'TVA',
               type: 'Tip platǎ',
+              typeValue: 'Tip platǎ (valoare internǎ)',
               typeValues: {
                 [PaymentLinkType.Integral]: 'Integral',
                 [PaymentLinkType.Deposit]: 'Avans',
                 [PaymentLinkType.Installments]: 'Rate',
                 [PaymentLinkType.InstallmentsDeposit]: 'Rate cu avans'
               },
-              updatedAt: 'Actualizat la (valoare interna)'
+              updatedAt: 'Actualizat la',
+              updatedAtValue: 'Actualizat la (valoare internǎ)'
             },
             header: {
               actions: {
@@ -2482,6 +2491,14 @@ const dictionary = {
                       active: 'Active',
                       all: 'Toate',
                       expired: 'Expirate'
+                    }
+                  },
+                  'payment-product-type': {
+                    title: 'Tip produs',
+                    values: {
+                      all: 'Toate',
+                      [PaymentProductType.Product]: 'Produs de bazǎ',
+                      [PaymentProductType.Extension]: 'Prelungire'
                     }
                   },
                   status: {
@@ -2556,7 +2573,7 @@ const dictionary = {
               status: 'Status',
               updatedAt: 'Actualizat la'
               // createdAt: 'Creat la',
-              // createdAtValue: 'Creat la (valoare interna)',
+              // createdAtValue: 'Creat la (valoare internǎ)',
               // customerEmail: 'Email client',
               // customerFirstName: 'Prenume client',
               // customerLastName: 'Nume client',

@@ -134,6 +134,16 @@ const statusFilter = (
   return status === filterValue
 }
 
+const productTypeFilter = (
+  row: Row<ProductPaymentLink | ExtensionPaymentLink>,
+  columnId: string,
+  filterValue: PaymentProductType | 'all'
+) => {
+  if (filterValue === 'all') return true
+  const productType = row.getValue(columnId) as PaymentProductType
+  return productType === filterValue
+}
+
 const formatDate = (date: DateArg<Date> & {}) =>
   format(date, 'PPP - HH:mm', { locale: ro })
 
@@ -323,6 +333,10 @@ export function PaymentLinksTable({
     },
     {
       accessorKey: 'firstPaymentDateAfterDeposit',
+      cell: ({ row }) =>
+        row.original.firstPaymentDateAfterDeposit
+          ? formatDate(row.original.firstPaymentDateAfterDeposit)
+          : null,
       header: PaymentLinksTableHeader,
       id: 'firstPaymentDateAfterDeposit'
     },
@@ -333,52 +347,49 @@ export function PaymentLinksTable({
     },
     {
       accessorKey: 'paymentProductType',
+      cell: ({ row }) =>
+        t(
+          `columns.paymentProductTypeValues.${row.original.paymentProductType}`
+        ),
+      filterFn: productTypeFilter,
       header: PaymentLinksTableHeader,
       id: 'paymentProductType'
     },
     {
-      accessorKey: 'productInstallmentAmountToPay',
+      accessorKey: 'installmentId',
       cell: ({ row }) =>
-        'productInstallmentAmountToPay' in row.original &&
-        row.original.productInstallmentAmountToPay
-          ? PricingService.formatPrice(
-              row.original.productInstallmentAmountToPay,
-              row.original.currency
-            )
-          : null,
+        (isProductPaymentLink(row.original)
+          ? row.original.productInstallmentId
+          : row.original.extensionInstallmentId) ?? '',
       header: PaymentLinksTableHeader,
-      id: 'productInstallmentAmountToPay'
+      id: 'installmentId'
     },
     {
-      accessorKey: 'extensionInstallmentAmountToPay',
+      accessorKey: 'installmentsCount',
       cell: ({ row }) =>
-        'extensionInstallmentAmountToPay' in row.original &&
-        row.original.extensionInstallmentAmountToPay
-          ? PricingService.formatPrice(
-              row.original.extensionInstallmentAmountToPay,
-              row.original.currency
-            )
-          : null,
-      header: PaymentLinksTableHeader,
-      id: 'extensionInstallmentAmountToPay'
-    },
-    {
-      accessorKey: 'productInstallmentsCount',
-      cell: ({ row }) =>
-        isProductPaymentLink(row.original)
+        (isProductPaymentLink(row.original)
           ? row.original.productInstallmentsCount
-          : null,
+          : row.original.extensionInstallmentsCount) ?? '',
       header: PaymentLinksTableHeader,
-      id: 'productInstallmentsCount'
+      id: 'installmentsCount'
     },
     {
-      accessorKey: 'extensionInstallmentsCount',
+      accessorKey: 'installmentAmountToPay',
       cell: ({ row }) =>
-        isExtensionPaymentLink(row.original)
-          ? row.original.extensionInstallmentsCount
-          : null,
+        (isProductPaymentLink(row.original)
+          ? row.original.productInstallmentAmountToPay
+          : row.original.extensionInstallmentAmountToPay) ?? '',
       header: PaymentLinksTableHeader,
-      id: 'extensionInstallmentsCount'
+      id: 'installmentAmountToPay'
+    },
+    {
+      accessorKey: 'installmentAmountToPayInCents',
+      cell: ({ row }) =>
+        (isProductPaymentLink(row.original)
+          ? row.original.productInstallmentAmountToPayInCents
+          : row.original.extensionInstallmentAmountToPayInCents) ?? '',
+      header: PaymentLinksTableHeader,
+      id: 'installmentAmountToPayInCents'
     },
     {
       accessorKey: 'productName',
@@ -519,6 +530,27 @@ export function PaymentLinksTable({
       id: 'createdAt'
     },
     {
+      accessorKey: 'updatedAt',
+      cell: ({ row }) => (
+        <span className='capitalize'>{formatDate(row.original.updatedAt)}</span>
+      ),
+      header: PaymentLinksTableHeader,
+      id: 'updatedAt'
+    },
+    {
+      accessorKey: 'deletedAt',
+      cell: ({ row }) =>
+        row.original.deletedAt ? (
+          <span className='capitalize'>
+            {formatDate(row.original.deletedAt)}
+          </span>
+        ) : (
+          ''
+        ),
+      header: PaymentLinksTableHeader,
+      id: 'deletedAt'
+    },
+    {
       accessorKey: 'searchCreatedAt',
       cell: () => null,
       enableColumnFilter: false,
@@ -554,101 +586,96 @@ export function PaymentLinksTable({
   })
 
   function handleOnClickDownload() {
-    const data = table
-      .getRowModel()
-      .rows.map((row) => row.original)
-      .map((row) => ({
-        [t('columns.callerName')]: row.callerName ?? '',
-        [t('columns.contract.name')]: isProductPaymentLink(row)
-          ? row.contract.name
-          : undefined,
-        [t('columns.contractId')]: isProductPaymentLink(row)
-          ? row.contractId
-          : undefined,
-        [t('columns.createdAt')]: DatesService.formatDate(row.createdAt),
-        [t('columns.createdBy.email')]: row.createdBy.email ?? '',
-        [t('columns.createdBy.name')]: row.createdBy.name ?? '',
-        [t('columns.createdById')]: row.createdById,
-        [t('columns.currency')]: row.currency,
-        [t('columns.customerEmail')]: row.customerEmail,
-        [t('columns.customerName')]: row.customerName ?? '',
-        [t('columns.deletedAt')]: row.deletedAt ?? '',
-        [t('columns.depositAmount')]: row.depositAmount ?? '',
-        [t('columns.depositAmountInCents')]: row.depositAmountInCents ?? '',
-        [t('columns.eurToRonRate')]: row.eurToRonRate ?? '',
-        [t('columns.expiresAt')]: DatesService.formatDate(row.expiresAt),
-        [t('columns.extraTaxRate')]: row.extraTaxRate,
-        [t('columns.firstPaymentDateAfterDeposit')]:
-          row.firstPaymentDateAfterDeposit
-            ? DatesService.formatDate(row.firstPaymentDateAfterDeposit)
-            : '',
-        [t('columns.id')]: row.id,
-        [t('columns.paymentMethodType')]: t(
-          `columns.paymentMethodTypeValues.${row.paymentMethodType}`
-        ),
-        [t('columns.paymentProductType')]: t(
-          `columns.paymentProductTypeValues.${row.paymentProductType}`
-        ),
-        [t('columns.productId')]: isProductPaymentLink(row)
-          ? row.productId
-          : undefined,
-        [t('columns.productInstallmentAmountToPay')]: isProductPaymentLink(row)
-          ? (row.productInstallmentAmountToPay ?? '')
-          : undefined,
-        [t('columns.productInstallmentAmountToPayInCents')]:
-          isProductPaymentLink(row)
-            ? (row.productInstallmentAmountToPayInCents ?? '')
-            : undefined,
-        [t('columns.productInstallmentId')]: isProductPaymentLink(row)
-          ? (row.productInstallmentId ?? '')
-          : undefined,
-        [t('columns.productInstallmentsCount')]: isProductPaymentLink(row)
-          ? (row.productInstallmentsCount ?? '')
-          : undefined,
-        [t('columns.productName')]: isProductPaymentLink(row)
-          ? row.productName
-          : undefined,
-        [t('columns.extensionId')]: isExtensionPaymentLink(row)
-          ? row.extensionId
-          : undefined,
-        [t('columns.extensionInstallmentAmountToPay')]: isExtensionPaymentLink(
-          row
-        )
-          ? (row.extensionInstallmentAmountToPay ?? '')
-          : undefined,
-        [t('columns.extensionInstallmentAmountToPayInCents')]:
-          isExtensionPaymentLink(row)
-            ? (row.extensionInstallmentAmountToPayInCents ?? '')
-            : undefined,
-        [t('columns.extensionInstallmentId')]: isExtensionPaymentLink(row)
-          ? (row.extensionInstallmentId ?? '')
-          : undefined,
-        [t('columns.extensionInstallmentsCount')]: isExtensionPaymentLink(row)
-          ? (row.extensionInstallmentsCount ?? '')
-          : undefined,
-        [t('columns.membershipId')]: isExtensionPaymentLink(row)
-          ? row.membershipId
-          : undefined,
-        [t('columns.remainingAmountToPay')]: row.remainingAmountToPay ?? '',
-        [t('columns.remainingAmountToPayInCents')]:
-          row.remainingAmountToPayInCents ?? '',
-        [t('columns.remainingInstallmentAmountToPay')]:
-          row.remainingInstallmentAmountToPay ?? '',
-        [t('columns.remainingInstallmentAmountToPayInCents')]:
-          row.remainingInstallmentAmountToPayInCents ?? '',
-        [t('columns.searchCreatedAt')]: DatesService.formatDate(row.createdAt),
-        [t('columns.searchExpiresAt')]: DatesService.formatDate(row.expiresAt),
-        [t('columns.setterName')]: row.setterName ?? '',
-        [t('columns.status')]: row.status,
-        [t('columns.stripeClientSecret')]: row.stripeClientSecret,
-        [t('columns.stripePaymentIntentId')]: row.stripePaymentIntentId,
-        [t('columns.totalAmountToPay')]: row.totalAmountToPay,
-        [t('columns.totalAmountToPayInCents')]: row.totalAmountToPayInCents,
-        [t('columns.tvaRate')]: row.tvaRate,
-        [t('columns.type')]: t(`columns.typeValues.${row.type}`),
-        [t('columns.updatedAt')]: DatesService.formatDate(row.updatedAt)
-      }))
-    createXLSXFile(data, `Link-uri de platǎ - ${formatDate(new Date())}`)
+    const downloadData = data.map((row) => ({
+      [t('columns.callerName')]: row.callerName ?? '',
+      [t('columns.contract.name')]: isProductPaymentLink(row)
+        ? row.contract.name
+        : undefined,
+      [t('columns.contractId')]: isProductPaymentLink(row)
+        ? row.contractId
+        : undefined,
+      [t('columns.createdAt')]: DatesService.formatDate(row.createdAt),
+      [t('columns.createdAtValue')]: row.createdAt,
+      [t('columns.createdBy.email')]: row.createdBy.email ?? '',
+      [t('columns.createdBy.name')]: row.createdBy.name ?? '',
+      [t('columns.createdById')]: row.createdById,
+      [t('columns.currency')]: row.currency,
+      [t('columns.customerEmail')]: row.customerEmail,
+      [t('columns.customerName')]: row.customerName ?? '',
+      [t('columns.deletedAt')]: row.deletedAt
+        ? DatesService.formatDate(row.deletedAt)
+        : '',
+      [t('columns.deletedAtValue')]: row.deletedAt ?? '',
+      [t('columns.depositAmount')]: row.depositAmount ?? '',
+      [t('columns.depositAmountInCents')]: row.depositAmountInCents ?? '',
+      [t('columns.eurToRonRate')]: row.eurToRonRate ?? '',
+      [t('columns.expiresAt')]: DatesService.formatDate(row.expiresAt),
+      [t('columns.expiresAtValue')]: row.expiresAt,
+      [t('columns.extraTaxRate')]: row.extraTaxRate,
+      [t('columns.firstPaymentDateAfterDeposit')]:
+        row.firstPaymentDateAfterDeposit
+          ? DatesService.formatDate(row.firstPaymentDateAfterDeposit)
+          : '',
+      [t('columns.firstPaymentDateAfterDepositValue')]:
+        row.firstPaymentDateAfterDeposit
+          ? row.firstPaymentDateAfterDeposit
+          : '',
+      [t('columns.id')]: row.id,
+      [t('columns.paymentMethodType')]: t(
+        `columns.paymentMethodTypeValues.${row.paymentMethodType}`
+      ),
+      [t('columns.paymentMethodTypeValue')]: row.paymentMethodType,
+      [t('columns.paymentProductType')]: t(
+        `columns.paymentProductTypeValues.${row.paymentProductType}`
+      ),
+      [t('columns.paymentProductTypeValue')]: row.paymentProductType,
+      [t('columns.productId')]: isProductPaymentLink(row)
+        ? row.productId
+        : undefined,
+      [t('columns.installmentAmountToPay')]: isProductPaymentLink(row)
+        ? (row.productInstallmentAmountToPay ?? '')
+        : (row.extensionInstallmentAmountToPay ?? ''),
+      [t('columns.installmentAmountToPayInCents')]: isProductPaymentLink(row)
+        ? (row.productInstallmentAmountToPayInCents ?? '')
+        : (row.extensionInstallmentAmountToPayInCents ?? ''),
+      [t('columns.installmentId')]: isProductPaymentLink(row)
+        ? (row.productInstallmentId ?? '')
+        : (row.extensionInstallmentId ?? ''),
+      [t('columns.installmentsCount')]: isProductPaymentLink(row)
+        ? (row.productInstallmentsCount ?? '')
+        : (row.extensionInstallmentsCount ?? ''),
+      [t('columns.productName')]: isProductPaymentLink(row)
+        ? row.productName
+        : undefined,
+      [t('columns.extensionId')]: isExtensionPaymentLink(row)
+        ? row.extensionId
+        : undefined,
+      [t('columns.membershipId')]: isExtensionPaymentLink(row)
+        ? row.membershipId
+        : undefined,
+      [t('columns.remainingAmountToPay')]: row.remainingAmountToPay ?? '',
+      [t('columns.remainingAmountToPayInCents')]:
+        row.remainingAmountToPayInCents ?? '',
+      [t('columns.remainingInstallmentAmountToPay')]:
+        row.remainingInstallmentAmountToPay ?? '',
+      [t('columns.remainingInstallmentAmountToPayInCents')]:
+        row.remainingInstallmentAmountToPayInCents ?? '',
+      [t('columns.setterName')]: row.setterName ?? '',
+      [t('columns.status')]: t(`columns.statusValues.${row.status}`),
+      [t('columns.statusValue')]: row.status,
+      [t('columns.totalAmountToPay')]: row.totalAmountToPay,
+      [t('columns.totalAmountToPayInCents')]: row.totalAmountToPayInCents,
+      [t('columns.tvaRate')]: row.tvaRate,
+      [t('columns.type')]: t(`columns.typeValues.${row.type}`),
+      [t('columns.typeValue')]: row.type,
+      [t('columns.updatedAt')]: DatesService.formatDate(row.updatedAt),
+      [t('columns.updatedAtValue')]: row.updatedAt
+    }))
+
+    createXLSXFile(
+      downloadData,
+      `Link-uri de platǎ - ${formatDate(new Date())}`
+    )
   }
 
   const fillRows = Array.from(
@@ -756,6 +783,53 @@ export function PaymentLinksTable({
                       key={status}
                       onCheckedChange={() =>
                         table.getColumn('status')?.setFilterValue(status)
+                      }
+                    >
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  {t('header.show.groups.payment-product-type.title')}
+                </DropdownMenuLabel>
+
+                <DropdownMenuCheckboxItem
+                  checked={
+                    table.getColumn('paymentProductType')?.getFilterValue() ===
+                      'all' ||
+                    !table.getColumn('paymentProductType')?.getFilterValue()
+                  }
+                  onCheckedChange={() =>
+                    table.getColumn('paymentProductType')?.setFilterValue('all')
+                  }
+                >
+                  {t('header.show.groups.payment-product-type.values.all')}
+                </DropdownMenuCheckboxItem>
+
+                {Object.values(PaymentProductType)
+                  .map((productType) => ({
+                    label: t(
+                      `header.show.groups.payment-product-type.values.${productType}`
+                    ),
+                    productType
+                  }))
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map(({ productType, label }) => (
+                    <DropdownMenuCheckboxItem
+                      checked={
+                        table
+                          .getColumn('paymentProductType')
+                          ?.getFilterValue() === productType
+                      }
+                      key={productType}
+                      onCheckedChange={() =>
+                        table
+                          .getColumn('paymentProductType')
+                          ?.setFilterValue(productType)
                       }
                     >
                       {label}
