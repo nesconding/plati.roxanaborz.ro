@@ -84,14 +84,32 @@ import { createXLSXFile } from '~/client/lib/xlsx'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
 import { DatesService } from '~/server/services/dates'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
 import { PaymentStatusType } from '~/shared/enums/payment-status'
 import { UserRoles } from '~/shared/enums/user-roles'
 
-type Payment =
+type ProductPaymentLink =
   TRPCRouterOutput['protected']['productPaymentLinks']['findAll'][number]
 
+type ExtensionPaymentLink =
+  TRPCRouterOutput['protected']['extensionPaymentLinks']['findAll'][number]
+
+type PaymentLink = ProductPaymentLink | ExtensionPaymentLink
+
+function isProductPaymentLink(
+  paymentLink: PaymentLink
+): paymentLink is ProductPaymentLink {
+  return paymentLink.paymentProductType === PaymentProductType.Product
+}
+
+function isExtensionPaymentLink(
+  paymentLink: PaymentLink
+): paymentLink is ExtensionPaymentLink {
+  return paymentLink.paymentProductType === PaymentProductType.Extension
+}
+
 const expirationStatusFilter = (
-  row: Row<Payment>,
+  row: Row<ProductPaymentLink | ExtensionPaymentLink>,
   columnId: string,
   filterValue: 'expired' | 'active' | 'all'
 ) => {
@@ -107,7 +125,7 @@ const expirationStatusFilter = (
 }
 
 const statusFilter = (
-  row: Row<Payment>,
+  row: Row<ProductPaymentLink | ExtensionPaymentLink>,
   columnId: string,
   filterValue: PaymentStatusType | 'all'
 ) => {
@@ -150,8 +168,13 @@ export function PaymentLinksTable({
   const [rowSelection, setRowSelection] = useState({})
 
   const trpc = useTRPC()
-  const findAllPaymentLinks = useQuery(
+  const findAllProductsPaymentLinks = useQuery(
     trpc.protected.productPaymentLinks.findAll.queryOptions(undefined, {
+      initialData: []
+    })
+  )
+  const findAllExtensionPaymentLinks = useQuery(
+    trpc.protected.extensionPaymentLinks.findAll.queryOptions(undefined, {
       initialData: []
     })
   )
@@ -161,16 +184,19 @@ export function PaymentLinksTable({
 
   const data = useMemo(
     () =>
-      findAllPaymentLinks.data.map((payment) => ({
+      [
+        ...findAllProductsPaymentLinks.data,
+        ...findAllExtensionPaymentLinks.data
+      ].map((payment) => ({
         ...payment,
         searchCreatedAt: formatDate(payment.createdAt),
         searchExpiresAt: formatDate(payment.expiresAt)
       })),
-    [findAllPaymentLinks.data]
+    [findAllProductsPaymentLinks.data, findAllExtensionPaymentLinks.data]
   )
 
   const userEmailFilter = (
-    row: Row<Payment>,
+    row: Row<ProductPaymentLink | ExtensionPaymentLink>,
     columnId: string,
     filterValue: 'all' | 'users'
   ) => {
@@ -183,7 +209,7 @@ export function PaymentLinksTable({
 
   const debouncedSetGlobalFilter = useDebouncedCallback(setGlobalFilter, 500)
 
-  const columns: ColumnDef<Payment>[] = [
+  const columns: ColumnDef<ProductPaymentLink | ExtensionPaymentLink>[] = [
     {
       accessorKey: 'copy-link',
       cell: ({ row }) => {
@@ -253,6 +279,8 @@ export function PaymentLinksTable({
     },
     {
       accessorKey: 'contract.name',
+      cell: ({ row }) =>
+        isProductPaymentLink(row.original) ? row.original.contract.name : null,
       header: PaymentLinksTableHeader,
       id: 'contract.name'
     },
@@ -311,6 +339,7 @@ export function PaymentLinksTable({
     {
       accessorKey: 'productInstallmentAmountToPay',
       cell: ({ row }) =>
+        'productInstallmentAmountToPay' in row.original &&
         row.original.productInstallmentAmountToPay
           ? PricingService.formatPrice(
               row.original.productInstallmentAmountToPay,
@@ -321,9 +350,35 @@ export function PaymentLinksTable({
       id: 'productInstallmentAmountToPay'
     },
     {
+      accessorKey: 'extensionInstallmentAmountToPay',
+      cell: ({ row }) =>
+        'extensionInstallmentAmountToPay' in row.original &&
+        row.original.extensionInstallmentAmountToPay
+          ? PricingService.formatPrice(
+              row.original.extensionInstallmentAmountToPay,
+              row.original.currency
+            )
+          : null,
+      header: PaymentLinksTableHeader,
+      id: 'extensionInstallmentAmountToPay'
+    },
+    {
       accessorKey: 'productInstallmentsCount',
+      cell: ({ row }) =>
+        isProductPaymentLink(row.original)
+          ? row.original.productInstallmentsCount
+          : null,
       header: PaymentLinksTableHeader,
       id: 'productInstallmentsCount'
+    },
+    {
+      accessorKey: 'extensionInstallmentsCount',
+      cell: ({ row }) =>
+        isExtensionPaymentLink(row.original)
+          ? row.original.extensionInstallmentsCount
+          : null,
+      header: PaymentLinksTableHeader,
+      id: 'extensionInstallmentsCount'
     },
     {
       accessorKey: 'productName',
@@ -355,6 +410,11 @@ export function PaymentLinksTable({
       id: 'remainingInstallmentAmountToPay'
     },
     {
+      accessorKey: 'setterEmail',
+      header: PaymentLinksTableHeader,
+      id: 'setterEmail'
+    },
+    {
       accessorKey: 'setterName',
       header: PaymentLinksTableHeader,
       id: 'setterName'
@@ -384,6 +444,11 @@ export function PaymentLinksTable({
       id: 'status'
     },
     {
+      accessorKey: 'membershipId',
+      header: PaymentLinksTableHeader,
+      id: 'membershipId'
+    },
+    {
       accessorKey: 'totalAmountToPay',
       cell: ({ row }) =>
         PricingService.formatPrice(
@@ -392,6 +457,11 @@ export function PaymentLinksTable({
         ),
       header: PaymentLinksTableHeader,
       id: 'totalAmountToPay'
+    },
+    {
+      accessorKey: 'totalAmountToPayInCents',
+      header: PaymentLinksTableHeader,
+      id: 'totalAmountToPayInCents'
     },
     { accessorKey: 'tvaRate', header: PaymentLinksTableHeader, id: 'tvaRate' },
     {
@@ -489,8 +559,12 @@ export function PaymentLinksTable({
       .rows.map((row) => row.original)
       .map((row) => ({
         [t('columns.callerName')]: row.callerName ?? '',
-        [t('columns.contract.name')]: row.contract.name,
-        [t('columns.contractId')]: row.contractId,
+        [t('columns.contract.name')]: isProductPaymentLink(row)
+          ? row.contract.name
+          : undefined,
+        [t('columns.contractId')]: isProductPaymentLink(row)
+          ? row.contractId
+          : undefined,
         [t('columns.createdAt')]: DatesService.formatDate(row.createdAt),
         [t('columns.createdBy.email')]: row.createdBy.email ?? '',
         [t('columns.createdBy.name')]: row.createdBy.name ?? '',
@@ -515,15 +589,46 @@ export function PaymentLinksTable({
         [t('columns.paymentProductType')]: t(
           `columns.paymentProductTypeValues.${row.paymentProductType}`
         ),
-        [t('columns.productId')]: row.productId,
-        [t('columns.productInstallmentAmountToPay')]:
-          row.productInstallmentAmountToPay ?? '',
+        [t('columns.productId')]: isProductPaymentLink(row)
+          ? row.productId
+          : undefined,
+        [t('columns.productInstallmentAmountToPay')]: isProductPaymentLink(row)
+          ? (row.productInstallmentAmountToPay ?? '')
+          : undefined,
         [t('columns.productInstallmentAmountToPayInCents')]:
-          row.productInstallmentAmountToPayInCents ?? '',
-        [t('columns.productInstallmentId')]: row.productInstallmentId ?? '',
-        [t('columns.productInstallmentsCount')]:
-          row.productInstallmentsCount ?? '',
-        [t('columns.productName')]: row.productName,
+          isProductPaymentLink(row)
+            ? (row.productInstallmentAmountToPayInCents ?? '')
+            : undefined,
+        [t('columns.productInstallmentId')]: isProductPaymentLink(row)
+          ? (row.productInstallmentId ?? '')
+          : undefined,
+        [t('columns.productInstallmentsCount')]: isProductPaymentLink(row)
+          ? (row.productInstallmentsCount ?? '')
+          : undefined,
+        [t('columns.productName')]: isProductPaymentLink(row)
+          ? row.productName
+          : undefined,
+        [t('columns.extensionId')]: isExtensionPaymentLink(row)
+          ? row.extensionId
+          : undefined,
+        [t('columns.extensionInstallmentAmountToPay')]: isExtensionPaymentLink(
+          row
+        )
+          ? (row.extensionInstallmentAmountToPay ?? '')
+          : undefined,
+        [t('columns.extensionInstallmentAmountToPayInCents')]:
+          isExtensionPaymentLink(row)
+            ? (row.extensionInstallmentAmountToPayInCents ?? '')
+            : undefined,
+        [t('columns.extensionInstallmentId')]: isExtensionPaymentLink(row)
+          ? (row.extensionInstallmentId ?? '')
+          : undefined,
+        [t('columns.extensionInstallmentsCount')]: isExtensionPaymentLink(row)
+          ? (row.extensionInstallmentsCount ?? '')
+          : undefined,
+        [t('columns.membershipId')]: isExtensionPaymentLink(row)
+          ? row.membershipId
+          : undefined,
         [t('columns.remainingAmountToPay')]: row.remainingAmountToPay ?? '',
         [t('columns.remainingAmountToPayInCents')]:
           row.remainingAmountToPayInCents ?? '',
@@ -909,12 +1014,12 @@ export function PaymentLinksTable({
 
 export function PaymentLinksTableHeader({
   column
-}: HeaderContext<Payment, unknown>) {
+}: HeaderContext<PaymentLink, unknown>) {
   const t = useTranslations(
     'modules.(app).payment-links._components.payment-links-table'
   )
 
-  const handleOnClickColumn = (column: Column<Payment>) => {
+  const handleOnClickColumn = (column: Column<PaymentLink>) => {
     if (column.getIsSorted() === 'asc') {
       column.toggleSorting(true)
       return

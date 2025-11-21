@@ -2396,10 +2396,18 @@ const dictionary = {
               depositAmountInCents: 'Suma avansului in cenți(valoare interna)',
               eurToRonRate: 'Curs EUR/RON',
               expiresAt: 'Expirǎ la',
+              extensionId: 'Id prelungire (valoare interna)',
+              extensionInstallmentAmountToPay:
+                'Suma de platǎ per rata (prelungire)',
+              extensionInstallmentAmountToPayInCents:
+                'Suma de platǎ per rata in cenți (prelungire) (valoare interna)',
+              extensionInstallmentId: 'Id rata prelungire (valoare interna)',
+              extensionInstallmentsCount: 'Rate (prelungire)',
               extraTaxRate: 'Comision extra',
               firstPaymentDateAfterDeposit: 'Data primei plăți',
               firstPaymentDateValue: 'Data primei plăți (valoare interna)',
               id: 'Id',
+              membershipId: 'Id abonament (valoare interna)',
               paymentMethodType: 'Metoda de platǎ',
               paymentMethodTypeValues: {
                 [PaymentMethodType.BankTransfer]: 'Transfer bancar',
