@@ -3,11 +3,13 @@ import { text } from 'drizzle-orm/pg-core'
 
 import { order_status_type } from '~/server/database/schema/business/enums/order-status-type'
 import { order_type } from '~/server/database/schema/business/enums/order-type'
+import { payment_product_type } from '~/server/database/schema/business/enums/payment-product-type'
 import { extension_payment_links } from '~/server/database/schema/business/models/extension-payment-links'
 import { extension_subscriptions } from '~/server/database/schema/business/models/extension-subscriptions'
 import { memberships } from '~/server/database/schema/business/models/membership'
 import { business } from '~/server/database/schema/schemas'
 import { id, softDeleteTimestamps } from '~/server/database/schema/utils'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
 
 export const extension_orders = business.table('extension_orders', {
   ...id,
@@ -20,6 +22,9 @@ export const extension_orders = business.table('extension_orders', {
   membershipId: text('membership_id')
     .notNull()
     .references(() => memberships.id, { onDelete: 'no action' }),
+  paymentProductType: payment_product_type('payment_product_type')
+    .default(PaymentProductType.Extension)
+    .notNull(),
   productName: text('product_name').notNull(),
   status: order_status_type('status').notNull(),
   stripePaymentIntentId: text('stripe_payment_intent_id').notNull(),

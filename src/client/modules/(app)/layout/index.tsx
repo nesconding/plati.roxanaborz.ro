@@ -42,8 +42,11 @@ export default async function AppLayoutModule({
   )
   queryClient.prefetchQuery(trpc.protected.contracts.findAll.queryOptions())
   queryClient.prefetchQuery(trpc.protected.memberships.findAll.queryOptions())
-  queryClient.prefetchQuery(trpc.protected.orders.findAll.queryOptions())
-  // queryClient.prefetchQuery(trpc.protected.business.getPayments.queryOptions())
+  queryClient.prefetchQuery(
+    trpc.protected.extensionOrders.findAll.queryOptions()
+  )
+  queryClient.prefetchQuery(trpc.protected.productOrders.findAll.queryOptions())
+
   queryClient.prefetchQuery(trpc.protected.products.findAll.queryOptions())
   queryClient.prefetchQuery(
     trpc.protected.settings.findAllPaymentSettings.queryOptions()

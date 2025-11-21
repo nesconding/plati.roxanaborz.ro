@@ -1664,36 +1664,34 @@ const dictionary = {
           },
           'orders-table': {
             columns: {
-              // callerName: 'Nume apelant',
-              // createdAt: 'Plasatǎ la',
-              // createdBy: {
-              //   email: 'Email creator',
-              //   name: 'Nume creator'
-              // },
-              // customerEmail: 'Email client',
-              // customerFirstName: 'Prenume client',
-              // customerLastName: 'Nume client',
-              // customerPhoneNumber: 'Număr de telefon client',
-              // id: 'Id',
-              // paidAmount: 'Suma plătită',
-              // paidAmountWithoutTVA: 'Suma plătită fără TVA',
-              // paymentMethod: 'Metodă de plată',
-              // product: {
-              //   name: 'Nume produs'
-              // },
-              // setterName: 'Nume setator',
-              // status: 'Status',
-              // tvaAmount: 'Valoare TVA',
-              // type: 'Tip'
               createdAt: 'Creat la',
               customerEmail: 'Email client',
               customerName: 'Nume client',
-              extensionPaymentLinkId: 'Id link de plată prelungire',
               id: 'Id',
-              productPaymentLinkId: 'Id link de plată produs',
+              paymentLinkId: 'Id link de plată',
+              paymentProductType: 'Tip produs',
+              paymentProductTypeValues: {
+                [PaymentProductType.Product]: 'Produs',
+                [PaymentProductType.Extension]: 'Prelungire'
+              },
+              productName: 'Nume produs',
               status: 'Status',
+              statusValues: {
+                [OrderStatusType.Completed]: 'Completatǎ',
+                [OrderStatusType.PendingBankTransferPayment]:
+                  'În așteptare transfer bancar',
+                [OrderStatusType.ProcessingBankTransferPayment]:
+                  'În procesare transfer bancar',
+                [OrderStatusType.PendingCardPayment]: 'În așteptare card',
+                [OrderStatusType.Cancelled]: 'Anulatǎ'
+              },
               stripePaymentIntentId: 'Id Stripe',
               type: 'Tip',
+              typeValues: {
+                [OrderType.ParentOrder]: 'Comandă principalǎ',
+                [OrderType.OneTimePaymentOrder]: 'Comandǎ integralǎ',
+                [OrderType.RenewalOrder]: 'Comandǎ de reînnoire'
+              },
               updatedAt: 'Actualizat la'
             },
             header: {
@@ -1706,6 +1704,9 @@ const dictionary = {
               columns: {
                 title: 'Coloane'
               },
+              input: {
+                placeholder: 'Caută comandă'
+              },
               show: {
                 groups: {
                   'created-by': {
@@ -1714,12 +1715,42 @@ const dictionary = {
                       all: 'Toate',
                       'by-me': 'Create de mine'
                     }
+                  },
+                  'payment-product-type': {
+                    title: 'Tip produs',
+                    values: {
+                      all: 'Toate',
+                      [PaymentProductType.Product]: 'Produs',
+                      [PaymentProductType.Extension]: 'Prelungire'
+                    }
+                  },
+                  status: {
+                    title: 'Status',
+                    values: {
+                      all: 'Toate',
+                      [OrderStatusType.Completed]: 'Completatǎ',
+                      [OrderStatusType.PendingBankTransferPayment]:
+                        'În așteptare transfer bancar',
+                      [OrderStatusType.ProcessingBankTransferPayment]:
+                        'În procesare transfer bancar',
+                      [OrderStatusType.PendingCardPayment]: 'În așteptare card',
+                      [OrderStatusType.Cancelled]: 'Anulatǎ'
+                    }
+                  },
+                  type: {
+                    title: 'Tip comandǎ',
+                    values: {
+                      all: 'Toate',
+                      [OrderType.ParentOrder]: 'Comandă principalǎ',
+                      [OrderType.OneTimePaymentOrder]: 'Comandǎ integralǎ',
+                      [OrderType.RenewalOrder]: 'Comandǎ de reînnoire'
+                    }
                   }
                 },
                 title: 'Afișează'
               }
             },
-            'no-results': 'Nu s-au găsit link-uri de plată.',
+            'no-results': 'Nu s-au găsit comenzi.',
             pagination: {
               'next-page': 'Pagina următoare',
               'page-count': 'Pagina {page} din {pageCount}',
@@ -1727,6 +1758,44 @@ const dictionary = {
               'rows-per-page': 'Rânduri pe pagină'
             },
             row: {
+              actions: {
+                values: {
+                  'cancel-order': {
+                    extension: {
+                      response: {
+                        error: {
+                          description:
+                            'A apărut o eroare la anularea comandei prelungirii.',
+                          title: 'Anulează comandă prelungire'
+                        },
+                        success: {
+                          description:
+                            'Comanda prelungirii a fost anulată cu succes.',
+                          title: 'Anulează comandă prelungire'
+                        }
+                      }
+                    },
+                    product: {
+                      response: {
+                        error: {
+                          description:
+                            'A apărut o eroare la anularea comandei produsului.',
+                          title: 'Anulează comandă produs'
+                        },
+                        success: {
+                          description:
+                            'Comanda produsului a fost anulată cu succes.',
+                          title: 'Anulează comandă produs'
+                        }
+                      }
+                    },
+                    title: 'Anulează comandă'
+                  },
+                  'process-bank-transfer-payment': {
+                    title: 'Procesează transfer bancar'
+                  }
+                }
+              },
               paymentMethod: {
                 [PaymentMethodType.Card]: 'Card',
                 [PaymentMethodType.BankTransfer]: 'Transfer bancar',

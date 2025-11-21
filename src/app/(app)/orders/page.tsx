@@ -6,9 +6,14 @@ import { getQueryClient, trpc } from '~/client/trpc/server'
 export default async function SubscriptionsPage() {
   const queryClient = getQueryClient()
 
-  await queryClient.ensureQueryData(
-    trpc.protected.orders.findAll.queryOptions()
-  )
+  await Promise.all([
+    queryClient.ensureQueryData(
+      trpc.protected.extensionOrders.findAll.queryOptions()
+    ),
+    queryClient.ensureQueryData(
+      trpc.protected.productOrders.findAll.queryOptions()
+    )
+  ])
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

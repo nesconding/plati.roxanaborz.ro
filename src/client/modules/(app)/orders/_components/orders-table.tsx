@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   type Column,
   type ColumnDef,
@@ -11,45 +11,41 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   type HeaderContext,
-  // type Row,
+  type Row,
   type SortingState,
   useReactTable,
   type VisibilityState
 } from '@tanstack/react-table'
-import {
-  type DateArg,
-  format
-  // isAfter
-} from 'date-fns'
+import { type DateArg, format } from 'date-fns'
 import { ro } from 'date-fns/locale'
 import {
   ChevronLeft,
   ChevronRight,
   Columns2,
-  // Copy,
-  // CopyCheck,
   Download,
-  // Plus,
+  EllipsisVertical,
+  Pencil,
   Search,
-  // View,
+  View,
+  XCircle,
   Zap
 } from 'lucide-react'
 import { DynamicIcon } from 'lucide-react/dynamic'
-// import Link from 'next/link'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import { useDebouncedCallback } from 'use-debounce'
-
-// import { Badge } from '~/client/components/ui/badge'
+import { Badge } from '~/client/components/ui/badge'
 import { Button } from '~/client/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  // DropdownMenuGroup,
+  DropdownMenuGroup,
   DropdownMenuItem,
-  // DropdownMenuLabel,
-  // DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '~/client/components/ui/dropdown-menu'
 import { Field, FieldGroup } from '~/client/components/ui/field'
@@ -77,37 +73,56 @@ import {
   TableHeader,
   TableRow
 } from '~/client/components/ui/table'
-// import {
-//   Tooltip,
-//   TooltipContent,
-//   TooltipTrigger
-// } from '~/client/components/ui/tooltip'
 import { useIsMobile } from '~/client/hooks/use-mobile'
 import { cn } from '~/client/lib/utils'
-// import { createXLSXFile } from '~/client/lib/xlsx'
+import { createXLSXFile } from '~/client/lib/xlsx'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
+import { DatesService } from '~/server/services/dates'
+import { OrderStatusType } from '~/shared/enums/order-status-type'
+import { OrderType } from '~/shared/enums/order-type'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
+import { UserRoles } from '~/shared/enums/user-roles'
 
-// import { PricingService } from '~/lib/pricing'
-// import { OrderStatusType } from '~/shared/enums/order-status-type'
-// import { UserRoles } from '~/shared/enums/user-roles'
+type ExtensionOrder =
+  TRPCRouterOutput['protected']['extensionOrders']['findAll'][number]
+type ProductOrder =
+  TRPCRouterOutput['protected']['productOrders']['findAll'][number]
 
-type Order = TRPCRouterOutput['protected']['orders']['findAll'][number]
+function isProductOrder(
+  order: ExtensionOrder | ProductOrder
+): order is ProductOrder {
+  return order.paymentProductType === PaymentProductType.Product
+}
 
-// const expirationStatusFilter = (
-//   row: Row<Order>,
-//   columnId: string,
-//   filterValue: 'expired' | 'active' | 'all'
-// ) => {
-//   if (filterValue === 'all') return true
+const statusFilter = (
+  row: Row<ExtensionOrder | ProductOrder>,
+  columnId: string,
+  filterValue: OrderStatusType | 'all'
+) => {
+  if (filterValue === 'all') return true
+  const status = row.getValue(columnId) as OrderStatusType
+  return status === filterValue
+}
 
-//   const expiresAt = row.getValue(columnId) as Date
-//   const isExpired = isAfter(new Date(), expiresAt)
+const typeFilter = (
+  row: Row<ExtensionOrder | ProductOrder>,
+  columnId: string,
+  filterValue: OrderType | 'all'
+) => {
+  if (filterValue === 'all') return true
+  const type = row.getValue(columnId) as OrderType
+  return type === filterValue
+}
 
-//   if (filterValue === 'expired') return isExpired
-//   if (filterValue === 'active') return !isExpired
-
-//   return true
-// }
+const productTypeFilter = (
+  row: Row<ExtensionOrder | ProductOrder>,
+  columnId: string,
+  filterValue: PaymentProductType | 'all'
+) => {
+  if (filterValue === 'all') return true
+  const productType = row.getValue(columnId) as PaymentProductType
+  return productType === filterValue
+}
 
 const formatDate = (date: DateArg<Date> & {}) =>
   format(date, 'PPP - HH:mm', { locale: ro })
@@ -118,7 +133,7 @@ interface OrdersTableProps {
   className?: string
 }
 export function OrdersTable({ className }: OrdersTableProps) {
-  const t = useTranslations()
+  const t = useTranslations('modules.(app).orders._components.orders-table')
 
   const isMobile = useIsMobile()
 
@@ -128,15 +143,7 @@ export function OrdersTable({ className }: OrdersTableProps) {
   const [searchInput, setSearchInput] = useState('')
   const [globalFilter, setGlobalFilter] = useState('')
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  // const [copiedRowId, setCopiedRowId] = useState<string>()
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    // 'product.name': false,
-    // 'installmentsOption.installments': false,
-    // depositAmountInRON: false,
-    // firstPaymentDateAfterDeposit: false,
-    // createdAt: false,
-    // id: false
-  })
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: pageSizeOptions[1]
@@ -144,39 +151,279 @@ export function OrdersTable({ className }: OrdersTableProps) {
   const [rowSelection, setRowSelection] = useState({})
 
   const trpc = useTRPC()
-  const getOrders = useQuery(
-    trpc.protected.orders.findAll.queryOptions(undefined, {
+  const getExtensionOrders = useQuery(
+    trpc.protected.extensionOrders.findAll.queryOptions(undefined, {
       initialData: []
     })
   )
-  // const getSession = useQuery(
-  //   trpc.public.authentication.getSession.queryOptions()
-  // )
+  const queryClient = useQueryClient()
+  const getProductOrders = useQuery(
+    trpc.protected.productOrders.findAll.queryOptions(undefined, {
+      initialData: []
+    })
+  )
+  const getSession = useQuery(
+    trpc.public.authentication.getSession.queryOptions()
+  )
+  const updateExtensionOrderStatus = useMutation(
+    trpc.protected.extensionOrders.updateStatus.mutationOptions()
+  )
+  const updateProductOrderStatus = useMutation(
+    trpc.protected.productOrders.updateStatus.mutationOptions()
+  )
 
   const data = useMemo(
     () =>
-      getOrders.data.map((order) => ({
+      [...getExtensionOrders.data, ...getProductOrders.data].map((order) => ({
         ...order,
         searchCreatedAt: formatDate(order.createdAt)
       })),
-    [getOrders.data]
+    [getExtensionOrders.data, getProductOrders.data]
   )
 
-  // const userEmailFilter = (
-  //   row: Row<Order>,
-  //   columnId: string,
-  //   filterValue: 'all' | 'users'
-  // ) => {
-  //   if (filterValue !== 'users') return true
+  const userEmailFilter = (
+    row: Row<ExtensionOrder | ProductOrder>,
+    columnId: string,
+    filterValue: 'all' | 'users'
+  ) => {
+    if (filterValue !== 'users') return true
 
-  //   const createdByEmail = row.getValue(columnId) as string
-  //   const isUser = createdByEmail === getSession.data?.user?.email
-  //   return isUser
-  // }
+    const customerEmail = row.getValue(columnId) as string
+    const isUser = customerEmail === getSession.data?.user?.email
+    return isUser
+  }
 
   const debouncedSetGlobalFilter = useDebouncedCallback(setGlobalFilter, 500)
 
-  const columns: ColumnDef<Order>[] = [
+  const handleOnClickUpdateOrderStatusCancel = async (
+    id: string,
+    status: OrderStatusType,
+    paymentProductType: PaymentProductType
+  ) => {
+    if (
+      status === OrderStatusType.Cancelled ||
+      status === OrderStatusType.Completed
+    ) {
+      return
+    }
+
+    if (paymentProductType === PaymentProductType.Product) {
+      await updateProductOrderStatus.mutateAsync(
+        {
+          id,
+          status: OrderStatusType.Cancelled
+        },
+        {
+          onError: (error) => {
+            toast.error(
+              t('row.actions.values.cancel-order.product.response.error.title'),
+              {
+                className: '!text-destructive-foreground',
+                classNames: {
+                  description: '!text-muted-foreground',
+                  icon: 'text-destructive',
+                  title: '!text-destructive'
+                },
+                description:
+                  error instanceof Error
+                    ? error.message
+                    : t(
+                        'row.actions.values.cancel-order.product.response.error.description'
+                      )
+              }
+            )
+            console.error(error)
+          },
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({
+              queryKey: trpc.protected.productOrders.findAll.queryKey()
+            })
+            toast.success(
+              t(
+                'row.actions.values.cancel-order.product.response.success.title'
+              ),
+              {
+                classNames: {
+                  description: '!text-muted-foreground',
+                  icon: 'text-primary'
+                },
+                description: t(
+                  'row.actions.values.cancel-order.product.response.success.description'
+                )
+              }
+            )
+          }
+        }
+      )
+    }
+
+    if (paymentProductType === PaymentProductType.Extension) {
+      await updateExtensionOrderStatus.mutateAsync(
+        {
+          id,
+          status: OrderStatusType.Cancelled
+        },
+        {
+          onError: (error) => {
+            toast.error(
+              t(
+                'row.actions.values.cancel-order.extension.response.error.title'
+              ),
+              {
+                className: '!text-destructive-foreground',
+                classNames: {
+                  description: '!text-muted-foreground',
+                  icon: 'text-destructive',
+                  title: '!text-destructive'
+                },
+                description:
+                  error instanceof Error
+                    ? error.message
+                    : t(
+                        'row.actions.values.cancel-order.extension.response.error.description'
+                      )
+              }
+            )
+            console.error(error)
+          },
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({
+              queryKey: trpc.protected.productOrders.findAll.queryKey()
+            })
+            toast.success(
+              t(
+                'row.actions.values.cancel-order.extension.response.success.title'
+              ),
+              {
+                classNames: {
+                  description: '!text-muted-foreground',
+                  icon: 'text-primary'
+                },
+                description: t(
+                  'row.actions.values.cancel-order.extension.response.success.description'
+                )
+              }
+            )
+          }
+        }
+      )
+    }
+  }
+
+  const handleOnClickUpdateOrderStatusProcessBankTransferPayment = async (
+    id: string,
+    status: OrderStatusType,
+    paymentProductType: PaymentProductType
+  ) => {
+    if (
+      status !== OrderStatusType.PendingCardPayment &&
+      status !== OrderStatusType.PendingBankTransferPayment
+    ) {
+      return
+    }
+
+    if (paymentProductType === PaymentProductType.Product) {
+      await updateProductOrderStatus.mutateAsync(
+        {
+          id,
+          status: OrderStatusType.ProcessingBankTransferPayment
+        },
+        {
+          onError: (error) => {
+            toast.error(
+              t(
+                'row.actions.process-bank-transfer-payment.product.response.error.title'
+              ),
+              {
+                className: '!text-destructive-foreground',
+                classNames: {
+                  description: '!text-muted-foreground',
+                  icon: 'text-destructive',
+                  title: '!text-destructive'
+                },
+                description:
+                  error instanceof Error
+                    ? error.message
+                    : t(
+                        'row.actions.process-bank-transfer-payment.product.response.error.description'
+                      )
+              }
+            )
+            console.error(error)
+          },
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({
+              queryKey: trpc.protected.productOrders.findAll.queryKey()
+            })
+            toast.success(
+              t(
+                'row.actions.process-bank-transfer-payment.product.response.success.title'
+              ),
+              {
+                classNames: {
+                  description: '!text-muted-foreground',
+                  icon: 'text-primary'
+                },
+                description: t(
+                  'row.actions.process-bank-transfer-payment.product.response.success.description'
+                )
+              }
+            )
+          }
+        }
+      )
+    }
+
+    if (paymentProductType === PaymentProductType.Extension) {
+      await updateExtensionOrderStatus.mutateAsync(
+        {
+          id,
+          status: OrderStatusType.Cancelled
+        },
+        {
+          onError: (error) => {
+            toast.error(
+              t('row.actions.cancel-order.extension.response.error.title'),
+              {
+                className: '!text-destructive-foreground',
+                classNames: {
+                  description: '!text-muted-foreground',
+                  icon: 'text-destructive',
+                  title: '!text-destructive'
+                },
+                description:
+                  error instanceof Error
+                    ? error.message
+                    : t(
+                        'row.actions.cancel-order.extension.response.error.description'
+                      )
+              }
+            )
+            console.error(error)
+          },
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({
+              queryKey: trpc.protected.productOrders.findAll.queryKey()
+            })
+            toast.success(
+              t('row.actions.cancel-order.extension.response.success.title'),
+              {
+                classNames: {
+                  description: '!text-muted-foreground',
+                  icon: 'text-primary'
+                },
+                description: t(
+                  'row.actions.cancel-order.extension.response.success.description'
+                )
+              }
+            )
+          }
+        }
+      )
+    }
+  }
+
+  const columns: ColumnDef<ExtensionOrder | ProductOrder>[] = [
     { accessorKey: 'id', header: OrdersTableHeader, id: 'id' },
     {
       accessorKey: 'customerName',
@@ -185,28 +432,163 @@ export function OrdersTable({ className }: OrdersTableProps) {
     },
     {
       accessorKey: 'customerEmail',
+      filterFn: userEmailFilter,
       header: OrdersTableHeader,
       id: 'customerEmail'
     },
-    { accessorKey: 'status', header: OrdersTableHeader, id: 'status' },
     {
-      accessorKey: 'stripePaymentIntentId',
+      accessorKey: 'productName',
       header: OrdersTableHeader,
-      id: 'stripePaymentIntentId'
-    },
-    { accessorKey: 'type', header: OrdersTableHeader, id: 'type' },
-    {
-      accessorKey: 'productPaymentLinkId',
-      header: OrdersTableHeader,
-      id: 'productPaymentLinkId'
+      id: 'productName'
     },
     {
-      accessorKey: 'extensionPaymentLinkId',
+      accessorKey: 'status',
+      cell: ({ row }) => (
+        <Badge
+          className={cn('capitalize', {
+            'bg-green-700 dark:bg-green-500':
+              row.original.status === OrderStatusType.Completed
+          })}
+          variant={
+            row.original.status === OrderStatusType.Completed
+              ? 'default'
+              : row.original.status === OrderStatusType.Cancelled
+                ? 'destructive'
+                : 'outline'
+          }
+        >
+          {t(`columns.statusValues.${row.original.status}`)}
+        </Badge>
+      ),
+      filterFn: statusFilter,
       header: OrdersTableHeader,
-      id: 'extensionPaymentLinkId'
+      id: 'status'
     },
-    { accessorKey: 'createdAt', header: OrdersTableHeader, id: 'createdAt' },
-    { accessorKey: 'updatedAt', header: OrdersTableHeader, id: 'updatedAt' }
+    {
+      accessorKey: 'type',
+      cell: ({ row }) => t(`columns.typeValues.${row.original.type}`),
+      filterFn: typeFilter,
+      header: OrdersTableHeader,
+      id: 'type'
+    },
+    {
+      accessorKey: 'paymentProductType',
+      cell: ({ row }) =>
+        t(
+          `columns.paymentProductTypeValues.${row.original.paymentProductType}`
+        ),
+      filterFn: productTypeFilter,
+      header: OrdersTableHeader,
+      id: 'paymentProductType'
+    },
+    {
+      accessorKey: 'paymentLinkId',
+      cell: ({ row }) => {
+        const paymentLinkId = isProductOrder(row.original)
+          ? row.original.productPaymentLinkId
+          : row.original.extensionPaymentLinkId
+
+        return (
+          <Button asChild variant='link'>
+            <Link
+              href={{
+                pathname: '/payment-links',
+                query: { search: paymentLinkId }
+              }}
+            >
+              {paymentLinkId}
+            </Link>
+          </Button>
+        )
+      },
+      header: OrdersTableHeader,
+      id: 'paymentLinkId'
+    },
+    {
+      accessorKey: 'createdAt',
+      cell: ({ row }) => (
+        <span className='capitalize'>{formatDate(row.original.createdAt)}</span>
+      ),
+      header: OrdersTableHeader,
+      id: 'createdAt'
+    },
+    {
+      accessorKey: 'updatedAt',
+      cell: ({ row }) => (
+        <span className='capitalize'>{formatDate(row.original.updatedAt)}</span>
+      ),
+      header: OrdersTableHeader,
+      id: 'updatedAt'
+    },
+    {
+      accessorKey: 'searchCreatedAt',
+      cell: () => null,
+      enableColumnFilter: false,
+      enableHiding: false,
+      enableSorting: false,
+      header: () => null,
+      id: 'searchCreatedAt'
+    },
+    {
+      accessorKey: 'actions',
+      cell: ({ row }) => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className='relative'
+                disabled={
+                  row.original.status !== OrderStatusType.PendingCardPayment &&
+                  row.original.status !==
+                    OrderStatusType.PendingBankTransferPayment
+                }
+                size='icon'
+                variant='ghost'
+              >
+                <EllipsisVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              {row.original.status ===
+                OrderStatusType.PendingBankTransferPayment && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    handleOnClickUpdateOrderStatusProcessBankTransferPayment(
+                      row.original.id,
+                      row.original.status,
+                      row.original.paymentProductType
+                    )
+                  }}
+                >
+                  <Pencil />
+                  {t('row.actions.values.process-bank-transfer-payment.title')}
+                </DropdownMenuItem>
+              )}
+
+              <DropdownMenuItem
+                onClick={() =>
+                  handleOnClickUpdateOrderStatusCancel(
+                    row.original.id,
+                    row.original.status,
+                    row.original.paymentProductType
+                  )
+                }
+                variant='destructive'
+              >
+                <XCircle />
+                {t('row.actions.values.cancel-order.title')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+      enableColumnFilter: false,
+      enableGlobalFilter: false,
+      enableHiding: false,
+      enableSorting: false,
+      header: () => null,
+      id: 'actions'
+    }
   ]
 
   const table = useReactTable({
@@ -234,32 +616,26 @@ export function OrdersTable({ className }: OrdersTableProps) {
   })
 
   function handleOnClickDownload() {
-    // const data = table
-    //   .getRowModel()
-    //   .rows.map((row) => row.original)
-    //   .map((row) => ({
-    //     [t('modules.(app).orders._components.orders-table.columns.id')]: row.id,
-    //     [t('modules.(app).orders._components.orders-table.columns.customerName')]: row.customerName,
-    //     [t('modules.(app).orders._components.orders-table.columns.customerEmail')]: row.customerEmail,
-    //     [t('modules.(app).orders._components.orders-table.columns.product.name')]: row.product?.name,
-    //     [t('modules.(app).orders._components.orders-table.columns.installmentsOption.installments')]:
-    //       row.installmentsOption?.installments,
-    //     [t('modules.(app).orders._components.orders-table.columns.depositAmountInRON')]:
-    //       row.depositAmountInRON,
-    //     [t('modules.(app).orders._components.orders-table.columns.firstPaymentDateAfterDeposit')]:
-    //       row.firstPaymentDateAfterDeposit ? formatDate(row.firstPaymentDateAfterDeposit) : undefined,
-    //     [t('modules.(app).orders._components.orders-table.columns.firstPaymentDateValue')]:
-    //       row.firstPaymentDateAfterDeposit,
-    //     [t('modules.(app).orders._components.orders-table.columns.amountToPay')]: row.amountToPay,
-    //     [t('modules.(app).orders._components.orders-table.columns.createdBy.name')]: row.createdBy?.name,
-    //     [t('modules.(app).orders._components.orders-table.columns.createdBy.email')]:
-    //       row.createdBy?.email,
-    //     [t('modules.(app).orders._components.orders-table.columns.expiresAt')]: formatDate(row.expiresAt),
-    //     [t('modules.(app).orders._components.orders-table.columns.expiresAtValue')]: row.expiresAt,
-    //     [t('modules.(app).orders._components.orders-table.columns.createdAt')]: formatDate(row.createdAt),
-    //     [t('modules.(app).orders._components.orders-table.columns.createdAtValue')]: row.createdAt
-    //   }))
-    // createXLSXFile(data, `Link-uri de platǎ - ${formatDate(new Date())}`)
+    const downloadData = data.map((row) => ({
+      [t('columns.id')]: row.id,
+      [t('columns.customerName')]: row.customerName ?? '',
+      [t('columns.customerEmail')]: row.customerEmail,
+      [t('columns.productName')]: row.productName,
+      [t('columns.status')]: t(`columns.statusValues.${row.status}`),
+      [t('columns.type')]: t(`columns.typeValues.${row.type}`),
+      [t('columns.paymentProductType')]: t(
+        `columns.paymentProductTypeValues.${row.paymentProductType}`
+      ),
+      [t('columns.paymentLinkId')]: isProductOrder(row)
+        ? (row as Extract<typeof row, { productPaymentLinkId: string }>)
+            .productPaymentLinkId
+        : (row as Extract<typeof row, { extensionPaymentLinkId: string }>)
+            .extensionPaymentLinkId,
+      [t('columns.createdAt')]: DatesService.formatDate(row.createdAt),
+      [t('columns.updatedAt')]: DatesService.formatDate(row.updatedAt)
+    }))
+
+    createXLSXFile(downloadData, `Comenzi - ${formatDate(new Date())}`)
   }
 
   const fillRows = Array.from(
@@ -283,17 +659,17 @@ export function OrdersTable({ className }: OrdersTableProps) {
                 setSearchInput(value)
                 debouncedSetGlobalFilter(value)
               }}
-              placeholder='Caută link de platǎ'
+              placeholder={t('header.input.placeholder')}
               value={searchInput}
             />
           </InputGroup>
 
-          {/* <DropdownMenu>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant='outline' className='max-lg:size-9'>
+              <Button className='max-lg:size-9' variant='outline'>
                 <View />
                 <span className='hidden lg:block'>
-                  {t('modules.(app).orders._components.orders-table.header.show.title')}
+                  {t('header.show.title')}
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -303,28 +679,32 @@ export function OrdersTable({ className }: OrdersTableProps) {
                 <>
                   <DropdownMenuGroup>
                     <DropdownMenuLabel>
-                      {t(
-                        'modules.(app).orders._components.orders-table.header.show.groups.created-by.title'
-                      )}
+                      {t('header.show.groups.created-by.title')}
                     </DropdownMenuLabel>
                     <DropdownMenuCheckboxItem
                       checked={
-                        table.getColumn('createdBy.email')?.getFilterValue() === 'all' ||
-                        !table.getColumn('createdBy.email')?.getFilterValue()
+                        table.getColumn('customerEmail')?.getFilterValue() ===
+                          'all' ||
+                        !table.getColumn('customerEmail')?.getFilterValue()
                       }
-                      onCheckedChange={() => table.getColumn('createdBy.email')?.setFilterValue('all')}
+                      onCheckedChange={() =>
+                        table.getColumn('customerEmail')?.setFilterValue('all')
+                      }
                     >
-                      {t(
-                        'modules.(app).orders._components.orders-table.header.show.groups.created-by.values.all'
-                      )}
+                      {t('header.show.groups.created-by.values.all')}
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
-                      checked={table.getColumn('createdBy.email')?.getFilterValue() === 'users'}
-                      onCheckedChange={() => table.getColumn('createdBy.email')?.setFilterValue('users')}
+                      checked={
+                        table.getColumn('customerEmail')?.getFilterValue() ===
+                        'users'
+                      }
+                      onCheckedChange={() =>
+                        table
+                          .getColumn('customerEmail')
+                          ?.setFilterValue('users')
+                      }
                     >
-                      {t(
-                        'modules.(app).orders._components.orders-table.header.show.groups.created-by.values.by-me'
-                      )}
+                      {t('header.show.groups.created-by.values.by-me')}
                     </DropdownMenuCheckboxItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
@@ -332,40 +712,130 @@ export function OrdersTable({ className }: OrdersTableProps) {
               )}
               <DropdownMenuGroup>
                 <DropdownMenuLabel>
-                  {t(
-                    'modules.(app).orders._components.orders-table.header.show.groups.expiration-status.title'
-                  )}
+                  {t('header.show.groups.status.title')}
                 </DropdownMenuLabel>
+
                 <DropdownMenuCheckboxItem
                   checked={
-                    table.getColumn('expiresAt')?.getFilterValue() === 'all' ||
-                    !table.getColumn('expiresAt')?.getFilterValue()
+                    table.getColumn('status')?.getFilterValue() === 'all' ||
+                    !table.getColumn('status')?.getFilterValue()
                   }
-                  onCheckedChange={() => table.getColumn('expiresAt')?.setFilterValue('all')}
+                  onCheckedChange={() =>
+                    table.getColumn('status')?.setFilterValue('all')
+                  }
                 >
-                  {t(
-                    'modules.(app).orders._components.orders-table.header.show.groups.expiration-status.values.all'
-                  )}
+                  {t('header.show.groups.status.values.all')}
                 </DropdownMenuCheckboxItem>
+
+                {Object.values(OrderStatusType)
+                  .map((status) => ({
+                    label: t(`header.show.groups.status.values.${status}`),
+                    status
+                  }))
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map(({ status, label }) => (
+                    <DropdownMenuCheckboxItem
+                      checked={
+                        table.getColumn('status')?.getFilterValue() === status
+                      }
+                      key={status}
+                      onCheckedChange={() =>
+                        table.getColumn('status')?.setFilterValue(status)
+                      }
+                    >
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  {t('header.show.groups.type.title')}
+                </DropdownMenuLabel>
+
                 <DropdownMenuCheckboxItem
-                  checked={table.getColumn('expiresAt')?.getFilterValue() === 'active'}
-                  onCheckedChange={() => table.getColumn('expiresAt')?.setFilterValue('active')}
+                  checked={
+                    table.getColumn('type')?.getFilterValue() === 'all' ||
+                    !table.getColumn('type')?.getFilterValue()
+                  }
+                  onCheckedChange={() =>
+                    table.getColumn('type')?.setFilterValue('all')
+                  }
                 >
-                  {t(
-                    'modules.(app).orders._components.orders-table.header.show.groups.expiration-status.values.active'
-                  )}
+                  {t('header.show.groups.type.values.all')}
                 </DropdownMenuCheckboxItem>
+
+                {Object.values(OrderType)
+                  .map((type) => ({
+                    label: t(`header.show.groups.type.values.${type}`),
+                    type
+                  }))
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map(({ type, label }) => (
+                    <DropdownMenuCheckboxItem
+                      checked={
+                        table.getColumn('type')?.getFilterValue() === type
+                      }
+                      key={type}
+                      onCheckedChange={() =>
+                        table.getColumn('type')?.setFilterValue(type)
+                      }
+                    >
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  {t('header.show.groups.payment-product-type.title')}
+                </DropdownMenuLabel>
+
                 <DropdownMenuCheckboxItem
-                  checked={table.getColumn('expiresAt')?.getFilterValue() === 'expired'}
-                  onCheckedChange={() => table.getColumn('expiresAt')?.setFilterValue('expired')}
+                  checked={
+                    table.getColumn('paymentProductType')?.getFilterValue() ===
+                      'all' ||
+                    !table.getColumn('paymentProductType')?.getFilterValue()
+                  }
+                  onCheckedChange={() =>
+                    table.getColumn('paymentProductType')?.setFilterValue('all')
+                  }
                 >
-                  {t(
-                    'modules.(app).orders._components.orders-table.header.show.groups.expiration-status.values.expired'
-                  )}
+                  {t('header.show.groups.payment-product-type.values.all')}
                 </DropdownMenuCheckboxItem>
+
+                {Object.values(PaymentProductType)
+                  .map((productType) => ({
+                    label: t(
+                      `header.show.groups.payment-product-type.values.${productType}`
+                    ),
+                    productType
+                  }))
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map(({ productType, label }) => (
+                    <DropdownMenuCheckboxItem
+                      checked={
+                        table
+                          .getColumn('paymentProductType')
+                          ?.getFilterValue() === productType
+                      }
+                      key={productType}
+                      onCheckedChange={() =>
+                        table
+                          .getColumn('paymentProductType')
+                          ?.setFilterValue(productType)
+                      }
+                    >
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
               </DropdownMenuGroup>
             </DropdownMenuContent>
-          </DropdownMenu> */}
+          </DropdownMenu>
         </div>
 
         <div className='flex w-full items-center justify-end gap-1.5 sm:w-auto lg:gap-3'>
@@ -377,9 +847,7 @@ export function OrdersTable({ className }: OrdersTableProps) {
               >
                 <Columns2 />
                 <span className='sm:hidden lg:block'>
-                  {t(
-                    'modules.(app).orders._components.orders-table.header.columns.title'
-                  )}
+                  {t('header.columns.title')}
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -398,10 +866,7 @@ export function OrdersTable({ className }: OrdersTableProps) {
                           column.toggleVisibility(!!value)
                         }
                       >
-                        {/* {t(
-                          `modules.(app).orders._components.orders-table.columns.${column.id}`
-                        )} */}
-                        {column.id}
+                        {t(`columns.${column.id}`)}
                       </DropdownMenuCheckboxItem>
                     )
                 )}
@@ -416,25 +881,15 @@ export function OrdersTable({ className }: OrdersTableProps) {
               >
                 <Zap />
                 <span className='sm:hidden lg:block'>
-                  {t(
-                    'modules.(app).orders._components.orders-table.header.actions.title'
-                  )}
+                  {t('header.actions.title')}
                 </span>
               </Button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align='end'>
-              {/* <DropdownMenuItem asChild>
-                <Link href='/payments/create' passHref>
-                  <Plus />
-                  {t('modules.(app).orders._components.orders-table.header.actions.values.create')}
-                </Link>
-              </DropdownMenuItem> */}
               <DropdownMenuItem onClick={handleOnClickDownload}>
                 <Download />
-                {t(
-                  'modules.(app).orders._components.orders-table.header.actions.values.download'
-                )}
+                {t('header.actions.values.download')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -467,19 +922,22 @@ export function OrdersTable({ className }: OrdersTableProps) {
               <>
                 {table.getRowModel().rows.map((row) => (
                   <TableRow
+                    className='h-14'
                     data-state={row.getIsSelected() && 'selected'}
                     key={row.id}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
-                        className={cn({
-                          'text-center': ['type', 'status'].includes(
-                            cell.column.id
-                          ),
-                          'text-right': [
-                            'paidAmount',
-                            'paidAmountWithoutTVA',
-                            'tvaAmount'
+                        className={cn('text-center', {
+                          'text-left': [
+                            'id',
+                            'customerName',
+                            'customerEmail',
+                            'productName',
+                            'stripePaymentIntentId',
+                            'paymentLinkId',
+                            'createdAt',
+                            'updatedAt'
                           ].includes(cell.column.id)
                         })}
                         key={cell.id}
@@ -505,12 +963,10 @@ export function OrdersTable({ className }: OrdersTableProps) {
             ) : (
               <TableRow>
                 <TableCell
-                  className='h-24 text-center'
+                  className='h-[calc(--spacing(14)*10)] text-center'
                   colSpan={columns.length}
                 >
-                  {t(
-                    'modules.(app).orders._components.orders-table.no-results'
-                  )}
+                  {t('no-results')}
                 </TableCell>
               </TableRow>
             )}
@@ -520,13 +976,10 @@ export function OrdersTable({ className }: OrdersTableProps) {
 
       <div className='flex h-fit items-center justify-end gap-1.5 lg:gap-3'>
         <div className='mr-auto text-xs font-medium sm:text-sm'>
-          {t(
-            'modules.(app).orders._components.orders-table.pagination.page-count',
-            {
-              page: table.getState().pagination.pageIndex + 1,
-              pageCount: table.getPageCount()
-            }
-          )}
+          {t('pagination.page-count', {
+            page: table.getState().pagination.pageIndex + 1,
+            pageCount: table.getPageCount()
+          })}
         </div>
 
         <div className='flex items-center gap-1.5'>
@@ -534,9 +987,7 @@ export function OrdersTable({ className }: OrdersTableProps) {
             className='text-sm font-medium max-sm:hidden'
             htmlFor='rows-per-page'
           >
-            {t(
-              'modules.(app).orders._components.orders-table.pagination.rows-per-page'
-            )}
+            {t('pagination.rows-per-page')}
           </Label>
           <Select
             onValueChange={(value) => {
@@ -550,9 +1001,7 @@ export function OrdersTable({ className }: OrdersTableProps) {
             <SelectContent align='end' side='top'>
               <SelectGroup>
                 <SelectLabel className='sm:hidden'>
-                  {t(
-                    'modules.(app).orders._components.orders-table.pagination.rows-per-page'
-                  )}
+                  {t('pagination.rows-per-page')}
                 </SelectLabel>
                 {pageSizeOptions.map((pageSize) => (
                   <SelectItem key={pageSize} value={`${pageSize}`}>
@@ -573,9 +1022,7 @@ export function OrdersTable({ className }: OrdersTableProps) {
         >
           <ChevronLeft />
           <span className='hidden lg:block'>
-            {t(
-              'modules.(app).orders._components.orders-table.pagination.previous-page'
-            )}
+            {t('pagination.previous-page')}
           </span>
         </Button>
 
@@ -586,11 +1033,7 @@ export function OrdersTable({ className }: OrdersTableProps) {
           size='sm'
           variant='outline'
         >
-          <span className='hidden lg:block'>
-            {t(
-              'modules.(app).orders._components.orders-table.pagination.next-page'
-            )}
-          </span>
+          <span className='hidden lg:block'>{t('pagination.next-page')}</span>
           <ChevronRight />
         </Button>
       </div>
@@ -598,10 +1041,14 @@ export function OrdersTable({ className }: OrdersTableProps) {
   )
 }
 
-export function OrdersTableHeader({ column }: HeaderContext<Order, unknown>) {
-  const t = useTranslations()
+export function OrdersTableHeader({
+  column
+}: HeaderContext<ExtensionOrder | ProductOrder, unknown>) {
+  const t = useTranslations('modules.(app).orders._components.orders-table')
 
-  const handleOnClickColumn = (column: Column<Order>) => {
+  const handleOnClickColumn = (
+    column: Column<ExtensionOrder | ProductOrder>
+  ) => {
     if (column.getIsSorted() === 'asc') {
       column.toggleSorting(true)
       return
@@ -617,7 +1064,7 @@ export function OrdersTableHeader({ column }: HeaderContext<Order, unknown>) {
 
   return (
     <Button onClick={() => handleOnClickColumn(column)} variant='ghost'>
-      {t(`modules.(app).orders._components.orders-table.columns.${column.id}`)}
+      {t(`columns.${column.id}`)}
       <DynamicIcon
         className={cn('ml-2 h-4 w-4', {
           'rotate-0': column.getIsSorted() === 'asc',
