@@ -57,7 +57,12 @@ export default async function AppLayoutModule({
   queryClient.prefetchQuery(
     trpc.protected.settings.findAllFirstPaymentDateAfterDepositOptions.queryOptions()
   )
-  queryClient.prefetchQuery(trpc.protected.subscriptions.findAll.queryOptions())
+  queryClient.prefetchQuery(
+    trpc.protected.extensionsSubscriptions.findAll.queryOptions()
+  )
+  queryClient.prefetchQuery(
+    trpc.protected.productSubscriptions.findAll.queryOptions()
+  )
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

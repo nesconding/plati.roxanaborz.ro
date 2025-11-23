@@ -456,6 +456,21 @@ export function PaymentLinksTable({
     },
     {
       accessorKey: 'membershipId',
+      cell: ({ row }) =>
+        isExtensionPaymentLink(row.original) ? (
+          <Button asChild className='cursor-pointer' variant='link'>
+            <Link
+              href={{
+                pathname: '/memberships',
+                query: {
+                  search: row.original.membershipId
+                }
+              }}
+            >
+              {row.original.membershipId}
+            </Link>
+          </Button>
+        ) : null,
       header: PaymentLinksTableHeader,
       id: 'membershipId'
     },

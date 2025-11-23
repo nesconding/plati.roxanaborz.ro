@@ -27,8 +27,7 @@ import {
   Pencil,
   Search,
   View,
-  XCircle,
-  Zap
+  XCircle
 } from 'lucide-react'
 import { DynamicIcon } from 'lucide-react/dynamic'
 import Link from 'next/link'
@@ -131,8 +130,9 @@ const pageSizeOptions = [10, 25, 50, 75, 100]
 
 interface OrdersTableProps {
   className?: string
+  search?: string
 }
-export function OrdersTable({ className }: OrdersTableProps) {
+export function OrdersTable({ className, search }: OrdersTableProps) {
   const t = useTranslations('modules.(app).orders._components.orders-table')
 
   const isMobile = useIsMobile()
@@ -140,8 +140,8 @@ export function OrdersTable({ className }: OrdersTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     { desc: true, id: 'createdAt' }
   ])
-  const [searchInput, setSearchInput] = useState('')
-  const [globalFilter, setGlobalFilter] = useState('')
+  const [searchInput, setSearchInput] = useState(search ?? '')
+  const [globalFilter, setGlobalFilter] = useState(search ?? '')
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [pagination, setPagination] = useState({
@@ -489,7 +489,7 @@ export function OrdersTable({ className }: OrdersTableProps) {
           : row.original.extensionPaymentLinkId
 
         return (
-          <Button asChild variant='link'>
+          <Button asChild className='cursor-pointer' variant='link'>
             <Link
               href={{
                 pathname: '/payment-links',
@@ -873,26 +873,14 @@ export function OrdersTable({ className }: OrdersTableProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                className='max-sm:flex-1 sm:max-lg:size-9'
-                variant='outline'
-              >
-                <Zap />
-                <span className='sm:hidden lg:block'>
-                  {t('header.actions.title')}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align='end'>
-              <DropdownMenuItem onClick={handleOnClickDownload}>
-                <Download />
-                {t('header.actions.values.download')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            className='max-sm:flex-1 sm:max-lg:size-9'
+            onClick={handleOnClickDownload}
+            variant='outline'
+          >
+            <Download />
+            {t('header.actions.values.download')}
+          </Button>
         </div>
       </div>
 

@@ -12,6 +12,7 @@ import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
 import { PaymentStatusType } from '~/shared/enums/payment-status'
+import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
 import { UserRoles } from '~/shared/enums/user-roles'
 
 const dictionary = {
@@ -2478,7 +2479,7 @@ const dictionary = {
               installmentAmountToPayInCents: 'Suma de platǎ per ratǎ in cenți',
               installmentId: 'Id ratǎ',
               installmentsCount: 'Numǎr rate',
-              membershipId: 'Id abonament',
+              membershipId: 'Id membership',
               paymentMethodType: 'Metoda de platǎ',
               paymentMethodTypeValue: 'Metoda de platǎ (valoare internǎ)',
               paymentMethodTypeValues: {
@@ -2632,24 +2633,32 @@ const dictionary = {
               customerName: 'Nume client',
               extensionId: 'Id prelungire',
               id: 'Id',
-              membershipId: 'Id membru',
+              membershipId: 'Id membership',
               nextPaymentDate: 'Data urmǎtoarei plǎti',
               parentOrderId: 'Id comanda',
               paymentMethod: 'Metoda de platǎ',
+              paymentMethodValues: {
+                [PaymentMethodType.BankTransfer]: 'Transfer bancar',
+                [PaymentMethodType.Card]: 'Card',
+                [PaymentMethodType.TBI]: 'TBI'
+              },
               productId: 'Id produs',
+              productName: 'Nume produs',
+              productPaymentType: 'Tip produs',
+              productPaymentTypeValues: {
+                [PaymentProductType.Product]: 'Produs de bazǎ',
+                [PaymentProductType.Extension]: 'Prelungire'
+              },
               remainingPayments: 'Rate rǎmase',
               startDate: 'Data început',
               status: 'Status',
+              statusValues: {
+                [SubscriptionStatusType.Active]: 'Activǎ',
+                [SubscriptionStatusType.OnHold]: 'În așteptare',
+                [SubscriptionStatusType.Cancelled]: 'Anulatǎ',
+                [SubscriptionStatusType.Completed]: 'Completatǎ'
+              },
               updatedAt: 'Actualizat la'
-              // createdAt: 'Creat la',
-              // createdAtValue: 'Creat la (valoare internǎ)',
-              // customerEmail: 'Email client',
-              // customerFirstName: 'Prenume client',
-              // customerLastName: 'Nume client',
-              // customerPhoneNumber: 'Număr de telefon client',
-              // id: 'Id',
-              // parentOrder: { id: 'Id comanda' },
-              // status: 'Status'
             },
             header: {
               actions: {
@@ -2660,9 +2669,51 @@ const dictionary = {
               },
               columns: {
                 title: 'Coloane'
+              },
+              input: {
+                placeholder: 'Caută abonament'
+              },
+              show: {
+                groups: {
+                  'created-by': {
+                    title: 'Create de utilizator',
+                    values: {
+                      all: 'Toate',
+                      'by-me': 'Create de mine'
+                    }
+                  },
+                  'payment-method': {
+                    title: 'Metoda de platǎ',
+                    values: {
+                      all: 'Toate',
+                      [PaymentMethodType.Card]: 'Card',
+                      [PaymentMethodType.BankTransfer]: 'Transfer bancar',
+                      [PaymentMethodType.TBI]: 'TBI'
+                    }
+                  },
+                  'product-payment-type': {
+                    title: 'Tip produs',
+                    values: {
+                      all: 'Toate',
+                      [PaymentProductType.Product]: 'Produs de bazǎ',
+                      [PaymentProductType.Extension]: 'Prelungire'
+                    }
+                  },
+                  status: {
+                    title: 'Status',
+                    values: {
+                      all: 'Toate',
+                      [SubscriptionStatusType.Active]: 'Activǎ',
+                      [SubscriptionStatusType.OnHold]: 'În așteptare',
+                      [SubscriptionStatusType.Cancelled]: 'Anulatǎ',
+                      [SubscriptionStatusType.Completed]: 'Completatǎ'
+                    }
+                  }
+                },
+                title: 'Afișează'
               }
             },
-            'no-results': 'Nu s-au găsit subscriptii.',
+            'no-results': 'Nu s-au găsit abonamente.',
             pagination: {
               'next-page': 'Pagina următoare',
               'page-count': 'Pagina {page} din {pageCount}',
