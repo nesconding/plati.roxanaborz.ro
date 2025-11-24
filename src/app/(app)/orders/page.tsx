@@ -3,16 +3,27 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { OrdersPageModule } from '~/client/modules/(app)/orders'
 import { getQueryClient, trpc } from '~/client/trpc/server'
 
-export default async function SubscriptionsPage() {
+interface OrdersPageProps {
+  searchParams: Promise<{
+    search: string
+  }>
+}
+export default async function OrdersPage({ searchParams }: OrdersPageProps) {
+  const { search } = await searchParams
   const queryClient = getQueryClient()
 
-  await queryClient.ensureQueryData(
-    trpc.protected.orders.findAll.queryOptions()
-  )
+  await Promise.all([
+    queryClient.ensureQueryData(
+      trpc.protected.extensionOrders.findAll.queryOptions()
+    ),
+    queryClient.ensureQueryData(
+      trpc.protected.productOrders.findAll.queryOptions()
+    )
+  ])
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <OrdersPageModule />
+      <OrdersPageModule search={search} />
     </HydrationBoundary>
   )
 }

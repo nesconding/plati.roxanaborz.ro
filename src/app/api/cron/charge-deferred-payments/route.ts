@@ -24,16 +24,16 @@ import { StripeHandlers } from '~/server/handlers/stripe-handlers'
  * }
  *
  * 2. System Cron:
- * 0 6 * * * curl -X POST https://plati.rb.ro/api/cron/charge-deferred-payments \
+ * 0 6 * * * curl -X GET https://plati.rb.ro/api/cron/charge-deferred-payments \
  *   -H "Authorization: Bearer YOUR_CRON_SECRET"
  *
  * 3. External Service (e.g., cron-job.org, EasyCron):
  * URL: https://plati.rb.ro/api/cron/charge-deferred-payments
- * Method: POST
+ * Method: GET
  * Header: Authorization: Bearer YOUR_CRON_SECRET
  * Schedule: 0 6 * * * (daily at 6 AM UTC)
  */
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Step 1: Validate authorization
     const authHeader = request.headers.get('authorization')
@@ -87,12 +87,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-// Prevent GET requests
-export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST.' },
-    { status: 405 }
-  )
 }

@@ -84,14 +84,32 @@ import { createXLSXFile } from '~/client/lib/xlsx'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
 import { DatesService } from '~/server/services/dates'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
 import { PaymentStatusType } from '~/shared/enums/payment-status'
 import { UserRoles } from '~/shared/enums/user-roles'
 
-type Payment =
+type ProductPaymentLink =
   TRPCRouterOutput['protected']['productPaymentLinks']['findAll'][number]
 
+type ExtensionPaymentLink =
+  TRPCRouterOutput['protected']['extensionPaymentLinks']['findAll'][number]
+
+type PaymentLink = ProductPaymentLink | ExtensionPaymentLink
+
+function isProductPaymentLink(
+  paymentLink: PaymentLink
+): paymentLink is ProductPaymentLink {
+  return paymentLink.paymentProductType === PaymentProductType.Product
+}
+
+function isExtensionPaymentLink(
+  paymentLink: PaymentLink
+): paymentLink is ExtensionPaymentLink {
+  return paymentLink.paymentProductType === PaymentProductType.Extension
+}
+
 const expirationStatusFilter = (
-  row: Row<Payment>,
+  row: Row<ProductPaymentLink | ExtensionPaymentLink>,
   columnId: string,
   filterValue: 'expired' | 'active' | 'all'
 ) => {
@@ -107,13 +125,23 @@ const expirationStatusFilter = (
 }
 
 const statusFilter = (
-  row: Row<Payment>,
+  row: Row<ProductPaymentLink | ExtensionPaymentLink>,
   columnId: string,
   filterValue: PaymentStatusType | 'all'
 ) => {
   if (filterValue === 'all') return true
   const status = row.getValue(columnId) as PaymentStatusType
   return status === filterValue
+}
+
+const productTypeFilter = (
+  row: Row<ProductPaymentLink | ExtensionPaymentLink>,
+  columnId: string,
+  filterValue: PaymentProductType | 'all'
+) => {
+  if (filterValue === 'all') return true
+  const productType = row.getValue(columnId) as PaymentProductType
+  return productType === filterValue
 }
 
 const formatDate = (date: DateArg<Date> & {}) =>
@@ -150,8 +178,13 @@ export function PaymentLinksTable({
   const [rowSelection, setRowSelection] = useState({})
 
   const trpc = useTRPC()
-  const findAllPaymentLinks = useQuery(
+  const findAllProductsPaymentLinks = useQuery(
     trpc.protected.productPaymentLinks.findAll.queryOptions(undefined, {
+      initialData: []
+    })
+  )
+  const findAllExtensionPaymentLinks = useQuery(
+    trpc.protected.extensionPaymentLinks.findAll.queryOptions(undefined, {
       initialData: []
     })
   )
@@ -161,16 +194,19 @@ export function PaymentLinksTable({
 
   const data = useMemo(
     () =>
-      findAllPaymentLinks.data.map((payment) => ({
+      [
+        ...findAllProductsPaymentLinks.data,
+        ...findAllExtensionPaymentLinks.data
+      ].map((payment) => ({
         ...payment,
         searchCreatedAt: formatDate(payment.createdAt),
         searchExpiresAt: formatDate(payment.expiresAt)
       })),
-    [findAllPaymentLinks.data]
+    [findAllProductsPaymentLinks.data, findAllExtensionPaymentLinks.data]
   )
 
   const userEmailFilter = (
-    row: Row<Payment>,
+    row: Row<ProductPaymentLink | ExtensionPaymentLink>,
     columnId: string,
     filterValue: 'all' | 'users'
   ) => {
@@ -183,7 +219,7 @@ export function PaymentLinksTable({
 
   const debouncedSetGlobalFilter = useDebouncedCallback(setGlobalFilter, 500)
 
-  const columns: ColumnDef<Payment>[] = [
+  const columns: ColumnDef<ProductPaymentLink | ExtensionPaymentLink>[] = [
     {
       accessorKey: 'copy-link',
       cell: ({ row }) => {
@@ -253,6 +289,8 @@ export function PaymentLinksTable({
     },
     {
       accessorKey: 'contract.name',
+      cell: ({ row }) =>
+        isProductPaymentLink(row.original) ? row.original.contract.name : null,
       header: PaymentLinksTableHeader,
       id: 'contract.name'
     },
@@ -295,6 +333,10 @@ export function PaymentLinksTable({
     },
     {
       accessorKey: 'firstPaymentDateAfterDeposit',
+      cell: ({ row }) =>
+        row.original.firstPaymentDateAfterDeposit
+          ? formatDate(row.original.firstPaymentDateAfterDeposit)
+          : null,
       header: PaymentLinksTableHeader,
       id: 'firstPaymentDateAfterDeposit'
     },
@@ -305,25 +347,49 @@ export function PaymentLinksTable({
     },
     {
       accessorKey: 'paymentProductType',
+      cell: ({ row }) =>
+        t(
+          `columns.paymentProductTypeValues.${row.original.paymentProductType}`
+        ),
+      filterFn: productTypeFilter,
       header: PaymentLinksTableHeader,
       id: 'paymentProductType'
     },
     {
-      accessorKey: 'productInstallmentAmountToPay',
+      accessorKey: 'installmentId',
       cell: ({ row }) =>
-        row.original.productInstallmentAmountToPay
-          ? PricingService.formatPrice(
-              row.original.productInstallmentAmountToPay,
-              row.original.currency
-            )
-          : null,
+        (isProductPaymentLink(row.original)
+          ? row.original.productInstallmentId
+          : row.original.extensionInstallmentId) ?? '',
       header: PaymentLinksTableHeader,
-      id: 'productInstallmentAmountToPay'
+      id: 'installmentId'
     },
     {
-      accessorKey: 'productInstallmentsCount',
+      accessorKey: 'installmentsCount',
+      cell: ({ row }) =>
+        (isProductPaymentLink(row.original)
+          ? row.original.productInstallmentsCount
+          : row.original.extensionInstallmentsCount) ?? '',
       header: PaymentLinksTableHeader,
-      id: 'productInstallmentsCount'
+      id: 'installmentsCount'
+    },
+    {
+      accessorKey: 'installmentAmountToPay',
+      cell: ({ row }) =>
+        (isProductPaymentLink(row.original)
+          ? row.original.productInstallmentAmountToPay
+          : row.original.extensionInstallmentAmountToPay) ?? '',
+      header: PaymentLinksTableHeader,
+      id: 'installmentAmountToPay'
+    },
+    {
+      accessorKey: 'installmentAmountToPayInCents',
+      cell: ({ row }) =>
+        (isProductPaymentLink(row.original)
+          ? row.original.productInstallmentAmountToPayInCents
+          : row.original.extensionInstallmentAmountToPayInCents) ?? '',
+      header: PaymentLinksTableHeader,
+      id: 'installmentAmountToPayInCents'
     },
     {
       accessorKey: 'productName',
@@ -355,6 +421,11 @@ export function PaymentLinksTable({
       id: 'remainingInstallmentAmountToPay'
     },
     {
+      accessorKey: 'setterEmail',
+      header: PaymentLinksTableHeader,
+      id: 'setterEmail'
+    },
+    {
       accessorKey: 'setterName',
       header: PaymentLinksTableHeader,
       id: 'setterName'
@@ -384,6 +455,26 @@ export function PaymentLinksTable({
       id: 'status'
     },
     {
+      accessorKey: 'membershipId',
+      cell: ({ row }) =>
+        isExtensionPaymentLink(row.original) ? (
+          <Button asChild className='cursor-pointer' variant='link'>
+            <Link
+              href={{
+                pathname: '/memberships',
+                query: {
+                  search: row.original.membershipId
+                }
+              }}
+            >
+              {row.original.membershipId}
+            </Link>
+          </Button>
+        ) : null,
+      header: PaymentLinksTableHeader,
+      id: 'membershipId'
+    },
+    {
       accessorKey: 'totalAmountToPay',
       cell: ({ row }) =>
         PricingService.formatPrice(
@@ -392,6 +483,11 @@ export function PaymentLinksTable({
         ),
       header: PaymentLinksTableHeader,
       id: 'totalAmountToPay'
+    },
+    {
+      accessorKey: 'totalAmountToPayInCents',
+      header: PaymentLinksTableHeader,
+      id: 'totalAmountToPayInCents'
     },
     { accessorKey: 'tvaRate', header: PaymentLinksTableHeader, id: 'tvaRate' },
     {
@@ -449,6 +545,27 @@ export function PaymentLinksTable({
       id: 'createdAt'
     },
     {
+      accessorKey: 'updatedAt',
+      cell: ({ row }) => (
+        <span className='capitalize'>{formatDate(row.original.updatedAt)}</span>
+      ),
+      header: PaymentLinksTableHeader,
+      id: 'updatedAt'
+    },
+    {
+      accessorKey: 'deletedAt',
+      cell: ({ row }) =>
+        row.original.deletedAt ? (
+          <span className='capitalize'>
+            {formatDate(row.original.deletedAt)}
+          </span>
+        ) : (
+          ''
+        ),
+      header: PaymentLinksTableHeader,
+      id: 'deletedAt'
+    },
+    {
       accessorKey: 'searchCreatedAt',
       cell: () => null,
       enableColumnFilter: false,
@@ -484,66 +601,96 @@ export function PaymentLinksTable({
   })
 
   function handleOnClickDownload() {
-    const data = table
-      .getRowModel()
-      .rows.map((row) => row.original)
-      .map((row) => ({
-        [t('columns.callerName')]: row.callerName ?? '',
-        [t('columns.contract.name')]: row.contract.name,
-        [t('columns.contractId')]: row.contractId,
-        [t('columns.createdAt')]: DatesService.formatDate(row.createdAt),
-        [t('columns.createdBy.email')]: row.createdBy.email ?? '',
-        [t('columns.createdBy.name')]: row.createdBy.name ?? '',
-        [t('columns.createdById')]: row.createdById,
-        [t('columns.currency')]: row.currency,
-        [t('columns.customerEmail')]: row.customerEmail,
-        [t('columns.customerName')]: row.customerName ?? '',
-        [t('columns.deletedAt')]: row.deletedAt ?? '',
-        [t('columns.depositAmount')]: row.depositAmount ?? '',
-        [t('columns.depositAmountInCents')]: row.depositAmountInCents ?? '',
-        [t('columns.eurToRonRate')]: row.eurToRonRate ?? '',
-        [t('columns.expiresAt')]: DatesService.formatDate(row.expiresAt),
-        [t('columns.extraTaxRate')]: row.extraTaxRate,
-        [t('columns.firstPaymentDateAfterDeposit')]:
-          row.firstPaymentDateAfterDeposit
-            ? DatesService.formatDate(row.firstPaymentDateAfterDeposit)
-            : '',
-        [t('columns.id')]: row.id,
-        [t('columns.paymentMethodType')]: t(
-          `columns.paymentMethodTypeValues.${row.paymentMethodType}`
-        ),
-        [t('columns.paymentProductType')]: t(
-          `columns.paymentProductTypeValues.${row.paymentProductType}`
-        ),
-        [t('columns.productId')]: row.productId,
-        [t('columns.productInstallmentAmountToPay')]:
-          row.productInstallmentAmountToPay ?? '',
-        [t('columns.productInstallmentAmountToPayInCents')]:
-          row.productInstallmentAmountToPayInCents ?? '',
-        [t('columns.productInstallmentId')]: row.productInstallmentId ?? '',
-        [t('columns.productInstallmentsCount')]:
-          row.productInstallmentsCount ?? '',
-        [t('columns.productName')]: row.productName,
-        [t('columns.remainingAmountToPay')]: row.remainingAmountToPay ?? '',
-        [t('columns.remainingAmountToPayInCents')]:
-          row.remainingAmountToPayInCents ?? '',
-        [t('columns.remainingInstallmentAmountToPay')]:
-          row.remainingInstallmentAmountToPay ?? '',
-        [t('columns.remainingInstallmentAmountToPayInCents')]:
-          row.remainingInstallmentAmountToPayInCents ?? '',
-        [t('columns.searchCreatedAt')]: DatesService.formatDate(row.createdAt),
-        [t('columns.searchExpiresAt')]: DatesService.formatDate(row.expiresAt),
-        [t('columns.setterName')]: row.setterName ?? '',
-        [t('columns.status')]: row.status,
-        [t('columns.stripeClientSecret')]: row.stripeClientSecret,
-        [t('columns.stripePaymentIntentId')]: row.stripePaymentIntentId,
-        [t('columns.totalAmountToPay')]: row.totalAmountToPay,
-        [t('columns.totalAmountToPayInCents')]: row.totalAmountToPayInCents,
-        [t('columns.tvaRate')]: row.tvaRate,
-        [t('columns.type')]: t(`columns.typeValues.${row.type}`),
-        [t('columns.updatedAt')]: DatesService.formatDate(row.updatedAt)
-      }))
-    createXLSXFile(data, `Link-uri de platǎ - ${formatDate(new Date())}`)
+    const downloadData = data.map((row) => ({
+      [t('columns.callerName')]: row.callerName ?? '',
+      [t('columns.contract.name')]: isProductPaymentLink(row)
+        ? row.contract.name
+        : undefined,
+      [t('columns.contractId')]: isProductPaymentLink(row)
+        ? row.contractId
+        : undefined,
+      [t('columns.createdAt')]: DatesService.formatDate(row.createdAt),
+      [t('columns.createdAtValue')]: row.createdAt,
+      [t('columns.createdBy.email')]: row.createdBy.email ?? '',
+      [t('columns.createdBy.name')]: row.createdBy.name ?? '',
+      [t('columns.createdById')]: row.createdById,
+      [t('columns.currency')]: row.currency,
+      [t('columns.customerEmail')]: row.customerEmail,
+      [t('columns.customerName')]: row.customerName ?? '',
+      [t('columns.deletedAt')]: row.deletedAt
+        ? DatesService.formatDate(row.deletedAt)
+        : '',
+      [t('columns.deletedAtValue')]: row.deletedAt ?? '',
+      [t('columns.depositAmount')]: row.depositAmount ?? '',
+      [t('columns.depositAmountInCents')]: row.depositAmountInCents ?? '',
+      [t('columns.eurToRonRate')]: row.eurToRonRate ?? '',
+      [t('columns.expiresAt')]: DatesService.formatDate(row.expiresAt),
+      [t('columns.expiresAtValue')]: row.expiresAt,
+      [t('columns.extraTaxRate')]: row.extraTaxRate,
+      [t('columns.firstPaymentDateAfterDeposit')]:
+        row.firstPaymentDateAfterDeposit
+          ? DatesService.formatDate(row.firstPaymentDateAfterDeposit)
+          : '',
+      [t('columns.firstPaymentDateAfterDepositValue')]:
+        row.firstPaymentDateAfterDeposit
+          ? row.firstPaymentDateAfterDeposit
+          : '',
+      [t('columns.id')]: row.id,
+      [t('columns.paymentMethodType')]: t(
+        `columns.paymentMethodTypeValues.${row.paymentMethodType}`
+      ),
+      [t('columns.paymentMethodTypeValue')]: row.paymentMethodType,
+      [t('columns.paymentProductType')]: t(
+        `columns.paymentProductTypeValues.${row.paymentProductType}`
+      ),
+      [t('columns.paymentProductTypeValue')]: row.paymentProductType,
+      [t('columns.productId')]: isProductPaymentLink(row)
+        ? row.productId
+        : undefined,
+      [t('columns.installmentAmountToPay')]: isProductPaymentLink(row)
+        ? (row.productInstallmentAmountToPay ?? '')
+        : (row.extensionInstallmentAmountToPay ?? ''),
+      [t('columns.installmentAmountToPayInCents')]: isProductPaymentLink(row)
+        ? (row.productInstallmentAmountToPayInCents ?? '')
+        : (row.extensionInstallmentAmountToPayInCents ?? ''),
+      [t('columns.installmentId')]: isProductPaymentLink(row)
+        ? (row.productInstallmentId ?? '')
+        : (row.extensionInstallmentId ?? ''),
+      [t('columns.installmentsCount')]: isProductPaymentLink(row)
+        ? (row.productInstallmentsCount ?? '')
+        : (row.extensionInstallmentsCount ?? ''),
+      [t('columns.productName')]: isProductPaymentLink(row)
+        ? row.productName
+        : undefined,
+      [t('columns.extensionId')]: isExtensionPaymentLink(row)
+        ? row.extensionId
+        : undefined,
+      [t('columns.membershipId')]: isExtensionPaymentLink(row)
+        ? row.membershipId
+        : undefined,
+      [t('columns.remainingAmountToPay')]: row.remainingAmountToPay ?? '',
+      [t('columns.remainingAmountToPayInCents')]:
+        row.remainingAmountToPayInCents ?? '',
+      [t('columns.remainingInstallmentAmountToPay')]:
+        row.remainingInstallmentAmountToPay ?? '',
+      [t('columns.remainingInstallmentAmountToPayInCents')]:
+        row.remainingInstallmentAmountToPayInCents ?? '',
+      [t('columns.setterName')]: row.setterName ?? '',
+      [t('columns.status')]: t(`columns.statusValues.${row.status}`),
+      [t('columns.statusValue')]: row.status,
+      [t('columns.totalAmountToPay')]: row.totalAmountToPay,
+      [t('columns.totalAmountToPayInCents')]: row.totalAmountToPayInCents,
+      [t('columns.tvaRate')]: row.tvaRate,
+      [t('columns.type')]: t(`columns.typeValues.${row.type}`),
+      [t('columns.typeValue')]: row.type,
+      [t('columns.updatedAt')]: DatesService.formatDate(row.updatedAt),
+      [t('columns.updatedAtValue')]: row.updatedAt
+    }))
+
+    createXLSXFile(
+      downloadData,
+      `Link-uri de platǎ - ${formatDate(new Date())}`
+    )
   }
 
   const fillRows = Array.from(
@@ -651,6 +798,53 @@ export function PaymentLinksTable({
                       key={status}
                       onCheckedChange={() =>
                         table.getColumn('status')?.setFilterValue(status)
+                      }
+                    >
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>
+                  {t('header.show.groups.payment-product-type.title')}
+                </DropdownMenuLabel>
+
+                <DropdownMenuCheckboxItem
+                  checked={
+                    table.getColumn('paymentProductType')?.getFilterValue() ===
+                      'all' ||
+                    !table.getColumn('paymentProductType')?.getFilterValue()
+                  }
+                  onCheckedChange={() =>
+                    table.getColumn('paymentProductType')?.setFilterValue('all')
+                  }
+                >
+                  {t('header.show.groups.payment-product-type.values.all')}
+                </DropdownMenuCheckboxItem>
+
+                {Object.values(PaymentProductType)
+                  .map((productType) => ({
+                    label: t(
+                      `header.show.groups.payment-product-type.values.${productType}`
+                    ),
+                    productType
+                  }))
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map(({ productType, label }) => (
+                    <DropdownMenuCheckboxItem
+                      checked={
+                        table
+                          .getColumn('paymentProductType')
+                          ?.getFilterValue() === productType
+                      }
+                      key={productType}
+                      onCheckedChange={() =>
+                        table
+                          .getColumn('paymentProductType')
+                          ?.setFilterValue(productType)
                       }
                     >
                       {label}
@@ -909,12 +1103,12 @@ export function PaymentLinksTable({
 
 export function PaymentLinksTableHeader({
   column
-}: HeaderContext<Payment, unknown>) {
+}: HeaderContext<PaymentLink, unknown>) {
   const t = useTranslations(
     'modules.(app).payment-links._components.payment-links-table'
   )
 
-  const handleOnClickColumn = (column: Column<Payment>) => {
+  const handleOnClickColumn = (column: Column<PaymentLink>) => {
     if (column.getIsSorted() === 'asc') {
       column.toggleSorting(true)
       return

@@ -12,6 +12,7 @@ import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
 import { PaymentStatusType } from '~/shared/enums/payment-status'
+import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
 import { UserRoles } from '~/shared/enums/user-roles'
 
 const dictionary = {
@@ -975,10 +976,10 @@ const dictionary = {
 
               columns: {
                 banExpires: 'Banat până la',
-                banExpiresValue: 'Banat până la (valoare interna)',
+                banExpiresValue: 'Banat până la (valoare internǎ)',
                 banned: 'Status ban',
                 createdAt: 'Adăugat la',
-                createdAtValue: 'Adăugat la (valoare interna)',
+                createdAtValue: 'Adăugat la (valoare internǎ)',
                 email: 'E-mail',
                 emailVerified: 'E-mail verificat',
                 firstName: 'Prenume',
@@ -989,7 +990,7 @@ const dictionary = {
                 phoneNumber: 'Număr de telefon',
                 role: 'Rol',
                 updatedAt: 'Actualizat la',
-                updatedAtValue: 'Actualizat la (valoare interna)'
+                updatedAtValue: 'Actualizat la (valoare internǎ)'
               },
               description:
                 'Ești sigur că vrei să exporti utilizatorii selectați?',
@@ -1508,16 +1509,16 @@ const dictionary = {
               // },
               // depositAmountInRON: 'Avans de plată',
               // firstPaymentDateAfterDeposit: 'Data primei plăți',
-              // firstPaymentDateValue: 'Data primei plăți (valoare interna)',
+              // firstPaymentDateValue: 'Data primei plăți (valoare internǎ)',
               // amountToPay: 'Suma de plată',
               // createdBy: {
               //   name: 'Nume creator',
               //   email: 'Email creator'
               // },
               // expiresAt: 'Expirǎ la',
-              // expiresAtValue: 'Expirǎ la (valoare interna)',
+              // expiresAtValue: 'Expirǎ la (valoare internǎ)',
               // createdAt: 'Creat la',
-              // createdAtValue: 'Creat la (valoare interna)',
+              // createdAtValue: 'Creat la (valoare internǎ)',
               // customerEmail: 'Email client',
               // customerFirstName: 'Prenume client',
               // customerLastName: 'Nume client',
@@ -1664,36 +1665,34 @@ const dictionary = {
           },
           'orders-table': {
             columns: {
-              // callerName: 'Nume apelant',
-              // createdAt: 'Plasatǎ la',
-              // createdBy: {
-              //   email: 'Email creator',
-              //   name: 'Nume creator'
-              // },
-              // customerEmail: 'Email client',
-              // customerFirstName: 'Prenume client',
-              // customerLastName: 'Nume client',
-              // customerPhoneNumber: 'Număr de telefon client',
-              // id: 'Id',
-              // paidAmount: 'Suma plătită',
-              // paidAmountWithoutTVA: 'Suma plătită fără TVA',
-              // paymentMethod: 'Metodă de plată',
-              // product: {
-              //   name: 'Nume produs'
-              // },
-              // setterName: 'Nume setator',
-              // status: 'Status',
-              // tvaAmount: 'Valoare TVA',
-              // type: 'Tip'
               createdAt: 'Creat la',
               customerEmail: 'Email client',
               customerName: 'Nume client',
-              extensionPaymentLinkId: 'Id link de plată prelungire',
               id: 'Id',
-              productPaymentLinkId: 'Id link de plată produs',
+              paymentLinkId: 'Id link de plată',
+              paymentProductType: 'Tip produs',
+              paymentProductTypeValues: {
+                [PaymentProductType.Product]: 'Produs',
+                [PaymentProductType.Extension]: 'Prelungire'
+              },
+              productName: 'Nume produs',
               status: 'Status',
+              statusValues: {
+                [OrderStatusType.Completed]: 'Completatǎ',
+                [OrderStatusType.PendingBankTransferPayment]:
+                  'În așteptare transfer bancar',
+                [OrderStatusType.ProcessingBankTransferPayment]:
+                  'În procesare transfer bancar',
+                [OrderStatusType.PendingCardPayment]: 'În așteptare card',
+                [OrderStatusType.Cancelled]: 'Anulatǎ'
+              },
               stripePaymentIntentId: 'Id Stripe',
               type: 'Tip',
+              typeValues: {
+                [OrderType.ParentOrder]: 'Comandă principalǎ',
+                [OrderType.OneTimePaymentOrder]: 'Comandǎ integralǎ',
+                [OrderType.RenewalOrder]: 'Comandǎ de reînnoire'
+              },
               updatedAt: 'Actualizat la'
             },
             header: {
@@ -1706,6 +1705,9 @@ const dictionary = {
               columns: {
                 title: 'Coloane'
               },
+              input: {
+                placeholder: 'Caută comandă'
+              },
               show: {
                 groups: {
                   'created-by': {
@@ -1714,12 +1716,42 @@ const dictionary = {
                       all: 'Toate',
                       'by-me': 'Create de mine'
                     }
+                  },
+                  'payment-product-type': {
+                    title: 'Tip produs',
+                    values: {
+                      all: 'Toate',
+                      [PaymentProductType.Product]: 'Produs',
+                      [PaymentProductType.Extension]: 'Prelungire'
+                    }
+                  },
+                  status: {
+                    title: 'Status',
+                    values: {
+                      all: 'Toate',
+                      [OrderStatusType.Completed]: 'Completatǎ',
+                      [OrderStatusType.PendingBankTransferPayment]:
+                        'În așteptare transfer bancar',
+                      [OrderStatusType.ProcessingBankTransferPayment]:
+                        'În procesare transfer bancar',
+                      [OrderStatusType.PendingCardPayment]: 'În așteptare card',
+                      [OrderStatusType.Cancelled]: 'Anulatǎ'
+                    }
+                  },
+                  type: {
+                    title: 'Tip comandǎ',
+                    values: {
+                      all: 'Toate',
+                      [OrderType.ParentOrder]: 'Comandă principalǎ',
+                      [OrderType.OneTimePaymentOrder]: 'Comandǎ integralǎ',
+                      [OrderType.RenewalOrder]: 'Comandǎ de reînnoire'
+                    }
                   }
                 },
                 title: 'Afișează'
               }
             },
-            'no-results': 'Nu s-au găsit link-uri de plată.',
+            'no-results': 'Nu s-au găsit comenzi.',
             pagination: {
               'next-page': 'Pagina următoare',
               'page-count': 'Pagina {page} din {pageCount}',
@@ -1727,6 +1759,44 @@ const dictionary = {
               'rows-per-page': 'Rânduri pe pagină'
             },
             row: {
+              actions: {
+                values: {
+                  'cancel-order': {
+                    extension: {
+                      response: {
+                        error: {
+                          description:
+                            'A apărut o eroare la anularea comandei prelungirii.',
+                          title: 'Anulează comandă prelungire'
+                        },
+                        success: {
+                          description:
+                            'Comanda prelungirii a fost anulată cu succes.',
+                          title: 'Anulează comandă prelungire'
+                        }
+                      }
+                    },
+                    product: {
+                      response: {
+                        error: {
+                          description:
+                            'A apărut o eroare la anularea comandei produsului.',
+                          title: 'Anulează comandă produs'
+                        },
+                        success: {
+                          description:
+                            'Comanda produsului a fost anulată cu succes.',
+                          title: 'Anulează comandă produs'
+                        }
+                      }
+                    },
+                    title: 'Anulează comandă'
+                  },
+                  'process-bank-transfer-payment': {
+                    title: 'Procesează transfer bancar'
+                  }
+                }
+              },
               paymentMethod: {
                 [PaymentMethodType.Card]: 'Card',
                 [PaymentMethodType.BankTransfer]: 'Transfer bancar',
@@ -2380,69 +2450,86 @@ const dictionary = {
               closerEmail: 'Email closer',
               closerName: 'Nume closer',
               contract: { name: 'Nume contract' },
-              contractId: 'Id contract (valoare interna)',
+              contractId: 'Id contract',
               'copy-link': 'Copiază link',
               createdAt: 'Adǎugat la',
+              createdAtValue: 'Adǎugat la (valoare internǎ)',
               createdBy: {
                 email: 'Email creator',
                 name: 'Nume creator'
               },
-              createdById: 'Id creator (valoare interna)',
+              createdById: 'Id creator',
               currency: 'Monedǎ',
               customerEmail: 'Email client',
               customerName: 'Nume client',
-              deletedAt: 'Șters la (valoare interna)',
+              deletedAt: 'Șters la',
+              deletedAtValue: 'Șters la (valoare internǎ)',
               depositAmount: 'Suma avansului',
-              depositAmountInCents: 'Suma avansului in cenți(valoare interna)',
+              depositAmountInCents: 'Suma avansului in cenți',
               eurToRonRate: 'Curs EUR/RON',
               expiresAt: 'Expirǎ la',
+              expiresAtValue: 'Expirǎ la (valoare internǎ)',
+              extensionId: 'Id prelungire',
               extraTaxRate: 'Comision extra',
               firstPaymentDateAfterDeposit: 'Data primei plăți',
-              firstPaymentDateValue: 'Data primei plăți (valoare interna)',
+              firstPaymentDateAfterDepositValue:
+                'Data primei plăți (valoare internǎ)',
               id: 'Id',
+              installmentAmountToPay: 'Suma de platǎ per ratǎ',
+              installmentAmountToPayInCents: 'Suma de platǎ per ratǎ in cenți',
+              installmentId: 'Id ratǎ',
+              installmentsCount: 'Numǎr rate',
+              membershipId: 'Id membership',
               paymentMethodType: 'Metoda de platǎ',
+              paymentMethodTypeValue: 'Metoda de platǎ (valoare internǎ)',
               paymentMethodTypeValues: {
                 [PaymentMethodType.BankTransfer]: 'Transfer bancar',
                 [PaymentMethodType.Card]: 'Card',
                 [PaymentMethodType.TBI]: 'TBI'
               },
               paymentProductType: 'Tip produs',
+              paymentProductTypeValue: 'Tip produs (valoare internǎ)',
               paymentProductTypeValues: {
                 [PaymentProductType.Product]: 'Produs de bazǎ',
                 [PaymentProductType.Extension]: 'Prelungire'
               },
-              productId: 'Id produs (valoare interna)',
-              productInstallmentAmountToPay: 'Suma de platǎ per rata',
-              productInstallmentAmountToPayInCents:
-                'Suma de platǎ per rata in cenți (valoare interna)',
-              productInstallmentId: 'Id rata (valoare interna)',
-              productInstallmentsCount: 'Rate',
+              productId: 'Id produs',
               productName: 'Nume produs',
               remainingAmountToPay: 'Suma rǎmasǎ de platǎ',
-              remainingAmountToPayInCents:
-                'Suma rǎmasǎ de platǎ in cenți (valoare interna)',
+              remainingAmountToPayInCents: 'Suma rǎmasǎ de platǎ in cenți',
               remainingInstallmentAmountToPay: 'Suma rǎmasǎ de platǎ per rata',
               remainingInstallmentAmountToPayInCents:
-                'Suma rǎmasǎ de platǎ per rata in cenți (valoare interna)',
-              searchCreatedAt: 'Adǎugat la (valoare interna)',
-              searchExpiresAt: 'Expirǎ la (valoare interna)',
+                'Suma rǎmasǎ de platǎ per rata in cenți',
               setterEmail: 'Email setter',
               setterName: 'Numele setter',
               status: 'Status',
-              stripeClientSecret: 'Secret platǎ Stripe (valoare interna)',
-              stripePaymentIntentId: 'Id platǎ Stripe (valoare interna)',
+              statusValue: 'Status (valoare internǎ)',
+              statusValues: {
+                [PaymentStatusType.Created]: 'Creat',
+                [PaymentStatusType.Processing]: 'În procesare',
+                [PaymentStatusType.Succeeded]: 'Plătit',
+                [PaymentStatusType.RequiresConfirmation]: 'Necesitǎ confirmare',
+                [PaymentStatusType.RequiresAction]: 'Necesitǎ acțiune',
+                [PaymentStatusType.RequiresCapture]: 'Necesitǎ captură',
+                [PaymentStatusType.Canceled]: 'Anulat',
+                [PaymentStatusType.Expired]: 'Expirat',
+                [PaymentStatusType.PaymentFailed]: 'Eșuat',
+                [PaymentStatusType.RequiresPaymentMethod]:
+                  'Necesitǎ metoda plată'
+              },
               totalAmountToPay: 'Suma totalǎ de platǎ',
-              totalAmountToPayInCents:
-                'Suma totalǎ de platǎ in cenți (valoare interna)',
+              totalAmountToPayInCents: 'Suma totalǎ de platǎ in cenți',
               tvaRate: 'TVA',
               type: 'Tip platǎ',
+              typeValue: 'Tip platǎ (valoare internǎ)',
               typeValues: {
                 [PaymentLinkType.Integral]: 'Integral',
                 [PaymentLinkType.Deposit]: 'Avans',
                 [PaymentLinkType.Installments]: 'Rate',
                 [PaymentLinkType.InstallmentsDeposit]: 'Rate cu avans'
               },
-              updatedAt: 'Actualizat la (valoare interna)'
+              updatedAt: 'Actualizat la',
+              updatedAtValue: 'Actualizat la (valoare internǎ)'
             },
             header: {
               actions: {
@@ -2474,6 +2561,14 @@ const dictionary = {
                       active: 'Active',
                       all: 'Toate',
                       expired: 'Expirate'
+                    }
+                  },
+                  'payment-product-type': {
+                    title: 'Tip produs',
+                    values: {
+                      all: 'Toate',
+                      [PaymentProductType.Product]: 'Produs de bazǎ',
+                      [PaymentProductType.Extension]: 'Prelungire'
                     }
                   },
                   status: {
@@ -2538,24 +2633,32 @@ const dictionary = {
               customerName: 'Nume client',
               extensionId: 'Id prelungire',
               id: 'Id',
-              membershipId: 'Id membru',
+              membershipId: 'Id membership',
               nextPaymentDate: 'Data urmǎtoarei plǎti',
               parentOrderId: 'Id comanda',
               paymentMethod: 'Metoda de platǎ',
+              paymentMethodValues: {
+                [PaymentMethodType.BankTransfer]: 'Transfer bancar',
+                [PaymentMethodType.Card]: 'Card',
+                [PaymentMethodType.TBI]: 'TBI'
+              },
               productId: 'Id produs',
+              productName: 'Nume produs',
+              productPaymentType: 'Tip produs',
+              productPaymentTypeValues: {
+                [PaymentProductType.Product]: 'Produs de bazǎ',
+                [PaymentProductType.Extension]: 'Prelungire'
+              },
               remainingPayments: 'Rate rǎmase',
               startDate: 'Data început',
               status: 'Status',
+              statusValues: {
+                [SubscriptionStatusType.Active]: 'Activǎ',
+                [SubscriptionStatusType.OnHold]: 'În așteptare',
+                [SubscriptionStatusType.Cancelled]: 'Anulatǎ',
+                [SubscriptionStatusType.Completed]: 'Completatǎ'
+              },
               updatedAt: 'Actualizat la'
-              // createdAt: 'Creat la',
-              // createdAtValue: 'Creat la (valoare interna)',
-              // customerEmail: 'Email client',
-              // customerFirstName: 'Prenume client',
-              // customerLastName: 'Nume client',
-              // customerPhoneNumber: 'Număr de telefon client',
-              // id: 'Id',
-              // parentOrder: { id: 'Id comanda' },
-              // status: 'Status'
             },
             header: {
               actions: {
@@ -2566,9 +2669,51 @@ const dictionary = {
               },
               columns: {
                 title: 'Coloane'
+              },
+              input: {
+                placeholder: 'Caută abonament'
+              },
+              show: {
+                groups: {
+                  'created-by': {
+                    title: 'Create de utilizator',
+                    values: {
+                      all: 'Toate',
+                      'by-me': 'Create de mine'
+                    }
+                  },
+                  'payment-method': {
+                    title: 'Metoda de platǎ',
+                    values: {
+                      all: 'Toate',
+                      [PaymentMethodType.Card]: 'Card',
+                      [PaymentMethodType.BankTransfer]: 'Transfer bancar',
+                      [PaymentMethodType.TBI]: 'TBI'
+                    }
+                  },
+                  'product-payment-type': {
+                    title: 'Tip produs',
+                    values: {
+                      all: 'Toate',
+                      [PaymentProductType.Product]: 'Produs de bazǎ',
+                      [PaymentProductType.Extension]: 'Prelungire'
+                    }
+                  },
+                  status: {
+                    title: 'Status',
+                    values: {
+                      all: 'Toate',
+                      [SubscriptionStatusType.Active]: 'Activǎ',
+                      [SubscriptionStatusType.OnHold]: 'În așteptare',
+                      [SubscriptionStatusType.Cancelled]: 'Anulatǎ',
+                      [SubscriptionStatusType.Completed]: 'Completatǎ'
+                    }
+                  }
+                },
+                title: 'Afișează'
               }
             },
-            'no-results': 'Nu s-au găsit subscriptii.',
+            'no-results': 'Nu s-au găsit abonamente.',
             pagination: {
               'next-page': 'Pagina următoare',
               'page-count': 'Pagina {page} din {pageCount}',

@@ -14,7 +14,7 @@ import { CalendlyHandlers } from '~/server/handlers/calendly-handlers'
  * - Requires CRON_SECRET in Authorization header
  * - Set CRON_SECRET in .env: CRON_SECRET=your-secret-key
  */
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Step 1: Validate authorization
     const authHeader = request.headers.get('authorization')
@@ -58,14 +58,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-// Prevent GET requests
-export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST.' },
-    { status: 405 }
-  )
 }
 
 async function triggerHandler() {

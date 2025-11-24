@@ -7,6 +7,8 @@ import { product_orders } from '~/server/database/schema/business/models/product
 import { products } from '~/server/database/schema/product/models/products'
 import { business } from '~/server/database/schema/schemas'
 import { id, softDeleteTimestamps } from '~/server/database/schema/utils'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
+import { payment_product_type } from '../enums/payment-product-type'
 
 export const product_subscriptions = business.table('product_subscriptions', {
   ...id,
@@ -28,6 +30,9 @@ export const product_subscriptions = business.table('product_subscriptions', {
     .notNull()
     .references(() => products.id, { onDelete: 'no action' }),
   productName: text('product_name').notNull(),
+  productPaymentType: payment_product_type('payment_product_type')
+    .default(PaymentProductType.Product)
+    .notNull(),
   remainingPayments: integer('remaining_payments').notNull(),
   startDate: timestamp('start_date', { mode: 'string', withTimezone: true }),
   status: subscription_status_type('status').notNull(),

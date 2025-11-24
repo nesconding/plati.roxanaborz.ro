@@ -4,16 +4,30 @@ import { SubscriptionsPageModule } from '~/client/modules/(app)/subscriptions'
 
 import { getQueryClient, trpc } from '~/client/trpc/server'
 
-export default async function SubscriptionsPage() {
+interface SubscriptionsPageProps {
+  searchParams: Promise<{
+    search: string
+  }>
+}
+
+export default async function SubscriptionsPage({
+  searchParams
+}: SubscriptionsPageProps) {
+  const { search } = await searchParams
   const queryClient = getQueryClient()
 
-  await queryClient.ensureQueryData(
-    trpc.protected.subscriptions.findAll.queryOptions()
-  )
+  await Promise.all([
+    queryClient.ensureQueryData(
+      trpc.protected.extensionsSubscriptions.findAll.queryOptions()
+    ),
+    queryClient.ensureQueryData(
+      trpc.protected.productSubscriptions.findAll.queryOptions()
+    )
+  ])
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <SubscriptionsPageModule />
+      <SubscriptionsPageModule search={search} />
     </HydrationBoundary>
   )
 }

@@ -2,17 +2,22 @@ import { relations } from 'drizzle-orm'
 import { text } from 'drizzle-orm/pg-core'
 import { order_status_type } from '~/server/database/schema/business/enums/order-status-type'
 import { order_type } from '~/server/database/schema/business/enums/order-type'
+import { payment_product_type } from '~/server/database/schema/business/enums/payment-product-type'
 import { memberships } from '~/server/database/schema/business/models/membership'
 import { product_payment_links } from '~/server/database/schema/business/models/product-payment-links'
 import { product_subscriptions } from '~/server/database/schema/business/models/product-subscriptions'
 import { business } from '~/server/database/schema/schemas'
 import { id, softDeleteTimestamps } from '~/server/database/schema/utils'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
 
 export const product_orders = business.table('product_orders', {
   ...id,
 
   customerEmail: text('customer_email').notNull(),
   customerName: text('customer_name'),
+  paymentProductType: payment_product_type('payment_product_type')
+    .default(PaymentProductType.Product)
+    .notNull(),
   productName: text('product_name').notNull(),
   productPaymentLinkId: text('product_payment_link_id')
     .notNull()
