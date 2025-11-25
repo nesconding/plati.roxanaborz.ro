@@ -15,9 +15,14 @@ export const product_subscriptions = business.table('product_subscriptions', {
 
   customerEmail: text('customer_email').notNull(),
   customerName: text('customer_name'),
-  membershipId: text('membership_id')
-    .notNull()
-    .references(() => memberships.id, { onDelete: 'no action' }),
+  lastPaymentAttemptDate: timestamp('last_payment_attempt_date', {
+    mode: 'string',
+    withTimezone: true
+  }),
+  lastPaymentFailureReason: text('last_payment_failure_reason'),
+  membershipId: text('membership_id').references(() => memberships.id, {
+    onDelete: 'no action'
+  }),
   nextPaymentDate: timestamp('next_payment_date', {
     mode: 'string',
     withTimezone: true
@@ -25,6 +30,9 @@ export const product_subscriptions = business.table('product_subscriptions', {
   parentOrderId: text('parent_order_id')
     .notNull()
     .references(() => product_orders.id, { onDelete: 'no action' }),
+
+  // Payment retry tracking
+  paymentFailureCount: integer('payment_failure_count').default(0).notNull(),
   paymentMethod: payment_method_type('payment_method').notNull(),
   productId: text('product_id')
     .notNull()
@@ -34,6 +42,12 @@ export const product_subscriptions = business.table('product_subscriptions', {
     .default(PaymentProductType.Product)
     .notNull(),
   remainingPayments: integer('remaining_payments').notNull(),
+
+  // Graceful cancellation tracking
+  scheduledCancellationDate: timestamp('scheduled_cancellation_date', {
+    mode: 'string',
+    withTimezone: true
+  }),
   startDate: timestamp('start_date', { mode: 'string', withTimezone: true }),
   status: subscription_status_type('status').notNull(),
 

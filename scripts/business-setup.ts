@@ -195,15 +195,16 @@ async function main() {
     const start = Date.now()
     console.group('Business data setup started')
 
+    // Wave 1: Insert independent tables (no foreign key dependencies)
     await Promise.all([
-      async () => {
+      (async () => {
         const ConstantsTableName = getTableUniqueName(schema.constants)
         console.group(ConstantsTableName)
         console.log(`Processing ${ConstantsTableName} data...`)
         await database.insert(schema.constants).values(CONSTANTS)
         console.groupEnd()
-      },
-      async () => {
+      })(),
+      (async () => {
         const FirstPaymentDateAfterDepositOptionsTableName = getTableUniqueName(
           schema.first_payment_date_after_deposit_options
         )
@@ -215,8 +216,8 @@ async function main() {
           .insert(schema.first_payment_date_after_deposit_options)
           .values(DEPOSIT_FIRST_PAYMENT_DATE_OPTIONS)
         console.groupEnd()
-      },
-      async () => {
+      })(),
+      (async () => {
         const PaymentsSettingsTableName = getTableUniqueName(
           schema.payments_settings
         )
@@ -226,15 +227,19 @@ async function main() {
           .insert(schema.payments_settings)
           .values(PAYMENTS_SETTINGS)
         console.groupEnd()
-      },
-      async () => {
+      })(),
+      (async () => {
         const ProductsTableName = getTableUniqueName(schema.products)
         console.group(ProductsTableName)
         console.log(`Processing ${ProductsTableName} data...`)
         await database.insert(schema.products).values(HARDCODED_PRODUCTS)
         console.groupEnd()
-      },
-      async () => {
+      })()
+    ])
+
+    // Wave 2: Insert tables that depend on products
+    await Promise.all([
+      (async () => {
         const ProductsInstallmentsTableName = getTableUniqueName(
           schema.products_installments
         )
@@ -246,8 +251,8 @@ async function main() {
             HARDCODED_PRODUCTS.flatMap((product) => product.installments ?? [])
           )
         console.groupEnd()
-      },
-      async () => {
+      })(),
+      (async () => {
         const ProductsExtensionsTableName = getTableUniqueName(
           schema.products_extensions
         )
@@ -263,27 +268,29 @@ async function main() {
           )
         )
         console.groupEnd()
-      },
-      async () => {
-        const ProductsExtensionsInstallmentsTableName = getTableUniqueName(
-          schema.products_extensions_installments
-        )
-        console.group(ProductsExtensionsInstallmentsTableName)
-        console.log(
-          `Processing ${ProductsExtensionsInstallmentsTableName} data...`
-        )
-        await database
-          .insert(schema.products_extensions_installments)
-          .values(
-            HARDCODED_PRODUCTS.flatMap((product) =>
-              (product.extensions ?? []).flatMap(
-                (extension) => extension.installments ?? []
-              )
+      })()
+    ])
+
+    // Wave 3: Insert tables that depend on products_extensions
+    await (async () => {
+      const ProductsExtensionsInstallmentsTableName = getTableUniqueName(
+        schema.products_extensions_installments
+      )
+      console.group(ProductsExtensionsInstallmentsTableName)
+      console.log(
+        `Processing ${ProductsExtensionsInstallmentsTableName} data...`
+      )
+      await database
+        .insert(schema.products_extensions_installments)
+        .values(
+          HARDCODED_PRODUCTS.flatMap((product) =>
+            (product.extensions ?? []).flatMap(
+              (extension) => extension.installments ?? []
             )
           )
-        console.groupEnd()
-      }
-    ])
+        )
+      console.groupEnd()
+    })()
 
     console.groupEnd()
     console.log(

@@ -27,10 +27,12 @@ import {
   Pencil,
   Search,
   View,
+  X,
   XCircle
 } from 'lucide-react'
 import { DynamicIcon } from 'lucide-react/dynamic'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
@@ -51,6 +53,7 @@ import { Field, FieldGroup } from '~/client/components/ui/field'
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput
 } from '~/client/components/ui/input-group'
 import { Label } from '~/client/components/ui/label'
@@ -136,7 +139,7 @@ export function OrdersTable({ className, search }: OrdersTableProps) {
   const t = useTranslations('modules.(app).orders._components.orders-table')
 
   const isMobile = useIsMobile()
-
+  const router = useRouter()
   const [sorting, setSorting] = useState<SortingState>([
     { desc: true, id: 'createdAt' }
   ])
@@ -662,6 +665,19 @@ export function OrdersTable({ className, search }: OrdersTableProps) {
               placeholder={t('header.input.placeholder')}
               value={searchInput}
             />
+            <InputGroupAddon align='inline-end'>
+              <InputGroupButton
+                className={cn({ hidden: searchInput.length === 0 })}
+                onClick={() => {
+                  setSearchInput('')
+                  debouncedSetGlobalFilter('')
+                  router.replace('/orders')
+                }}
+                size='icon-xs'
+              >
+                <X />
+              </InputGroupButton>
+            </InputGroupAddon>
           </InputGroup>
 
           <DropdownMenu>

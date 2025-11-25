@@ -8,7 +8,6 @@ import { payment_product_type } from '~/server/database/schema/business/enums/pa
 import { payment_status_type } from '~/server/database/schema/business/enums/payment-status-type'
 import { contracts } from '~/server/database/schema/business/models/contracts'
 import { product_orders } from '~/server/database/schema/business/models/product-orders'
-import { product_subscriptions } from '~/server/database/schema/business/models/product-subscriptions'
 import { products } from '~/server/database/schema/product/models/products'
 import { products_installments } from '~/server/database/schema/product/models/products-installments'
 import { business } from '~/server/database/schema/schemas'
@@ -82,7 +81,7 @@ export const product_payment_links = business.table('product_payment_links', {
 
 export const product_payment_linksRelations = relations(
   product_payment_links,
-  ({ one, many }) => ({
+  ({ one }) => ({
     contract: one(contracts, {
       fields: [product_payment_links.contractId],
       references: [contracts.id]
@@ -102,7 +101,6 @@ export const product_payment_linksRelations = relations(
     productOrder: one(product_orders, {
       fields: [product_payment_links.id],
       references: [product_orders.productPaymentLinkId]
-    }),
-    productSubscriptions: many(product_subscriptions)
+    })
   })
 )

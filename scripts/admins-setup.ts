@@ -60,6 +60,23 @@ async function main() {
 
     const data = createUserData()
 
+    const usersData = await Promise.all(
+      data.map(
+        (user): Promise<typeof users.$inferSelect> =>
+          ctx.internalAdapter.createUser(user)
+      )
+    )
+    await Promise.all(
+      usersData.map(
+        async (user) =>
+          await ctx.internalAdapter.createAccount({
+            accountId: user.id,
+            providerId: 'credential',
+            userId: user.id
+          })
+      )
+    )
+
     const [[superAdminUser]] = await Promise.all([
       await database
         .update(users)
@@ -88,23 +105,6 @@ async function main() {
         invitedById: superAdminUser.id
       })
       .where(not(eq(users.email, superAdminUser.email)))
-
-    const usersData = await Promise.all(
-      data.map(
-        (user): Promise<typeof users.$inferSelect> =>
-          ctx.internalAdapter.createUser(user)
-      )
-    )
-    await Promise.all(
-      usersData.map(
-        async (user) =>
-          await ctx.internalAdapter.createAccount({
-            accountId: user.id,
-            providerId: 'credential',
-            userId: user.id
-          })
-      )
-    )
 
     console.log(
       `Seeded ${formatCount(data.length)} ${tableName} in ${Date.now() - start}ms\n`

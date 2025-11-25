@@ -11,6 +11,7 @@ import {
   type PaymentIntentProductIntegralMetadata,
   StripeService
 } from '~/server/services/stripe'
+import { SubscriptionMembershipSyncService } from '~/server/services/subscription-membership-sync'
 import { MembershipStatusType } from '~/shared/enums/membership-status-type'
 import { OrderStatusType } from '~/shared/enums/order-status-type'
 import { OrderType } from '~/shared/enums/order-type'
@@ -27,7 +28,12 @@ import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
  * - Product Installments Deposit
  */
 export class StripeProductHandlers {
-  constructor(private readonly db: Database) {}
+  private readonly subscriptionMembershipSyncService: SubscriptionMembershipSyncService
+
+  constructor(private readonly db: Database) {
+    this.subscriptionMembershipSyncService =
+      new SubscriptionMembershipSyncService(db)
+  }
 
   /**
    * Updates the status of a product payment link
@@ -166,12 +172,22 @@ export class StripeProductHandlers {
             }
 
             // Activate membership (changes from Delayed to Active)
-            await this.db
-              .update(schema.memberships)
-              .set({
-                status: MembershipStatusType.Active
-              })
-              .where(eq(schema.memberships.id, subscription.membershipId))
+            if (subscription.membershipId) {
+              await this.db
+                .update(schema.memberships)
+                .set({
+                  status: MembershipStatusType.Active
+                })
+                .where(eq(schema.memberships.id, subscription.membershipId))
+            }
+
+            // Payment succeeded - reset failure count
+            await this.subscriptionMembershipSyncService.handlePaymentSuccess(
+              subscription.id,
+              'product',
+              newRemainingPayments,
+              null
+            )
 
             return { success: true }
           } catch (error) {
@@ -180,19 +196,19 @@ export class StripeProductHandlers {
               error
             )
 
-            await this.db
-              .update(schema.product_subscriptions)
-              .set({
-                status: SubscriptionStatusType.OnHold
-              })
-              .where(eq(schema.product_subscriptions.id, subscription.id))
+            // Handle payment failure with retry logic
+            const failureReason =
+              error instanceof Error ? error.message : 'Unknown error'
+            const { shouldRetry, failureCount } =
+              await this.subscriptionMembershipSyncService.handlePaymentFailure(
+                subscription.id,
+                'product',
+                failureReason
+              )
 
-            await this.db
-              .update(schema.memberships)
-              .set({
-                status: MembershipStatusType.Paused
-              })
-              .where(eq(schema.memberships.id, subscription.membershipId))
+            console.log(
+              `[Cron] Payment failure for subscription ${subscription.id}. Attempt ${failureCount}/${3}. Will retry: ${shouldRetry}`
+            )
 
             return { error, success: false }
           }
@@ -326,6 +342,8 @@ export class StripeProductHandlers {
 
             // If membership is DELAYED (first installment after deposit), activate it
             if (
+              subscription.membership &&
+              subscription.membershipId &&
               subscription.membership.status === MembershipStatusType.Delayed
             ) {
               await this.db
@@ -362,6 +380,19 @@ export class StripeProductHandlers {
                 .where(eq(schema.product_subscriptions.id, subscription.id))
             }
 
+            // Payment succeeded - reset failure count and update next payment date
+            const nextPaymentDateForSuccess =
+              newRemainingPayments > 0
+                ? DatesService.addMonths(today, 1).toISOString()
+                : null
+
+            await this.subscriptionMembershipSyncService.handlePaymentSuccess(
+              subscription.id,
+              'product',
+              newRemainingPayments,
+              nextPaymentDateForSuccess
+            )
+
             return { success: true }
           } catch (error) {
             console.error(
@@ -369,21 +400,19 @@ export class StripeProductHandlers {
               error
             )
 
-            // Update subscription to OnHold
-            await this.db
-              .update(schema.product_subscriptions)
-              .set({
-                status: SubscriptionStatusType.OnHold
-              })
-              .where(eq(schema.product_subscriptions.id, subscription.id))
+            // Handle payment failure with retry logic
+            const failureReason =
+              error instanceof Error ? error.message : 'Unknown error'
+            const { shouldRetry, failureCount } =
+              await this.subscriptionMembershipSyncService.handlePaymentFailure(
+                subscription.id,
+                'product',
+                failureReason
+              )
 
-            // Update membership to Paused
-            await this.db
-              .update(schema.memberships)
-              .set({
-                status: MembershipStatusType.Paused
-              })
-              .where(eq(schema.memberships.id, subscription.membershipId))
+            console.log(
+              `[Cron] Payment failure for subscription ${subscription.id}. Attempt ${failureCount}/${3}. Will retry: ${shouldRetry}`
+            )
 
             return { error, success: false }
           }

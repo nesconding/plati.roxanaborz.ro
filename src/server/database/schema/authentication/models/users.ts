@@ -10,9 +10,7 @@ import {
 import { user_roles } from '~/server/database/schema/authentication/enums/user-roles'
 import { users_accounts } from '~/server/database/schema/authentication/models/users-accounts'
 import { users_sessions } from '~/server/database/schema/authentication/models/users-sessions'
-import { extension_orders } from '~/server/database/schema/business/models/extension-orders'
 import { extension_payment_links } from '~/server/database/schema/business/models/extension-payment-links'
-import { product_orders } from '~/server/database/schema/business/models/product-orders'
 import { product_payment_links } from '~/server/database/schema/business/models/product-payment-links'
 import { authentication } from '~/server/database/schema/schemas'
 import { id, timestamps } from '~/server/database/schema/utils'
@@ -59,14 +57,12 @@ export const users = authentication.table(
 
 export const users_relations = relations(users, ({ one, many }) => ({
   accounts: many(users_accounts),
-  extensionOrders: many(extension_orders),
   extensionPaymentLinks: many(extension_payment_links),
   invitedBy: one(users, {
     fields: [users.invitedById],
     references: [users.id],
     relationName: 'invitedBy'
   }),
-  productOrders: many(product_orders),
   productPaymentLinks: many(product_payment_links),
   sessions: many(users_sessions)
 }))

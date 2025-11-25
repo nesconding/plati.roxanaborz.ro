@@ -16,26 +16,29 @@ import {
   useReactTable,
   type VisibilityState
 } from '@tanstack/react-table'
-import { type DateArg, format, isAfter } from 'date-fns'
+import { type DateArg, format } from 'date-fns'
 import { ro } from 'date-fns/locale'
 import {
+  ArrowRightLeft,
+  CalendarClock,
   ChevronLeft,
   ChevronRight,
   Columns2,
-  Copy,
-  CopyCheck,
   Download,
-  Plus,
+  EllipsisVertical,
+  Link2,
+  RefreshCw,
   Search,
   View,
+  X,
   Zap
 } from 'lucide-react'
 import { DynamicIcon } from 'lucide-react/dynamic'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
-
 import { Badge } from '~/client/components/ui/badge'
 import { Button } from '~/client/components/ui/button'
 import {
@@ -52,6 +55,7 @@ import { Field, FieldGroup } from '~/client/components/ui/field'
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput
 } from '~/client/components/ui/input-group'
 import { Label } from '~/client/components/ui/label'
@@ -73,64 +77,53 @@ import {
   TableHeader,
   TableRow
 } from '~/client/components/ui/table'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '~/client/components/ui/tooltip'
 import { useIsMobile } from '~/client/hooks/use-mobile'
 import { cn } from '~/client/lib/utils'
 import { createXLSXFile } from '~/client/lib/xlsx'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
 import { MembershipStatusType } from '~/shared/enums/membership-status-type'
-import { UserRoles } from '~/shared/enums/user-roles'
+import { ManageLinkedSubscriptionsDialog } from './_components/manage-linked-subscriptions-dialog'
+import { TransferMembershipDialog } from './_components/transfer-membership-dialog'
+import { UpdateDatesDialog } from './_components/update-dates-dialog'
+import { UpdateStatusDialog } from './_components/update-status-dialog'
 
 type Membership =
   TRPCRouterOutput['protected']['memberships']['findAll'][number]
 
-const expirationStatusFilter = (
+const statusFilter = (
   row: Row<Membership>,
   columnId: string,
-  filterValue: 'expired' | 'active' | 'all'
+  filterValue: MembershipStatusType | 'all'
 ) => {
   if (filterValue === 'all') return true
-
-  const expiresAt = row.getValue(columnId) as Date
-  const isExpired = isAfter(new Date(), expiresAt)
-
-  if (filterValue === 'expired') return isExpired
-  if (filterValue === 'active') return !isExpired
-
-  return true
+  const status = row.getValue(columnId) as MembershipStatusType
+  return status === filterValue
 }
 
-const formatDate = (date: DateArg<Date> & {}) =>
-  format(date, 'PPP - HH:mm', { locale: ro })
+const formatDate = (
+  date: DateArg<Date> & {},
+  { withTime = false }: { withTime?: boolean } = {}
+) => format(date, withTime ? 'PPP - HH:mm' : 'PPP', { locale: ro })
 
 const pageSizeOptions = [10, 25, 50, 75, 100]
 
 interface MembershipsTableProps {
   className?: string
+  search?: string
 }
-export function MembershipsTable({ className }: MembershipsTableProps) {
+export function MembershipsTable({ className, search }: MembershipsTableProps) {
   const t = useTranslations()
 
   const isMobile = useIsMobile()
-
+  const router = useRouter()
   const [sorting, setSorting] = useState<SortingState>([
     { desc: true, id: 'createdAt' }
   ])
-  const [searchInput, setSearchInput] = useState('')
-  const [globalFilter, setGlobalFilter] = useState('')
+  const [searchInput, setSearchInput] = useState(search ?? '')
+  const [globalFilter, setGlobalFilter] = useState(search ?? '')
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [copiedRowId, setCopiedRowId] = useState<string>()
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    // 'product.name': false,
-    // 'installmentsOption.installments': false,
-    // depositAmountInRON: false,
-    // firstPaymentDateAfterDeposit: false,
-    // createdAt: false,
-    // id: false
+    searchCreatedAt: false
   })
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -138,14 +131,22 @@ export function MembershipsTable({ className }: MembershipsTableProps) {
   })
   const [rowSelection, setRowSelection] = useState({})
 
+  // Dialog states
+  const [selectedMembership, setSelectedMembership] =
+    useState<Membership | null>(null)
+  const [updateStatusDialogOpen, setUpdateStatusDialogOpen] = useState(false)
+  const [updateDatesDialogOpen, setUpdateDatesDialogOpen] = useState(false)
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false)
+  const [
+    manageLinkedSubscriptionsDialogOpen,
+    setManageLinkedSubscriptionsDialogOpen
+  ] = useState(false)
+
   const trpc = useTRPC()
   const getMemberships = useQuery(
     trpc.protected.memberships.findAll.queryOptions(undefined, {
       initialData: []
     })
-  )
-  const getSession = useQuery(
-    trpc.public.authentication.getSession.queryOptions()
   )
 
   const data = useMemo(
@@ -157,238 +158,211 @@ export function MembershipsTable({ className }: MembershipsTableProps) {
     [getMemberships.data]
   )
 
-  const userEmailFilter = (
-    row: Row<Membership>,
-    columnId: string,
-    filterValue: 'all' | 'users'
-  ) => {
-    if (filterValue !== 'users') return true
-
-    const createdByEmail = row.getValue(columnId) as string
-    const isUser = createdByEmail === getSession.data?.user?.email
-    return isUser
-  }
-
   const debouncedSetGlobalFilter = useDebouncedCallback(setGlobalFilter, 500)
 
   const columns: ColumnDef<Membership>[] = [
-    // {
-    //   accessorKey: 'customerLastName',
-    //   header: MembershipsTableHeader,
-    //   id: 'customerLastName'
-    // },
-
     { accessorKey: 'id', header: MembershipsTableHeader, id: 'id' },
-    { accessorKey: 'status', header: MembershipsTableHeader, id: 'status' },
+    {
+      accessorKey: 'customerName',
+      cell: ({ row }) => row.original.customerName ?? '',
+      header: MembershipsTableHeader,
+      id: 'customerName'
+    },
+    {
+      accessorKey: 'customerEmail',
+      header: MembershipsTableHeader,
+      id: 'customerEmail'
+    },
+    {
+      accessorKey: 'productName',
+      header: MembershipsTableHeader,
+      id: 'productName'
+    },
+    {
+      accessorKey: 'status',
+      cell: ({ row }) => (
+        <Badge
+          className={cn('capitalize', {
+            'bg-green-700 dark:bg-green-500':
+              row.original.status === MembershipStatusType.Active
+          })}
+          variant={
+            row.original.status === MembershipStatusType.Active
+              ? 'default'
+              : row.original.status === MembershipStatusType.Paused
+                ? 'outline'
+                : row.original.status === MembershipStatusType.Cancelled
+                  ? 'destructive'
+                  : 'outline'
+          }
+        >
+          {t(
+            `modules.(app).memberships._components.memberships-table.row.status.${row.original.status}`
+          )}
+        </Badge>
+      ),
+      filterFn: statusFilter,
+      header: MembershipsTableHeader,
+      id: 'status'
+    },
     {
       accessorKey: 'startDate',
+      cell: ({ row }) =>
+        row.original.startDate ? (
+          <span className='capitalize'>
+            {formatDate(row.original.startDate)}
+          </span>
+        ) : null,
       header: MembershipsTableHeader,
       id: 'startDate'
     },
     {
       accessorKey: 'delayedStartDate',
+      cell: ({ row }) =>
+        row.original.delayedStartDate ? (
+          <span className='capitalize'>
+            {formatDate(row.original.delayedStartDate)}
+          </span>
+        ) : null,
       header: MembershipsTableHeader,
       id: 'delayedStartDate'
     },
-    { accessorKey: 'endDate', header: MembershipsTableHeader, id: 'endDate' },
+    {
+      accessorKey: 'endDate',
+      cell: ({ row }) =>
+        row.original.endDate ? (
+          <span className='capitalize'>{formatDate(row.original.endDate)}</span>
+        ) : null,
+      header: MembershipsTableHeader,
+      id: 'endDate'
+    },
     {
       accessorKey: 'parentOrderId',
+      cell: ({ row }) => (
+        <Button asChild className='cursor-pointer' variant='link'>
+          <Link
+            href={{
+              pathname: '/orders',
+              query: {
+                search: row.original.parentOrderId
+              }
+            }}
+          >
+            {row.original.parentOrderId}
+          </Link>
+        </Button>
+      ),
       header: MembershipsTableHeader,
       id: 'parentOrderId'
     },
     {
       accessorKey: 'createdAt',
+      cell: ({ row }) => (
+        <span className='capitalize'>
+          {formatDate(row.original.createdAt, { withTime: true })}
+        </span>
+      ),
       header: MembershipsTableHeader,
       id: 'createdAt'
     },
     {
       accessorKey: 'updatedAt',
+      cell: ({ row }) => (
+        <span className='capitalize'>
+          {formatDate(row.original.updatedAt, { withTime: true })}
+        </span>
+      ),
       header: MembershipsTableHeader,
       id: 'updatedAt'
+    },
+    {
+      accessorKey: 'searchCreatedAt',
+      cell: () => null,
+      enableColumnFilter: false,
+      enableHiding: false,
+      enableSorting: false,
+      header: () => null,
+      id: 'searchCreatedAt'
+    },
+    {
+      cell: ({ row }) => {
+        const membership = row.original
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size='icon-sm' variant='ghost'>
+                <EllipsisVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>
+                {t(
+                  'modules.(app).memberships._components.memberships-table.row.actions.label'
+                )}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSelectedMembership(membership)
+                    setUpdateStatusDialogOpen(true)
+                  }}
+                >
+                  <RefreshCw />
+                  {t(
+                    'modules.(app).memberships._components.memberships-table.row.actions.update-status'
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSelectedMembership(membership)
+                    setUpdateDatesDialogOpen(true)
+                  }}
+                >
+                  <CalendarClock />
+                  {t(
+                    'modules.(app).memberships._components.memberships-table.row.actions.update-dates'
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSelectedMembership(membership)
+                    setTransferDialogOpen(true)
+                  }}
+                >
+                  <ArrowRightLeft />
+                  {t(
+                    'modules.(app).memberships._components.memberships-table.row.actions.transfer-membership'
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSelectedMembership(membership)
+                    setManageLinkedSubscriptionsDialogOpen(true)
+                  }}
+                >
+                  <Link2 />
+                  {t(
+                    'modules.(app).memberships._components.memberships-table.row.actions.link-subscription'
+                  )}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+      enableHiding: false,
+      enableSorting: false,
+      header: () => (
+        <span className='sr-only'>
+          {t(
+            'modules.(app).memberships._components.memberships-table.row.actions.label'
+          )}
+        </span>
+      ),
+      id: 'actions'
     }
-    // {
-    //   accessorKey: 'id',
-    //   enableSorting: false,
-    //   header: t(
-    //     'modules.(app).memberships._components.memberships-table.columns.id'
-    //   ),
-    //   id: 'id'
-    // },
-    // {
-    //   accessorKey: 'customerLastName',
-    //   header: MembershipsTableHeader,
-    //   id: 'customerLastName'
-    // },
-    // {
-    //   accessorKey: 'parentOrder.customerName',
-    //   header: MembershipsTableHeader,
-    //   id: 'customerFirstName'
-    // },
-    // {
-    //   accessorKey: 'customerPhoneNumber',
-    //   header: MembershipsTableHeader,
-    //   id: 'customerPhoneNumber'
-    // },
-    // {
-    //   accessorKey: 'parentOrder.customerEmail',
-    //   header: MembershipsTableHeader,
-    //   id: 'customerEmail'
-    // },
-
-    // {
-    //   accessorKey: 'status',
-    //   cell: ({ row }) => (
-    //     <Badge
-    //       className={cn('capitalize', {
-    //         'bg-green-700 dark:bg-green-500':
-    //           row.original.status === MembershipStatusType.Active
-    //       })}
-    //       variant={
-    //         row.original.status === MembershipStatusType.Active
-    //           ? 'default'
-    //           : row.original.status === MembershipStatusType.Paused
-    //             ? 'outline'
-    //             : row.original.status === MembershipStatusType.Cancelled
-    //               ? 'destructive'
-    //               : 'outline'
-    //       }
-    //     >
-    //       {t(
-    //         `modules.(app).memberships._components.memberships-table.row.status.${row.original.status}`
-    //       )}
-    //     </Badge>
-    //   ),
-    //   header: MembershipsTableHeader,
-    //   id: 'status'
-    // },
-    // {
-    //   accessorKey: 'parentOrder.id',
-    //   header: MembershipsTableHeader,
-    //   id: 'parentOrder.id'
-    // },
-    // {
-    //   accessorKey: 'product.name',
-    //   id: 'product.name',
-    //   header: MembershipsTableHeader
-    // },
-    // {
-    //   accessorKey: 'installmentsOption.installments',
-    //   id: 'installmentsOption.installments',
-    //   header: MembershipsTableHeader
-    // },
-    // {
-    //   accessorKey: 'depositAmountInRON',
-    //   id: 'depositAmountInRON',
-    //   header: MembershipsTableHeader,
-    //   cell: ({ row }) => formatPriceRON(Number(row.original.depositAmountInRON))
-    // },
-    // {
-    //   accessorKey: 'firstPaymentDateAfterDeposit',
-    //   id: 'firstPaymentDateAfterDeposit',
-    //   header: MembershipsTableHeader,
-    //   cell: ({ row }) =>
-    //     row.original.firstPaymentDateAfterDeposit ? (
-    //       <span className='capitalize'>{formatDate(row.original.firstPaymentDateAfterDeposit)}</span>
-    //     ) : null
-    // },
-    // {
-    //   accessorKey: 'amountToPay',
-    //   id: 'amountToPay',
-    //   header: MembershipsTableHeader,
-    //   cell: ({ row }) => formatPriceRON(Number(row.original.amountToPay))
-    // },
-    // {
-    //   accessorKey: 'createdBy.name',
-    //   id: 'createdBy.name',
-    //   header: MembershipsTableHeader
-    // },
-    // {
-    //   accessorKey: 'createdBy.email',
-    //   id: 'createdBy.email',
-    //   header: MembershipsTableHeader,
-    //   filterFn: userEmailFilter
-    // },
-    // {
-    //   accessorKey: 'expiresAt',
-    //   id: 'expiresAt',
-    //   header: MembershipsTableHeader,
-    //   filterFn: expirationStatusFilter,
-    //   cell: ({ row }) => (
-    //     <span
-    //       className={cn('capitalize', {
-    //         'text-destructive line-through': isAfter(new Date(), row.original.expiresAt),
-    //         'text-green-700 dark:text-green-500': !isAfter(new Date(), row.original.expiresAt)
-    //       })}
-    //     >
-    //       {formatDate(row.original.expiresAt)}
-    //     </span>
-    //   )
-    // },
-    // {
-    //   accessorKey: 'searchExpiresAt',
-    //   id: 'searchExpiresAt',
-    //   header: () => null,
-    //   cell: () => null
-    // },
-    // {
-    //   accessorKey: 'createdAt',
-    //   cell: ({ row }) => (
-    //     <span className='capitalize'>{formatDate(row.original.createdAt)}</span>
-    //   ),
-    //   header: MembershipsTableHeader,
-    //   id: 'createdAt'
-    // },
-    // {
-    //   accessorKey: 'searchCreatedAt',
-    //   cell: () => null,
-    //   header: () => null,
-    //   id: 'searchCreatedAt'
-    // }
-    // {
-    //   accessorKey: 'copy-link',
-    //   id: 'copy-link',
-    //   header: () => null,
-    //   cell: ({ row }) => {
-    //     const isCopied = copiedRowId === row.original.id
-
-    //     function handleOnClickCopy() {
-    //       const url = window.location.origin + `/checkout/${row.original.id}`
-    //       navigator.clipboard.writeText(url)
-    //       setCopiedRowId(row.original.id)
-    //     }
-
-    //     return (
-    //       <Tooltip>
-    //         <TooltipTrigger asChild>
-    //           <Button size='icon-sm' variant='outline' className='relative' onClick={handleOnClickCopy}>
-    //             <Copy
-    //               className={cn('absolute flex rotate-0 items-center gap-1 transition-all', {
-    //                 'scale-100': !isCopied,
-    //                 'scale-0 -rotate-90': isCopied
-    //               })}
-    //             />
-
-    //             <CopyCheck
-    //               className={cn('absolute flex rotate-0 items-center gap-1 transition-all', {
-    //                 'scale-100': isCopied,
-    //                 'scale-0 rotate-90': !isCopied
-    //               })}
-    //             />
-    //           </Button>
-    //         </TooltipTrigger>
-    //         <TooltipContent>
-    //           {isCopied
-    //             ? t('modules.(app).memberships._components.memberships-table.row.actions.values.copied')
-    //             : t('modules.(app).memberships._components.memberships-table.row.actions.values.copy')}
-    //         </TooltipContent>
-    //       </Tooltip>
-    //     )
-    //   },
-    //   enableColumnFilter: false,
-    //   enableSorting: false,
-    //   enableGlobalFilter: false,
-    //   enableHiding: false
-    // }
   ]
 
   const table = useReactTable({
@@ -423,32 +397,62 @@ export function MembershipsTable({ className }: MembershipsTableProps) {
   )
 
   function handleOnClickDownload() {
-    // const data = table
-    //   .getRowModel()
-    //   .rows.map((row) => row.original)
-    //   .map((row) => ({
-    //     [t('modules.(app).memberships._components.memberships-table.columns.id')]: row.id,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.customerName')]: row.customerName,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.customerEmail')]: row.customerEmail,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.product.name')]: row.product?.name,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.installmentsOption.installments')]:
-    //       row.installmentsOption?.installments,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.depositAmountInRON')]:
-    //       row.depositAmountInRON,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.firstPaymentDateAfterDeposit')]:
-    //       row.firstPaymentDateAfterDeposit ? formatDate(row.firstPaymentDateAfterDeposit) : undefined,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.firstPaymentDateValue')]:
-    //       row.firstPaymentDateAfterDeposit,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.amountToPay')]: row.amountToPay,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.createdBy.name')]: row.createdBy?.name,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.createdBy.email')]:
-    //       row.createdBy?.email,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.expiresAt')]: formatDate(row.expiresAt),
-    //     [t('modules.(app).memberships._components.memberships-table.columns.expiresAtValue')]: row.expiresAt,
-    //     [t('modules.(app).memberships._components.memberships-table.columns.createdAt')]: formatDate(row.createdAt),
-    //     [t('modules.(app).memberships._components.memberships-table.columns.createdAtValue')]: row.createdAt
-    //   }))
-    // createXLSXFile(data, `Link-uri de platǎ - ${formatDate(new Date())}`)
+    const downloadData = data.map((row) => ({
+      [t('modules.(app).memberships._components.memberships-table.columns.id')]:
+        row.id,
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.customerName'
+      )]: row.customerName ?? '',
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.customerEmail'
+      )]: row.customerEmail,
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.productName'
+      )]: row.productName,
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.status'
+      )]: t(
+        `modules.(app).memberships._components.memberships-table.row.status.${row.status}`
+      ),
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.statusValue'
+      )]: row.status,
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.startDate'
+      )]: row.startDate ? formatDate(row.startDate) : '',
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.startDateValue'
+      )]: row.startDate ?? '',
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.delayedStartDate'
+      )]: row.delayedStartDate ? formatDate(row.delayedStartDate) : '',
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.delayedStartDateValue'
+      )]: row.delayedStartDate ?? '',
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.endDate'
+      )]: row.endDate ? formatDate(row.endDate) : '',
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.endDateValue'
+      )]: row.endDate ?? '',
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.parentOrderId'
+      )]: row.parentOrderId,
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.createdAt'
+      )]: formatDate(row.createdAt),
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.createdAtValue'
+      )]: row.createdAt,
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.updatedAt'
+      )]: formatDate(row.updatedAt),
+      [t(
+        'modules.(app).memberships._components.memberships-table.columns.updatedAtValue'
+      )]: row.updatedAt
+    }))
+
+    createXLSXFile(downloadData, `Memberships - ${formatDate(new Date())}`)
   }
 
   return (
@@ -465,89 +469,81 @@ export function MembershipsTable({ className }: MembershipsTableProps) {
                 setSearchInput(value)
                 debouncedSetGlobalFilter(value)
               }}
-              placeholder='Caută link de platǎ'
+              placeholder={t(
+                'modules.(app).memberships._components.memberships-table.header.input.placeholder'
+              )}
               value={searchInput}
             />
+            <InputGroupAddon align='inline-end'>
+              <InputGroupButton
+                className={cn({ hidden: searchInput.length === 0 })}
+                onClick={() => {
+                  setSearchInput('')
+                  debouncedSetGlobalFilter('')
+                  router.replace('/memberships')
+                }}
+                size='icon-xs'
+              >
+                <X />
+              </InputGroupButton>
+            </InputGroupAddon>
           </InputGroup>
 
-          {/* <DropdownMenu>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant='outline' className='max-lg:size-9'>
+              <Button className='max-lg:size-9' variant='outline'>
                 <View />
                 <span className='hidden lg:block'>
-                  {t('modules.(app).memberships._components.memberships-table.header.show.title')}
+                  {t(
+                    'modules.(app).memberships._components.memberships-table.header.show.title'
+                  )}
                 </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              {(getSession.data?.user?.role === UserRoles.ADMIN ||
-                getSession.data?.user?.role === UserRoles.SUPER_ADMIN) && (
-                <>
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>
-                      {t(
-                        'modules.(app).memberships._components.memberships-table.header.show.groups.created-by.title'
-                      )}
-                    </DropdownMenuLabel>
-                    <DropdownMenuCheckboxItem
-                      checked={
-                        table.getColumn('createdBy.email')?.getFilterValue() === 'all' ||
-                        !table.getColumn('createdBy.email')?.getFilterValue()
-                      }
-                      onCheckedChange={() => table.getColumn('createdBy.email')?.setFilterValue('all')}
-                    >
-                      {t(
-                        'modules.(app).memberships._components.memberships-table.header.show.groups.created-by.values.all'
-                      )}
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={table.getColumn('createdBy.email')?.getFilterValue() === 'users'}
-                      onCheckedChange={() => table.getColumn('createdBy.email')?.setFilterValue('users')}
-                    >
-                      {t(
-                        'modules.(app).memberships._components.memberships-table.header.show.groups.created-by.values.by-me'
-                      )}
-                    </DropdownMenuCheckboxItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                </>
-              )}
               <DropdownMenuGroup>
                 <DropdownMenuLabel>
                   {t(
-                    'modules.(app).memberships._components.memberships-table.header.show.groups.expiration-status.title'
+                    'modules.(app).memberships._components.memberships-table.header.show.groups.status.title'
                   )}
                 </DropdownMenuLabel>
                 <DropdownMenuCheckboxItem
                   checked={
-                    table.getColumn('expiresAt')?.getFilterValue() === 'all' ||
-                    !table.getColumn('expiresAt')?.getFilterValue()
+                    table.getColumn('status')?.getFilterValue() === 'all' ||
+                    !table.getColumn('status')?.getFilterValue()
                   }
-                  onCheckedChange={() => table.getColumn('expiresAt')?.setFilterValue('all')}
+                  onCheckedChange={() =>
+                    table.getColumn('status')?.setFilterValue('all')
+                  }
                 >
                   {t(
-                    'modules.(app).memberships._components.memberships-table.header.show.groups.expiration-status.values.all'
+                    'modules.(app).memberships._components.memberships-table.header.show.groups.status.values.all'
                   )}
                 </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={table.getColumn('expiresAt')?.getFilterValue() === 'active'}
-                  onCheckedChange={() => table.getColumn('expiresAt')?.setFilterValue('active')}
-                >
-                  {t(
-                    'modules.(app).memberships._components.memberships-table.header.show.groups.expiration-status.values.active'
-                  )}
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={table.getColumn('expiresAt')?.getFilterValue() === 'expired'}
-                  onCheckedChange={() => table.getColumn('expiresAt')?.setFilterValue('expired')}
-                >
-                  {t(
-                    'modules.(app).memberships._components.memberships-table.header.show.groups.expiration-status.values.expired'
-                  )}
-                </DropdownMenuCheckboxItem>
+                {Object.values(MembershipStatusType)
+                  .map((status) => ({
+                    label: t(
+                      `modules.(app).memberships._components.memberships-table.header.show.groups.status.values.${status}`
+                    ),
+                    status
+                  }))
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map(({ status, label }) => (
+                    <DropdownMenuCheckboxItem
+                      checked={
+                        table.getColumn('status')?.getFilterValue() === status
+                      }
+                      key={status}
+                      onCheckedChange={() =>
+                        table.getColumn('status')?.setFilterValue(status)
+                      }
+                    >
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
               </DropdownMenuGroup>
             </DropdownMenuContent>
-          </DropdownMenu> */}
+          </DropdownMenu>
         </div>
 
         <div className='flex w-full items-center justify-end gap-1.5 sm:w-auto lg:gap-3'>
@@ -580,46 +576,25 @@ export function MembershipsTable({ className }: MembershipsTableProps) {
                           column.toggleVisibility(!!value)
                         }
                       >
-                        {/* {t(
+                        {t(
                           `modules.(app).memberships._components.memberships-table.columns.${column.id}`
-                        )} */}
-                        {column.id}
+                        )}
                       </DropdownMenuCheckboxItem>
                     )
                 )}
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                className='max-sm:flex-1 sm:max-lg:size-9'
-                variant='outline'
-              >
-                <Zap />
-                <span className='sm:hidden lg:block'>
-                  {t(
-                    'modules.(app).memberships._components.memberships-table.header.actions.title'
-                  )}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align='end'>
-              {/* <DropdownMenuItem asChild>
-                <Link href='/payments/create' passHref>
-                  <Plus />
-                  {t('modules.(app).memberships._components.memberships-table.header.actions.values.create')}
-                </Link>
-              </DropdownMenuItem> */}
-              <DropdownMenuItem onClick={handleOnClickDownload}>
-                <Download />
-                {t(
-                  'modules.(app).memberships._components.memberships-table.header.actions.values.download'
-                )}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            className='max-sm:flex-1 sm:max-lg:size-9'
+            onClick={handleOnClickDownload}
+            variant='outline'
+          >
+            <Download />
+            {t(
+              'modules.(app).memberships._components.memberships-table.header.actions.values.download'
+            )}
+          </Button>
         </div>
       </div>
 
@@ -654,13 +629,13 @@ export function MembershipsTable({ className }: MembershipsTableProps) {
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
-                        className={cn({
-                          'text-center': [
-                            'installmentsOption.installments'
-                          ].includes(cell.column.id),
-                          'text-right': [
-                            'amountToPay',
-                            'depositAmountInRON'
+                        className={cn('text-center', {
+                          'text-left': [
+                            'id',
+                            'customerName',
+                            'customerEmail',
+                            'productName',
+                            'parentOrderId'
                           ].includes(cell.column.id)
                         })}
                         key={cell.id}
@@ -776,6 +751,60 @@ export function MembershipsTable({ className }: MembershipsTableProps) {
           <ChevronRight />
         </Button>
       </div>
+
+      {/* Dialogs */}
+      {selectedMembership && (
+        <>
+          <UpdateStatusDialog
+            currentStatus={selectedMembership.status}
+            customerName={selectedMembership.customerName ?? undefined}
+            isOpen={updateStatusDialogOpen}
+            membershipId={selectedMembership.id}
+            onCloseDialog={() => {
+              setUpdateStatusDialogOpen(false)
+              setSelectedMembership(null)
+            }}
+          />
+
+          <UpdateDatesDialog
+            currentDelayedStartDate={
+              selectedMembership.delayedStartDate
+                ? new Date(selectedMembership.delayedStartDate)
+                : null
+            }
+            currentEndDate={new Date(selectedMembership.endDate)}
+            currentStartDate={new Date(selectedMembership.startDate)}
+            customerName={selectedMembership.customerName ?? undefined}
+            isOpen={updateDatesDialogOpen}
+            membershipId={selectedMembership.id}
+            onCloseDialog={() => {
+              setUpdateDatesDialogOpen(false)
+              setSelectedMembership(null)
+            }}
+          />
+
+          <TransferMembershipDialog
+            customerEmail={selectedMembership.customerEmail}
+            customerName={selectedMembership.customerName ?? undefined}
+            isOpen={transferDialogOpen}
+            membershipId={selectedMembership.id}
+            onCloseDialog={() => {
+              setTransferDialogOpen(false)
+              setSelectedMembership(null)
+            }}
+          />
+
+          <ManageLinkedSubscriptionsDialog
+            customerName={selectedMembership.customerName ?? undefined}
+            isOpen={manageLinkedSubscriptionsDialogOpen}
+            membershipId={selectedMembership.id}
+            onCloseDialog={() => {
+              setManageLinkedSubscriptionsDialogOpen(false)
+              setSelectedMembership(null)
+            }}
+          />
+        </>
+      )}
     </FieldGroup>
   )
 }

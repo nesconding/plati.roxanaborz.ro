@@ -591,8 +591,8 @@ const dictionary = {
           //         placeholder: 'Introduceți numele produsului'
           //       },
           //       'membership-duration-months': {
-          //         title: 'Durata abonamentului (în luni)',
-          //         placeholder: 'Introduceți durata abonamentului',
+          //         title: 'Durata subscripției (în luni)',
+          //         placeholder: 'Introduceți durata subscripției',
           //         addon: 'luni'
           //       },
           //       price: {
@@ -662,8 +662,8 @@ const dictionary = {
           //         placeholder: 'Introduceți numele produsului'
           //       },
           //       'membership-duration-months': {
-          //         title: 'Durata abonamentului (în luni)',
-          //         placeholder: 'Introduceți durata abonamentului',
+          //         title: 'Durata subscripției (în luni)',
+          //         placeholder: 'Introduceți durata subscripției',
           //         addon: 'luni'
           //       },
           //       price: {
@@ -1491,41 +1491,83 @@ const dictionary = {
       },
       memberships: {
         _components: {
+          'manage-linked-subscriptions-dialog': {
+            buttons: {
+              cancel: 'Anulează',
+              link: 'Leagă subscripție',
+              unlink: 'Dezleagă'
+            },
+            description: {
+              default: 'Gestionează subscripțile legate de acest membership.',
+              'with-customer':
+                'Gestionează subscripțile pentru membership-ul lui {customerName}.'
+            },
+            fields: {
+              'subscription-search': {
+                empty: 'Niciun subscripție disponibil',
+                label: 'Caută subscripție',
+                placeholder: 'Caută după ID...'
+              }
+            },
+            sections: {
+              'link-new': {
+                title: 'Leagă subscripție nou'
+              },
+              linked: {
+                empty: 'Niciun subscripție legat de acest membership',
+                'extension-subscriptions': 'Subscripții prelungiri',
+                'product-subscriptions': 'Subscripții produse',
+                title: 'Subscripții legate actuale'
+              }
+            },
+            'subscription-item': {
+              id: 'ID: {id}',
+              status: 'Status: {status}'
+            },
+            title: 'Gestionează subscripții legate',
+            toast: {
+              link: {
+                error: {
+                  description: 'A apărut o eroare neașteptată',
+                  title: 'Nu s-a putut lega subscripția'
+                },
+                success: {
+                  description: 'Subscripția a fost legat cu succes',
+                  title: 'Subscripție legat'
+                }
+              },
+              unlink: {
+                error: {
+                  description: 'A apărut o eroare neașteptată',
+                  title: 'Nu s-a putut dezlega subscripția'
+                },
+                success: {
+                  description: 'Subscripția a fost dezlegat cu succes',
+                  title: 'Subscripție dezlegat'
+                }
+              }
+            }
+          },
           'memberships-table': {
             columns: {
               createdAt: 'Creat la',
+              createdAtValue: 'Creat la (valoare internă)',
+              customerEmail: 'Email client',
+              customerName: 'Nume client',
               delayedStartDate: 'Data de început întârziată',
+              delayedStartDateValue:
+                'Data de început întârziată (valoare internă)',
               endDate: 'Data de încheiere',
+              endDateValue: 'Data de încheiere (valoare internă)',
               id: 'Id',
-              parentOrderId: 'Id comanda',
+              parentOrderId: 'Id comandă',
+              productName: 'Nume produs',
               startDate: 'Data de început',
+              startDateValue: 'Data de început (valoare internă)',
               status: 'Status',
-              updatedAt: 'Actualizat la'
-              // product: {
-              //   name: 'Nume produs'
-              // },
-              // installmentsOption: {
-              //   installments: 'Rate'
-              // },
-              // depositAmountInRON: 'Avans de plată',
-              // firstPaymentDateAfterDeposit: 'Data primei plăți',
-              // firstPaymentDateValue: 'Data primei plăți (valoare internǎ)',
-              // amountToPay: 'Suma de plată',
-              // createdBy: {
-              //   name: 'Nume creator',
-              //   email: 'Email creator'
-              // },
-              // expiresAt: 'Expirǎ la',
-              // expiresAtValue: 'Expirǎ la (valoare internǎ)',
-              // createdAt: 'Creat la',
-              // createdAtValue: 'Creat la (valoare internǎ)',
-              // customerEmail: 'Email client',
-              // customerFirstName: 'Prenume client',
-              // customerLastName: 'Nume client',
-              // customerPhoneNumber: 'Număr de telefon client',
-              // id: 'Id',
-              // parentOrder: { id: 'Id comanda' },
-              // status: 'Status'
+              statusValue: 'Status (valoare internă)',
+              updatedAt: 'Actualizat la',
+              updatedAtValue: 'Actualizat la (valoare internă)'
             },
             header: {
               actions: {
@@ -1534,20 +1576,26 @@ const dictionary = {
                   download: 'Descarcă'
                 }
               },
-              // show: {
-              //   title: 'Afișează',
-              //   groups: {
-              //     'created-by': {
-              //       title: 'Create de utilizator',
-              //       values: {
-              //         all: 'Toate',
-              //         'by-me': 'Create de mine'
-              //       }
-              //     }
-              //   }
-              // },
               columns: {
                 title: 'Coloane'
+              },
+              input: {
+                placeholder: 'Caută membership'
+              },
+              show: {
+                groups: {
+                  status: {
+                    title: 'Filtrează după status',
+                    values: {
+                      active: 'Activ',
+                      all: 'Toate',
+                      cancelled: 'Anulat',
+                      delayed: 'Întârziat',
+                      paused: 'Pauză'
+                    }
+                  }
+                },
+                title: 'Afișează'
               }
             },
             'no-results': 'Nu s-au găsit membership-uri.',
@@ -1556,6 +1604,142 @@ const dictionary = {
               'page-count': 'Pagina {page} din {pageCount}',
               'previous-page': 'Pagina anterioară',
               'rows-per-page': 'Rânduri pe pagină'
+            },
+            row: {
+              actions: {
+                label: 'Acțiuni',
+                'link-subscription': 'Conectează subscripție',
+                'transfer-membership': 'Transferă membership',
+                'update-dates': 'Actualizează date',
+                'update-status': 'Actualizează status'
+              },
+              status: {
+                active: 'Activ',
+                cancelled: 'Anulat',
+                delayed: 'Întârziat',
+                paused: 'Pauză'
+              }
+            }
+          },
+          'transfer-membership-dialog': {
+            alert: {
+              description:
+                'Adresa de email țintă trebuie să aibă deja un cont de client existent în sistem. Această acțiune va transfera membership-ul și va actualiza toate subscripțile asociate la noul client.',
+              title: 'Important: Clientul trebuie să existe'
+            },
+            buttons: {
+              cancel: 'Anulează',
+              submit: {
+                default: 'Transferă membership',
+                loading: 'Se transferă...'
+              }
+            },
+            'current-customer': 'Client curent:',
+            description: {
+              default: 'Transferă acest membership la alt client.',
+              'with-customer':
+                'Transferă membership-ul lui {customerName} la alt client.'
+            },
+            fields: {
+              'new-customer-email': {
+                label: 'Email client nou',
+                placeholder: 'client.nou@example.com'
+              }
+            },
+            title: 'Transferă Membership',
+            toast: {
+              error: {
+                description: 'A apărut o eroare neașteptată',
+                title: 'Nu s-a putut transfera membership-ul'
+              },
+              success: {
+                description:
+                  'Membership-ul și toate subscripțile asociate au fost transferate cu succes',
+                title: 'Membership transferat'
+              }
+            }
+          },
+          'update-dates-dialog': {
+            buttons: {
+              cancel: 'Anulează',
+              submit: {
+                default: 'Actualizează date',
+                loading: 'Se actualizează...'
+              }
+            },
+            description: {
+              default: 'Actualizează datele membership-ului.',
+              'with-customer':
+                'Actualizează datele pentru membership-ul lui {customerName}.'
+            },
+            fields: {
+              'delayed-start-date': {
+                label: 'Data de început întârziată (Opțional)',
+                placeholder: 'Selectează data de început întârziată'
+              },
+              'end-date': {
+                label: 'Data de încheiere',
+                placeholder: 'Selectează data de încheiere'
+              },
+              'start-date': {
+                label: 'Data de început',
+                placeholder: 'Selectează data de început'
+              }
+            },
+            title: 'Actualizează Datele Membership-ului',
+            toast: {
+              error: {
+                description: 'A apărut o eroare neașteptată',
+                title: 'Nu s-au putut actualiza datele membership-ului'
+              },
+              success: {
+                description:
+                  'Datele membership-ului au fost actualizate cu succes',
+                title: 'Date membership actualizate'
+              }
+            }
+          },
+          'update-status-dialog': {
+            alert: {
+              description:
+                'Statusul "Pauză" poate fi setat doar automat când un subscripție conectat eșuează la plată de 3 ori. Modificările manuale ale statusului membership-ului nu afectează subscripția.',
+              title: 'Notă: Status-ul Pauză este gestionat de sistem'
+            },
+            buttons: {
+              cancel: 'Anulează',
+              submit: {
+                default: 'Actualizează status',
+                loading: 'Se actualizează...'
+              }
+            },
+            'current-status': 'Status curent:',
+            description: {
+              default: 'Schimbă statusul membership-ului.',
+              'with-customer':
+                'Schimbă statusul pentru membership-ul lui {customerName}.'
+            },
+            fields: {
+              status: {
+                label: 'Status membership',
+                options: {
+                  active: 'Activ',
+                  cancelled: 'Anulat',
+                  delayed: 'Întârziat'
+                },
+                placeholder: 'Selectează status'
+              }
+            },
+            title: 'Actualizează Status Membership',
+            toast: {
+              error: {
+                description: 'A apărut o eroare neașteptată',
+                title: 'Nu s-a putut actualiza statusul membership-ului'
+              },
+              success: {
+                description:
+                  'Statusul membership-ului a fost schimbat în {status}',
+                title: 'Status membership actualizat'
+              }
             }
           }
         }
@@ -2626,7 +2810,148 @@ const dictionary = {
       },
       subscriptions: {
         _components: {
+          'cancel-subscription-dialog': {
+            alert: {
+              description:
+                'Această acțiune va anula imediat subscripția și orice membership asociat. Clientul va pierde accesul la tot conținutul imediat.',
+              title: 'Atenție: Anulare imediată'
+            },
+            buttons: {
+              cancel: 'Anulează',
+              submit: {
+                default: 'Anulează subscripție',
+                loading: 'Se anulează...'
+              }
+            },
+            description: {
+              default: 'Alege cum să anulezi subscripția.',
+              'with-customer':
+                'Alege cum să anulezi subscripția pentru {customerName}.'
+            },
+            fields: {
+              'cancel-type': {
+                legend: 'Tipul anulării',
+                options: {
+                  graceful: {
+                    description:
+                      'Subscripția va rămâne activǎ până la {date}. Clientul păstrează accesul până atunci.',
+                    'description-fallback':
+                      'Subscripția va rămâne activǎ până la sfârșitul perioadei curente de facturare. Clientul păstrează accesul până atunci.',
+                    label: 'Anulare treptată'
+                  },
+                  immediate: {
+                    description:
+                      'Subscripția și membership-ul vor fi anulate imediat. Clientul pierde accesul imediat.',
+                    label: 'Anulare imediată'
+                  }
+                }
+              }
+            },
+            title: 'Anulează subscripție',
+            toast: {
+              error: {
+                description: 'A apărut o eroare neașteptată',
+                title: 'Nu s-a putut anula subscripția'
+              },
+              success: {
+                title: 'Subscripție anulat'
+              }
+            }
+          },
+          'reschedule-payment-dialog': {
+            alert: {
+              description:
+                'Când reprogramezi această plată, toate plățile viitoare vor fi ajustate automat pentru a menține un interval de 30 de zile de la noua dată.',
+              title: 'Cascadă automată'
+            },
+            buttons: {
+              cancel: 'Anulează',
+              submit: {
+                default: 'Reprogramează plată',
+                loading: 'Se reprogramează...'
+              }
+            },
+            description: {
+              default: 'Alege o nouă dată de plată pentru acest subscripție.',
+              'with-customer':
+                'Alege o nouă dată de plată pentru subscripția lui {customerName}.'
+            },
+            fields: {
+              'new-payment-date': {
+                description: {
+                  'current-date': 'Data curentă de plată: {date}',
+                  'select-future':
+                    'Selectează o dată viitoare pentru următoarea plată'
+                },
+                label: 'Noua dată de plată',
+                placeholder: 'Selectează data'
+              }
+            },
+            title: 'Reprogramează plată',
+            toast: {
+              error: {
+                description: 'A apărut o eroare neașteptată',
+                title: 'Nu s-a putut reprograma plata'
+              },
+              success: {
+                description:
+                  'Data următoarei plăți a fost actualizată. Plățile viitoare vor fi ajustate automat.',
+                title: 'Plată reprogramată'
+              }
+            }
+          },
+          'set-on-hold-dialog': {
+            alert: {
+              description:
+                'Când pui acest subscripție în așteptare, orice membership asociat va fi setat automat la statusul "Pauză". Clientul va pierde accesul până când subscripția este reactivat.',
+              title: 'Atenție: Membership-ul va fi pus în pauză'
+            },
+            buttons: {
+              cancel: 'Anulează',
+              submit: {
+                default: 'Pune în așteptare',
+                loading: 'Se pune în așteptare...'
+              }
+            },
+            description: {
+              default: 'Aceasta va pune subscripția în pauză.',
+              'with-customer':
+                'Aceasta va pune în pauză subscripția pentru {customerName}.'
+            },
+            title: 'Pune subscripție în așteptare',
+            toast: {
+              error: {
+                description: 'A apărut o eroare neașteptată',
+                title: 'Nu s-a putut pune subscripția în așteptare'
+              },
+              success: {
+                description:
+                  'Subscripția a fost pus în pauză și membership-ul va fi pus în pauză automat',
+                title: 'Subscripție pus în așteptare'
+              }
+            }
+          },
           'subscriptions-table': {
+            actions: {
+              'cancel-subscription': 'Anulează subscripție',
+              'reschedule-payment': 'Reprogramează plată',
+              'set-on-hold': 'Pune în așteptare',
+              title: 'Acțiuni'
+            },
+            alerts: {
+              'payment-failures': {
+                badge: '{count} eșuate',
+                'last-attempt': 'Ultima încercare: {date}',
+                'last-reason': 'Ultimul motiv: {reason}',
+                title: 'Eșecuri de plată'
+              },
+              'scheduled-cancellation': {
+                badge: 'Programată',
+                message: 'Va fi anulată la: {date}',
+                title: 'Anulare programată'
+              },
+              title: 'Alerte'
+            },
             columns: {
               createdAt: 'Creat la',
               customerEmail: 'Email client',
@@ -2671,7 +2996,7 @@ const dictionary = {
                 title: 'Coloane'
               },
               input: {
-                placeholder: 'Caută abonament'
+                placeholder: 'Caută subscripție'
               },
               show: {
                 groups: {
@@ -2713,7 +3038,7 @@ const dictionary = {
                 title: 'Afișează'
               }
             },
-            'no-results': 'Nu s-au găsit abonamente.',
+            'no-results': 'Nu s-au găsit subscripții.',
             pagination: {
               'next-page': 'Pagina următoare',
               'page-count': 'Pagina {page} din {pageCount}',

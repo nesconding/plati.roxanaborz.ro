@@ -11,7 +11,12 @@
     },
     {
       "path": "/api/cron/sync-calendly-events",
-      "schedule": "* * * * *"
+      "schedule": "5 * * * *"
     }
-  ]
+  ],
+  "functions": {
+    "src/app/api/cron/sync-calendly-events/route.ts": {
+      "maxDuration": 60
+    }
+  }
 }

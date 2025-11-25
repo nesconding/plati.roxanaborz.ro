@@ -20,9 +20,14 @@ export const extension_subscriptions = business.table(
     extensionId: text('extension_id')
       .notNull()
       .references(() => products_extensions.id, { onDelete: 'no action' }),
-    membershipId: text('membership_id')
-      .notNull()
-      .references(() => memberships.id, { onDelete: 'no action' }),
+    lastPaymentAttemptDate: timestamp('last_payment_attempt_date', {
+      mode: 'string',
+      withTimezone: true
+    }),
+    lastPaymentFailureReason: text('last_payment_failure_reason'),
+    membershipId: text('membership_id').references(() => memberships.id, {
+      onDelete: 'no action'
+    }),
     nextPaymentDate: timestamp('next_payment_date', {
       mode: 'string',
       withTimezone: true
@@ -30,12 +35,21 @@ export const extension_subscriptions = business.table(
     parentOrderId: text('parent_order_id')
       .notNull()
       .references(() => extension_orders.id, { onDelete: 'no action' }),
+
+    // Payment retry tracking
+    paymentFailureCount: integer('payment_failure_count').default(0).notNull(),
     paymentMethod: payment_method_type('payment_method').notNull(),
     productName: text('product_name').notNull(),
     productPaymentType: payment_product_type('payment_product_type')
       .default(PaymentProductType.Product)
       .notNull(),
     remainingPayments: integer('remaining_payments').notNull(),
+
+    // Graceful cancellation tracking
+    scheduledCancellationDate: timestamp('scheduled_cancellation_date', {
+      mode: 'string',
+      withTimezone: true
+    }),
     startDate: timestamp('start_date', { mode: 'string', withTimezone: true }),
     status: subscription_status_type('status').notNull(),
 
