@@ -875,7 +875,8 @@ const dictionary = {
               },
               title: 'Șterge contract'
             },
-            description: 'Gestionează contractele disponibile pentru link-urile de plată.',
+            description:
+              'Gestionează contractele disponibile pentru link-urile de plată.',
             'edit-dialog': {
               buttons: {
                 cancel: 'Anulează',
@@ -1364,80 +1365,320 @@ const dictionary = {
               [CheckoutFormStep.BillingInfo]: {
                 description: 'Informațele utilizate pentru facturare.',
                 forms: {
-                  [CheckoutFormSection.Address]: {
+                  'billing-type': {
+                    legend: 'Tipul de facturare',
+                    options: {
+                      company: {
+                        description: 'Facturare pe persoană juridică',
+                        label: 'Persoană juridică'
+                      },
+                      person: {
+                        description: 'Facturare pe persoană fizică',
+                        label: 'Persoană fizică'
+                      }
+                    }
+                  },
+                  company: {
                     fields: {
-                      city: {
-                        placeholder: 'Introduceți orașul',
-                        title: 'Oraș'
+                      bank: {
+                        placeholder: 'Introduceți banca',
+                        title: 'Banca'
                       },
-                      country: {
-                        placeholder: 'Introduceți țara',
-                        title: 'Țară'
+                      bankAccount: {
+                        placeholder: 'Introduceți contul bancar (IBAN)',
+                        title: 'Cont bancar (IBAN)'
                       },
-                      line1: {
-                        placeholder: 'Introduceți numărul și strada',
-                        title: 'Număr și stradă'
+                      cui: {
+                        placeholder: 'Introduceți CUI-ul',
+                        title: 'CUI'
                       },
-                      line2: {
-                        placeholder: 'Introduceți blocul și scara',
-                        title: 'Bloc și scară'
+                      name: {
+                        placeholder: 'Introduceți denumirea companiei',
+                        title: 'Denumire companie'
                       },
-                      postal_code: {
-                        placeholder: 'Introduceți codul poștal',
-                        title: 'Cod poștal'
+                      registrationNumber: {
+                        placeholder: 'Introduceți numărul de înregistrare',
+                        title: 'Număr de înregistrare'
                       },
-                      state: {
-                        placeholder: 'Introduceți județul',
-                        title: 'Județ'
+                      representativeLegal: {
+                        placeholder: 'Introduceți reprezentantul legal',
+                        title: 'Reprezentant legal'
+                      },
+                      socialHeadquarters: {
+                        apartment: {
+                          placeholder: 'Ap.',
+                          title: 'Apartament'
+                        },
+                        building: {
+                          placeholder: 'Bl.',
+                          title: 'Bloc'
+                        },
+                        city: {
+                          placeholder: 'Introduceți orașul',
+                          title: 'Oraș'
+                        },
+                        country: {
+                          placeholder: 'România',
+                          title: 'Țară'
+                        },
+                        county: {
+                          placeholder: 'Introduceți județul',
+                          title: 'Județ'
+                        },
+                        entrance: {
+                          placeholder: 'Sc.',
+                          title: 'Scară'
+                        },
+                        floor: {
+                          placeholder: 'Et.',
+                          title: 'Etaj'
+                        },
+                        postalCode: {
+                          placeholder: 'Introduceți codul poștal',
+                          title: 'Cod poștal'
+                        },
+                        street: {
+                          placeholder: 'Introduceți strada',
+                          title: 'Stradă'
+                        },
+                        streetNumber: {
+                          placeholder: 'Nr.',
+                          title: 'Număr'
+                        }
                       }
                     },
-                    legend: 'Adresă de facturare'
+                    legend: 'Date companie',
+                    socialHeadquarters: {
+                      legend: 'Sediu social'
+                    }
                   },
-                  [CheckoutFormSection.PersonalDetails]: {
+                  person: {
+                    address: {
+                      legend: 'Adresă de domiciliu'
+                    },
                     fields: {
+                      address: {
+                        apartment: {
+                          placeholder: 'Ap.',
+                          title: 'Apartament'
+                        },
+                        building: {
+                          placeholder: 'Bl.',
+                          title: 'Bloc'
+                        },
+                        city: {
+                          placeholder: 'Introduceți orașul',
+                          title: 'Oraș'
+                        },
+                        country: {
+                          placeholder: 'România',
+                          title: 'Țară'
+                        },
+                        county: {
+                          placeholder: 'Introduceți județul',
+                          title: 'Județ'
+                        },
+                        entrance: {
+                          placeholder: 'Sc.',
+                          title: 'Scară'
+                        },
+                        floor: {
+                          placeholder: 'Et.',
+                          title: 'Etaj'
+                        },
+                        postalCode: {
+                          placeholder: 'Introduceți codul poștal',
+                          title: 'Cod poștal'
+                        },
+                        street: {
+                          placeholder: 'Introduceți strada',
+                          title: 'Stradă'
+                        },
+                        streetNumber: {
+                          placeholder: 'Nr.',
+                          title: 'Număr'
+                        }
+                      },
+                      cnp: {
+                        placeholder: 'Introduceți CNP-ul',
+                        title: 'CNP'
+                      },
                       email: {
                         placeholder: 'Introduceți email-ul',
                         title: 'Email'
                       },
                       name: {
-                        placeholder: 'Introduceți numele',
-                        title: 'Nume'
+                        placeholder: 'Introduceți prenumele',
+                        title: 'Prenume'
                       },
                       phoneNumber: {
                         placeholder: 'Introduceți numărul de telefon',
                         title: 'Număr de telefon'
+                      },
+                      surname: {
+                        placeholder: 'Introduceți numele de familie',
+                        title: 'Nume'
                       }
                     },
-                    legend: 'Informații Personale'
+                    legend: 'Date personale'
                   }
                 },
                 title: 'Date de facturare'
               },
+              [CheckoutFormStep.Confirmation]: {
+                description:
+                  'Verificați și confirmați detaliile înainte de a continua.',
+                forms: {
+                  'verify-details': {
+                    description:
+                      'Verifică toate datele introduse înainte de a continua.',
+                    legend: 'Verifică detaliile',
+                    sections: {
+                      billing: {
+                        company: {
+                          address: 'Sediu social',
+                          bank: 'Banca',
+                          bankAccount: 'Cont bancar',
+                          cui: 'CUI',
+                          name: 'Denumire',
+                          registrationNumber: 'Nr. înregistrare',
+                          representative: 'Reprezentant legal',
+                          title: 'Date companie'
+                        },
+                        person: {
+                          address: 'Adresă',
+                          cnp: 'CNP',
+                          email: 'Email',
+                          name: 'Nume complet',
+                          phone: 'Telefon',
+                          title: 'Date personale'
+                        }
+                      },
+                      payment: {
+                        amount: 'Sumă de plată',
+                        method: 'Metodă de plată',
+                        methodValues: {
+                          bank_transfer: 'Transfer bancar',
+                          card: 'Card',
+                          tbi: 'TBI'
+                        },
+                        product: 'Produs',
+                        title: 'Detalii plată'
+                      }
+                    }
+                  }
+                },
+                title: 'Confirmă detaliile'
+              },
+              [CheckoutFormStep.ContractSigning]: {
+                description:
+                  'Descărcați și acceptați contractul pentru a continua.',
+                forms: {
+                  consent: {
+                    description:
+                      'Bifați acordurile necesare pentru a continua.',
+                    fields: {
+                      contractTermsConsent: {
+                        description:
+                          'Am citit și sunt de acord cu termenii și condițiile contractului.',
+                        error: 'Trebuie să acceptați termenii contractului.',
+                        label: 'Sunt de acord cu termenii contractului'
+                      },
+                      dataProcessingConsent: {
+                        description:
+                          'Sunt de acord cu prelucrarea datelor mele personale conform GDPR.',
+                        error: 'Trebuie să consimțiți prelucrarea datelor.',
+                        label: 'Consimț prelucrarea datelor personale'
+                      }
+                    },
+                    legend: 'Acorduri necesare'
+                  },
+                  'contract-download': {
+                    buttons: {
+                      download: {
+                        default: 'Descarcă contract',
+                        loading: 'Se generează...'
+                      }
+                    },
+                    contract: {
+                      description: 'Contract personalizat cu datele dvs.',
+                      title: 'Contract de servicii'
+                    },
+                    description:
+                      'Descărcați contractul completat cu datele dvs. pentru a-l revizui.',
+                    legend: 'Contract'
+                  }
+                },
+                title: 'Semnare contract'
+              },
               [CheckoutFormStep.PaymentMethod]: {
                 description: 'Modalitatea de plată utilizată.',
                 forms: {
+                  'payment-overview': {
+                    legend: 'Rezumat plată',
+                    sections: {
+                      plan: {
+                        depositAmount: 'Avans',
+                        installmentsCount: 'Număr de rate',
+                        perInstallment: 'Per rată',
+                        perInstallmentAfterDeposit: 'Per rată (după avans)',
+                        title: 'Plan de plată',
+                        totalAmount: 'Sumă totală',
+                        type: 'Tip',
+                        typeValues: {
+                          [PaymentLinkType.Deposit]: 'Avans',
+                          [PaymentLinkType.Installments]: 'Rate',
+                          [PaymentLinkType.InstallmentsDeposit]: 'Avans + Rate',
+                          [PaymentLinkType.Integral]: 'Plată integrală'
+                        }
+                      },
+                      product: {
+                        duration: 'Durată',
+                        durationValue: '{months} luni',
+                        extension: 'Tip',
+                        extensionLabel: 'Prelungire abonament',
+                        name: 'Denumire',
+                        title: 'Produs'
+                      },
+                      summary: {
+                        afterDate: 'după {date}',
+                        installmentsRemaining: '{count} rate rămase × {amount}',
+                        payLater: 'De plătit ulterior',
+                        payNow: 'De plătit acum',
+                        title: 'Sumar plată'
+                      }
+                    }
+                  },
                   'payment-submit': {
                     legend: 'Plateste'
                   }
                 },
                 title: 'Modalitate de plată'
-              },
-              [CheckoutFormStep.Confirmation]: {
-                description: 'Confirmați detaliile până la finalul plătii.',
-                forms: {
-                  'verify-details': {
-                    description: 'Verifică detaliile până la finalul plătii.',
-                    legend: 'Verifică detaliile'
-                  }
-                },
-                title: 'Confirmați detaliile'
               }
             }
           }
         },
         callback: {
-          close: 'Puteți închide aceasta paginǎ.',
-          title: 'Plata in valoare de {paidAmount} a fost efectuata cu succes!'
+          close: 'Puteți închide această pagină în siguranță.',
+          error: {
+            description:
+              'Plata nu a putut fi procesată. Vă rugăm să încercați din nou.',
+            title: 'Plata a eșuat'
+          },
+          pending: {
+            description: 'Vă rugăm așteptați confirmarea plății.',
+            title: 'Se procesează plata...'
+          },
+          success: {
+            description: 'Plata dumneavoastră a fost procesată cu succes.',
+            title: 'Plată efectuată cu succes!'
+          },
+          summary: {
+            amount: 'Sumă plătită',
+            method: 'Metodă de plată',
+            product: 'Produs',
+            title: 'Rezumat comandă'
+          }
         }
       },
       layout: {

@@ -2,14 +2,22 @@
 
 import { useElements, useStripe } from '@stripe/react-stripe-js'
 import { useStore } from '@tanstack/react-form'
-import { BookUser, CreditCard, View } from 'lucide-react'
+import { BookUser, CreditCard, FileSignature, View } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+
 import { useAppForm } from '~/client/components/form/config'
 import {
+  CheckoutProvider,
+  type PaymentLink,
+  useCheckout
+} from '~/client/modules/checkout/checkout-form/context'
+import {
+  BillingType,
   CheckoutFormDefaultValues,
   CheckoutFormSchema,
   CheckoutFormSection,
-  type CheckoutFormValues
+  type CheckoutFormValues,
+  getBillingData
 } from '~/client/modules/checkout/checkout-form/schema'
 import {
   Stepper,
@@ -17,30 +25,42 @@ import {
 } from '~/client/modules/checkout/checkout-form/stepper'
 import { CheckoutFormStep } from '~/client/modules/checkout/checkout-form/stepper/config'
 import { StepperContent } from '~/client/modules/checkout/checkout-form/stepper/stepper-content'
-import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
+import { useTRPC } from '~/client/trpc/react'
 
-type PaymentLink = NonNullable<
-  TRPCRouterOutput['public']['paymentLinks']['findOneById']
->
 interface CheckoutFormProps {
   paymentLink: PaymentLink
 }
 
 export function CheckoutForm(props: CheckoutFormProps) {
   return (
-    <Stepper.Provider variant='horizontal'>
-      <CheckoutFormInner {...props} />
-    </Stepper.Provider>
+    <CheckoutProvider paymentLink={props.paymentLink}>
+      <Stepper.Provider variant='horizontal'>
+        <CheckoutFormInner {...props} />
+      </Stepper.Provider>
+    </CheckoutProvider>
   )
 }
 
 function getDefaultValues(paymentLink: PaymentLink): CheckoutFormValues {
+  const billingDataDefaults = CheckoutFormDefaultValues[CheckoutFormSection.BillingData]
+
+  // Since billingData is a discriminated union, we need to ensure it has the person type
+  if (billingDataDefaults.type !== BillingType.PERSON) {
+    throw new Error('Default billing data must be of type PERSON')
+  }
+
+  const fullname = paymentLink?.customerName ?? billingDataDefaults.name
+
+  const surname = fullname.split(' ')[0] ?? ''
+  const name = fullname.split(' ').slice(1).join(' ') ?? ''
+
   return {
     ...CheckoutFormDefaultValues,
-    [CheckoutFormSection.PersonalDetails]: {
-      ...CheckoutFormDefaultValues[CheckoutFormSection.PersonalDetails],
-      email: paymentLink?.customerEmail ?? '',
-      name: paymentLink?.customerName ?? ''
+    [CheckoutFormSection.BillingData]: {
+      ...billingDataDefaults,
+      email: paymentLink?.customerEmail ?? billingDataDefaults.email,
+      name,
+      surname
     }
   }
 }
@@ -48,29 +68,51 @@ function getDefaultValues(paymentLink: PaymentLink): CheckoutFormValues {
 const STEPS_ICONS = {
   [CheckoutFormStep.BillingInfo]: <BookUser />,
   [CheckoutFormStep.Confirmation]: <View />,
+  [CheckoutFormStep.ContractSigning]: <FileSignature />,
   [CheckoutFormStep.PaymentMethod]: <CreditCard />
 } as const
 
 function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
   const t = useTranslations('modules.(app).checkout._components.checkout-form')
   const stepper = useStepper()
+  const { isExtension, hasContract } = useCheckout()
   const trpc = useTRPC()
 
   const elements = useElements()
   const stripe = useStripe()
 
+  // Determine if we should show the contract signing step
+  const shouldShowContractStep = !isExtension && hasContract
+
+  // Filter steps based on whether contract signing should be shown
+  const visibleSteps = shouldShowContractStep
+    ? stepper.all
+    : stepper.all.filter((step) => step.id !== CheckoutFormStep.ContractSigning)
+
   const form = useAppForm({
     defaultValues: getDefaultValues(paymentLink),
     onSubmit: async ({ value }) => {
+      console.log('onSubmit')
+      console.log(!elements || !stripe || !paymentLink)
       if (!elements || !stripe || !paymentLink) return
+
+      // Get billing data for metadata
+      const billingData = getBillingData(value)
 
       await elements.submit()
       const res = await stripe.confirmPayment({
         confirmParams: {
-          // payment_method_data: {
-          //   billing_details: value
-          // },
-          return_url: `${window.location.origin}/checkout/${paymentLink.id}/callback`
+          payment_method_data: {
+            billing_details: {
+              email:
+                billingData.type === 'PERSON' ? billingData.email : undefined,
+              name:
+                billingData.type === 'PERSON'
+                  ? `${billingData.surname} ${billingData.name}`
+                  : billingData.name
+            }
+          },
+          return_url: `${window.location.origin}/checkout/${paymentLink.id}/callback?billingData=${encodeURIComponent(JSON.stringify(billingData))}`
         },
         elements
       })
@@ -81,18 +123,25 @@ function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
     }
   })
 
-  const [isSubmitting] = useStore(
+  const [isSubmitting, errors] = useStore(
     form.store,
     (state) =>
-      [state.isSubmitting, state.isPristine, state.isDefaultValue] as const
+      [
+        state.isSubmitting,
+        state.errors,
+        state.isPristine,
+        state.isDefaultValue
+      ] as const
   )
+
+  console.log(errors)
 
   const isLoading = isSubmitting
 
   return (
-    <div className='flex flex-col gap-4 w-full px-4'>
+    <div className='flex flex-col gap-4 w-full px-4 pb-4'>
       <Stepper.Navigation>
-        {stepper.all.map((step) => (
+        {visibleSteps.map((step) => (
           <Stepper.Step
             icon={STEPS_ICONS[step.id]}
             key={step.id}

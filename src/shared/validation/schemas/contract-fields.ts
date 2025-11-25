@@ -32,9 +32,9 @@ export const contractAddressSchema = z.object({
   county: z.string(),
   entrance: z.string(),
   floor: z.string(),
-  number: z.string(),
   postalCode: z.string(),
-  street: z.string()
+  street: z.string(),
+  streetNumber: z.string()
 })
 
 export enum ContractType {

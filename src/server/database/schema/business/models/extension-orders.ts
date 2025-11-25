@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { text } from 'drizzle-orm/pg-core'
+import { jsonb, text } from 'drizzle-orm/pg-core'
 
 import { order_status_type } from '~/server/database/schema/business/enums/order-status-type'
 import { order_type } from '~/server/database/schema/business/enums/order-type'
@@ -14,6 +14,7 @@ import { PaymentProductType } from '~/shared/enums/payment-product-type'
 export const extension_orders = business.table('extension_orders', {
   ...id,
 
+  billingData: jsonb('billing_data'),
   customerEmail: text('customer_email').notNull(),
   customerName: text('customer_name'),
   extensionPaymentLinkId: text('extension_payment_link_id')

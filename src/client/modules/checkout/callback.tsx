@@ -1,7 +1,13 @@
 'use client'
-import { useQuery } from '@tanstack/react-query'
+
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { CheckCircle2, XCircle } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useRef } from 'react'
+
 import { Logo } from '~/client/components/logo'
+import { Spinner } from '~/client/components/ui/spinner'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
 import { PricingService } from '~/lib/pricing'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
@@ -45,27 +51,145 @@ export function CheckoutCallbackPageModule({
   paymentLinkId
 }: CheckoutCallbackPageModuleProps) {
   const t = useTranslations('modules.(app).checkout.callback')
+  const searchParams = useSearchParams()
   const trpc = useTRPC()
+  const hasUpdatedBillingData = useRef(false)
+
+  // Get payment status from Stripe redirect params
+  const paymentIntentStatus = searchParams.get('redirect_status')
+  const isSuccess = paymentIntentStatus === 'succeeded'
+  const isFailed =
+    paymentIntentStatus === 'failed' || paymentIntentStatus === 'canceled'
+  const isPending = !isSuccess && !isFailed
+
   const findOnePaymentLinkByIdQuery = useQuery(
     trpc.public.paymentLinks.findOneById.queryOptions({
       id: paymentLinkId
     })
   )
 
-  const paymentLink = findOnePaymentLinkByIdQuery.data
+  const updateBillingData = useMutation(
+    trpc.public.contracts.updateOrderBillingData.mutationOptions()
+  )
 
+  const paymentLink = findOnePaymentLinkByIdQuery.data
   const paidAmount = paymentLink ? getPaidAmount(paymentLink) : 0
 
-  return (
-    <div className='grid h-svh w-full grid-rows-[1fr_auto_1fr] grid-cols-1 items-center justify-center gap-7'>
-      <Logo className='w-48 justify-self-center place-self-end' />
+  // Update billing data when payment is successful
+  useEffect(() => {
+    if (!isSuccess || hasUpdatedBillingData.current) return
 
-      <div className='flex flex-col items-center justify-center gap-2'>
-        <p className='text-center text-xl font-semibold'>
-          {t('title', { paidAmount })}
+    const billingDataParam = searchParams.get('billingData')
+    if (!billingDataParam) return
+
+    try {
+      const billingData = JSON.parse(decodeURIComponent(billingDataParam))
+      hasUpdatedBillingData.current = true
+
+      updateBillingData.mutate({
+        billingData,
+        paymentLinkId
+      })
+    } catch (error) {
+      console.error('Failed to parse billing data:', error)
+    }
+  }, [isSuccess, searchParams, paymentLinkId, updateBillingData])
+
+  return (
+    <div className='grid h-svh w-full grid-cols-1 grid-rows-[1fr_auto_1fr] items-center justify-center gap-7 p-4'>
+      <Logo className='w-48 place-self-end justify-self-center' />
+
+      <div className='flex flex-col items-center justify-center gap-6'>
+        {/* Status Icon */}
+        <div className='flex items-center justify-center'>
+          {isSuccess && (
+            <div className='bg-primary/10 rounded-full p-4'>
+              <CheckCircle2 className='text-primary size-16' />
+            </div>
+          )}
+          {isFailed && (
+            <div className='bg-destructive/10 rounded-full p-4'>
+              <XCircle className='text-destructive size-16' />
+            </div>
+          )}
+          {isPending && (
+            <div className='bg-muted rounded-full p-4'>
+              <Spinner className='size-16' />
+            </div>
+          )}
+        </div>
+
+        {/* Status Message */}
+        <div className='flex flex-col items-center gap-2 text-center'>
+          {isSuccess && (
+            <>
+              <h1 className='text-2xl font-bold'>{t('success.title')}</h1>
+              <p className='text-muted-foreground'>
+                {t('success.description')}
+              </p>
+            </>
+          )}
+          {isFailed && (
+            <>
+              <h1 className='text-destructive text-2xl font-bold'>
+                {t('error.title')}
+              </h1>
+              <p className='text-muted-foreground'>{t('error.description')}</p>
+            </>
+          )}
+          {isPending && (
+            <>
+              <h1 className='text-2xl font-bold'>{t('pending.title')}</h1>
+              <p className='text-muted-foreground'>
+                {t('pending.description')}
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Order Summary (only for success) */}
+        {isSuccess && paymentLink && (
+          <div className='bg-muted/50 w-full max-w-md rounded-lg p-6'>
+            <h2 className='mb-4 text-center text-sm font-semibold'>
+              {t('summary.title')}
+            </h2>
+            <div className='divide-y'>
+              <div className='flex items-center justify-between py-2'>
+                <span className='text-muted-foreground text-sm'>
+                  {t('summary.product')}
+                </span>
+                <span className='text-sm font-medium'>
+                  {paymentLink.productName}
+                </span>
+              </div>
+              <div className='flex items-center justify-between py-2'>
+                <span className='text-muted-foreground text-sm'>
+                  {t('summary.amount')}
+                </span>
+                <span className='text-primary text-sm font-bold'>
+                  {paidAmount}
+                </span>
+              </div>
+              <div className='flex items-center justify-between py-2'>
+                <span className='text-muted-foreground text-sm'>
+                  {t('summary.method')}
+                </span>
+                <span className='text-sm font-medium'>
+                  {paymentLink.paymentMethodType}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Close Message */}
+        <p className='text-muted-foreground text-center text-sm'>
+          {t('close')}
         </p>
-        <p className='text-center'>{t('close')}</p>
       </div>
+
+      {/* Footer spacer */}
+      <div />
     </div>
   )
 }

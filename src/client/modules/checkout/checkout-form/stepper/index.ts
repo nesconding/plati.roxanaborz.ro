@@ -6,5 +6,6 @@ import { CheckoutFormStep } from '~/client/modules/checkout/checkout-form/steppe
 export const { Stepper, useStepper } = defineStepper(
   { id: CheckoutFormStep.BillingInfo },
   { id: CheckoutFormStep.Confirmation },
+  { id: CheckoutFormStep.ContractSigning },
   { id: CheckoutFormStep.PaymentMethod }
 )
