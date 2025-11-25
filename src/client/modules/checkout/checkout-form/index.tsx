@@ -3,7 +3,6 @@
 import { useElements, useStripe } from '@stripe/react-stripe-js'
 import { useStore } from '@tanstack/react-form'
 import { BookUser, CreditCard, FileSignature, View } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 
 import { useAppForm } from '~/client/components/form/config'
 import {
@@ -25,7 +24,6 @@ import {
 } from '~/client/modules/checkout/checkout-form/stepper'
 import { CheckoutFormStep } from '~/client/modules/checkout/checkout-form/stepper/config'
 import { StepperContent } from '~/client/modules/checkout/checkout-form/stepper/stepper-content'
-import { useTRPC } from '~/client/trpc/react'
 
 interface CheckoutFormProps {
   paymentLink: PaymentLink
@@ -42,7 +40,8 @@ export function CheckoutForm(props: CheckoutFormProps) {
 }
 
 function getDefaultValues(paymentLink: PaymentLink): CheckoutFormValues {
-  const billingDataDefaults = CheckoutFormDefaultValues[CheckoutFormSection.BillingData]
+  const billingDataDefaults =
+    CheckoutFormDefaultValues[CheckoutFormSection.BillingData]
 
   // Since billingData is a discriminated union, we need to ensure it has the person type
   if (billingDataDefaults.type !== BillingType.PERSON) {
@@ -73,10 +72,8 @@ const STEPS_ICONS = {
 } as const
 
 function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
-  const t = useTranslations('modules.(app).checkout._components.checkout-form')
   const stepper = useStepper()
   const { isExtension, hasContract } = useCheckout()
-  const trpc = useTRPC()
 
   const elements = useElements()
   const stripe = useStripe()
@@ -92,15 +89,13 @@ function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
   const form = useAppForm({
     defaultValues: getDefaultValues(paymentLink),
     onSubmit: async ({ value }) => {
-      console.log('onSubmit')
-      console.log(!elements || !stripe || !paymentLink)
       if (!elements || !stripe || !paymentLink) return
 
       // Get billing data for metadata
       const billingData = getBillingData(value)
 
       await elements.submit()
-      const res = await stripe.confirmPayment({
+      await stripe.confirmPayment({
         confirmParams: {
           payment_method_data: {
             billing_details: {
@@ -110,31 +105,22 @@ function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
                 billingData.type === 'PERSON'
                   ? `${billingData.surname} ${billingData.name}`
                   : billingData.name
+            },
+            metadata: {
+              billingData: JSON.stringify(billingData)
             }
           },
-          return_url: `${window.location.origin}/checkout/${paymentLink.id}/callback?billingData=${encodeURIComponent(JSON.stringify(billingData))}`
+          return_url: `${window.location.origin}/checkout/${paymentLink.id}/callback`
         },
         elements
       })
-      console.log(res)
     },
     validators: {
       onSubmit: CheckoutFormSchema
     }
   })
 
-  const [isSubmitting, errors] = useStore(
-    form.store,
-    (state) =>
-      [
-        state.isSubmitting,
-        state.errors,
-        state.isPristine,
-        state.isDefaultValue
-      ] as const
-  )
-
-  console.log(errors)
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting)
 
   const isLoading = isSubmitting
 

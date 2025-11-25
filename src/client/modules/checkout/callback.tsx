@@ -1,10 +1,9 @@
 'use client'
 
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useRef } from 'react'
 
 import { Logo } from '~/client/components/logo'
 import { Spinner } from '~/client/components/ui/spinner'
@@ -53,7 +52,6 @@ export function CheckoutCallbackPageModule({
   const t = useTranslations('modules.(app).checkout.callback')
   const searchParams = useSearchParams()
   const trpc = useTRPC()
-  const hasUpdatedBillingData = useRef(false)
 
   // Get payment status from Stripe redirect params
   const paymentIntentStatus = searchParams.get('redirect_status')
@@ -68,32 +66,8 @@ export function CheckoutCallbackPageModule({
     })
   )
 
-  const updateBillingData = useMutation(
-    trpc.public.contracts.updateOrderBillingData.mutationOptions()
-  )
-
   const paymentLink = findOnePaymentLinkByIdQuery.data
   const paidAmount = paymentLink ? getPaidAmount(paymentLink) : 0
-
-  // Update billing data when payment is successful
-  useEffect(() => {
-    if (!isSuccess || hasUpdatedBillingData.current) return
-
-    const billingDataParam = searchParams.get('billingData')
-    if (!billingDataParam) return
-
-    try {
-      const billingData = JSON.parse(decodeURIComponent(billingDataParam))
-      hasUpdatedBillingData.current = true
-
-      updateBillingData.mutate({
-        billingData,
-        paymentLinkId
-      })
-    } catch (error) {
-      console.error('Failed to parse billing data:', error)
-    }
-  }, [isSuccess, searchParams, paymentLinkId, updateBillingData])
 
   return (
     <div className='grid h-svh w-full grid-cols-1 grid-rows-[1fr_auto_1fr] items-center justify-center gap-7 p-4'>
