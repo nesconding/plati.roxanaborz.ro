@@ -291,7 +291,7 @@ export function OrdersTable({ className, search }: OrdersTableProps) {
           },
           onSuccess: async () => {
             await queryClient.invalidateQueries({
-              queryKey: trpc.protected.productOrders.findAll.queryKey()
+              queryKey: trpc.protected.extensionOrders.findAll.queryKey()
             })
             toast.success(
               t(
@@ -381,12 +381,14 @@ export function OrdersTable({ className, search }: OrdersTableProps) {
       await updateExtensionOrderStatus.mutateAsync(
         {
           id,
-          status: OrderStatusType.Cancelled
+          status: OrderStatusType.ProcessingBankTransferPayment
         },
         {
           onError: (error) => {
             toast.error(
-              t('row.actions.cancel-order.extension.response.error.title'),
+              t(
+                'row.actions.process-bank-transfer-payment.extension.response.error.title'
+              ),
               {
                 className: '!text-destructive-foreground',
                 classNames: {
@@ -398,7 +400,7 @@ export function OrdersTable({ className, search }: OrdersTableProps) {
                   error instanceof Error
                     ? error.message
                     : t(
-                        'row.actions.cancel-order.extension.response.error.description'
+                        'row.actions.process-bank-transfer-payment.extension.response.error.description'
                       )
               }
             )
@@ -406,17 +408,19 @@ export function OrdersTable({ className, search }: OrdersTableProps) {
           },
           onSuccess: async () => {
             await queryClient.invalidateQueries({
-              queryKey: trpc.protected.productOrders.findAll.queryKey()
+              queryKey: trpc.protected.extensionOrders.findAll.queryKey()
             })
             toast.success(
-              t('row.actions.cancel-order.extension.response.success.title'),
+              t(
+                'row.actions.process-bank-transfer-payment.extension.response.success.title'
+              ),
               {
                 classNames: {
                   description: '!text-muted-foreground',
                   icon: 'text-primary'
                 },
                 description: t(
-                  'row.actions.cancel-order.extension.response.success.description'
+                  'row.actions.process-bank-transfer-payment.extension.response.success.description'
                 )
               }
             )

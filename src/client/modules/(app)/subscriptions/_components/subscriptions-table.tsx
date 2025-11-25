@@ -631,8 +631,9 @@ export function SubscriptionsTable({
               <InputGroupButton
                 className={cn({ hidden: searchInput.length === 0 })}
                 onClick={() => {
+                  debouncedSetGlobalFilter.cancel()
+                  setGlobalFilter('')
                   setSearchInput('')
-                  debouncedSetGlobalFilter('')
                   router.replace('/subscriptions')
                 }}
                 size='icon-xs'

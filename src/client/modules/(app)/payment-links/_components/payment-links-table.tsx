@@ -725,7 +725,7 @@ export function PaymentLinksTable({
                 className={cn({ hidden: searchInput.length === 0 })}
                 onClick={() => {
                   setSearchInput('')
-                  debouncedSetGlobalFilter('')
+                  setGlobalFilter('')
                   router.replace('/payment-links')
                 }}
                 size='icon-xs'

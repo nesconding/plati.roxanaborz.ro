@@ -5,7 +5,7 @@ import { getQueryClient, trpc } from '~/client/trpc/server'
 
 interface MembershipsPageProps {
   searchParams: Promise<{
-    search: string
+    search?: string
   }>
 }
 export default async function MembershipsPage({

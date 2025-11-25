@@ -1504,17 +1504,17 @@ const dictionary = {
             },
             fields: {
               'subscription-search': {
-                empty: 'Niciun subscripție disponibil',
+                empty: 'Nicio subscripție disponibilă',
                 label: 'Caută subscripție',
                 placeholder: 'Caută după ID...'
               }
             },
             sections: {
               'link-new': {
-                title: 'Leagă subscripție nou'
+                title: 'Leagă subscripție nouă'
               },
               linked: {
-                empty: 'Niciun subscripție legat de acest membership',
+                empty: 'Nicio subscripție legată de acest membership',
                 'extension-subscriptions': 'Subscripții prelungiri',
                 'product-subscriptions': 'Subscripții produse',
                 title: 'Subscripții legate actuale'
@@ -1532,8 +1532,8 @@ const dictionary = {
                   title: 'Nu s-a putut lega subscripția'
                 },
                 success: {
-                  description: 'Subscripția a fost legat cu succes',
-                  title: 'Subscripție legat'
+                  description: 'Subscripția a fost legată cu succes',
+                  title: 'Subscripție legată'
                 }
               },
               unlink: {
@@ -1542,8 +1542,8 @@ const dictionary = {
                   title: 'Nu s-a putut dezlega subscripția'
                 },
                 success: {
-                  description: 'Subscripția a fost dezlegat cu succes',
-                  title: 'Subscripție dezlegat'
+                  description: 'Subscripția a fost dezlegată cu succes',
+                  title: 'Subscripție dezlegată'
                 }
               }
             }
@@ -2854,7 +2854,7 @@ const dictionary = {
                 title: 'Nu s-a putut anula subscripția'
               },
               success: {
-                title: 'Subscripție anulat'
+                title: 'Subscripție anulată'
               }
             }
           },
@@ -2872,7 +2872,7 @@ const dictionary = {
               }
             },
             description: {
-              default: 'Alege o nouă dată de plată pentru acest subscripție.',
+              default: 'Alege o nouă dată de plată pentru această subscripție.',
               'with-customer':
                 'Alege o nouă dată de plată pentru subscripția lui {customerName}.'
             },
@@ -2903,7 +2903,7 @@ const dictionary = {
           'set-on-hold-dialog': {
             alert: {
               description:
-                'Când pui acest subscripție în așteptare, orice membership asociat va fi setat automat la statusul "Pauză". Clientul va pierde accesul până când subscripția este reactivat.',
+                'Când pui această subscripție în așteptare, orice membership asociat va fi setat automat la statusul "Pauză". Clientul va pierde accesul până când subscripția este reactivată.',
               title: 'Atenție: Membership-ul va fi pus în pauză'
             },
             buttons: {
@@ -2926,8 +2926,8 @@ const dictionary = {
               },
               success: {
                 description:
-                  'Subscripția a fost pus în pauză și membership-ul va fi pus în pauză automat',
-                title: 'Subscripție pus în așteptare'
+                  'Subscripția a fost pusă în pauză și membership-ul va fi pus în pauză automat',
+                title: 'Subscripție pusă în așteptare'
               }
             }
           },

@@ -40,7 +40,7 @@ interface UpdateStatusDialogProps {
   onCloseDialog?: () => void
   membershipId: string
   customerName?: string
-  currentStatus?: string
+  currentStatus?: MembershipStatusType
 }
 
 const formId = 'update-status-dialog-form'

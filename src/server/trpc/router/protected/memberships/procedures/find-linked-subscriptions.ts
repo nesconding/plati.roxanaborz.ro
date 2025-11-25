@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server'
-import { eq } from 'drizzle-orm'
+
 import { z } from 'zod'
 import { protectedProcedure } from '~/server/trpc/config'
 import { UserRoles } from '~/shared/enums/user-roles'

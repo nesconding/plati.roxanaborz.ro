@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto'
 import { type NextRequest, NextResponse } from 'next/server'
 import { database } from '~/server/database/drizzle'
 import { SubscriptionMembershipSyncService } from '~/server/services/subscription-membership-sync'
@@ -26,8 +27,32 @@ export const dynamic = 'force-dynamic' // Force dynamic (server) route instead o
 export async function GET(req: NextRequest) {
   try {
     // Verify authorization
+    const cronSecret = process.env.CRON_SECRET
+
+    // Fail fast if CRON_SECRET is not configured
+    if (!cronSecret) {
+      console.error(
+        '[Cron] CRON_SECRET not configured in environment variables'
+      )
+      return NextResponse.json(
+        { error: 'Cron job not configured' },
+        { status: 500 }
+      )
+    }
+
     const authHeader = req.headers.get('authorization')
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const expectedAuth = `Bearer ${cronSecret}`
+
+    // Use constant-time comparison to mitigate timing attacks
+    if (!authHeader || authHeader.length !== expectedAuth.length) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Convert to buffers for constant-time comparison
+    const authHeaderBuffer = Buffer.from(authHeader, 'utf8')
+    const expectedAuthBuffer = Buffer.from(expectedAuth, 'utf8')
+
+    if (!timingSafeEqual(authHeaderBuffer, expectedAuthBuffer)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     const subscriptionMembershipSyncService =

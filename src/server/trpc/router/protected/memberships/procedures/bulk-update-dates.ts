@@ -49,6 +49,20 @@ export const bulkUpdateMembershipDatesProcedure = protectedProcedure
             }
           }
 
+          // Validate delayedStartDate if provided
+          if (update.delayedStartDate && update.startDate) {
+            const delayed = new Date(update.delayedStartDate)
+            const start = new Date(update.startDate)
+            if (delayed > start) {
+              return {
+                error:
+                  'Delayed start date must be before or equal to start date',
+                id: update.id,
+                success: false
+              }
+            }
+          }
+
           // Build update object
           const updateData: Record<string, unknown> = {}
           if (update.startDate !== undefined)

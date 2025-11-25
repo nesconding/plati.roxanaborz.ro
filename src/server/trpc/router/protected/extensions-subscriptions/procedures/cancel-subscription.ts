@@ -30,6 +30,29 @@ export const cancelExtensionSubscriptionProcedure = protectedProcedure
     }
 
     if (cancelType === 'graceful') {
+      // Validate subscription state
+      if (subscription.status === SubscriptionStatusType.Cancelled) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Subscription is already cancelled'
+        })
+      }
+
+      if (subscription.scheduledCancellationDate) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Subscription already has a scheduled cancellation'
+        })
+      }
+
+      if (!subscription.nextPaymentDate) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message:
+            'Cannot schedule cancellation: subscription has no next payment date'
+        })
+      }
+
       // Set scheduled cancellation date to next payment date
       await ctx.db
         .update(schema.extension_subscriptions)

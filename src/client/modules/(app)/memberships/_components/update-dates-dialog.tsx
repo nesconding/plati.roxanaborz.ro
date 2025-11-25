@@ -134,17 +134,6 @@ export function UpdateDatesDialog({
   const isDisabled = isPending || isDefaultValue
 
   const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
-    console.log({
-      endDate: form.getFieldValue('endDate'),
-      endDateC: currentEndDate,
-      endDateD: new Date(form.getFieldValue('endDate')),
-      endDateDT: new Date(form.getFieldValue('endDate')).toISOString(),
-      startDate: form.getFieldValue('startDate'),
-      startDateC: currentStartDate,
-      startDateD: new Date(form.getFieldValue('startDate')),
-      startDateDT: new Date(form.getFieldValue('startDate')).toISOString()
-    })
-
     e.preventDefault()
     form.handleSubmit()
   }

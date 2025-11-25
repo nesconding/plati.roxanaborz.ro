@@ -29,7 +29,7 @@ export class SubscriptionMembershipSyncService {
     const [subscription] = await this.db
       .select({ paymentFailureCount: table.paymentFailureCount })
       .from(table)
-      .where(eq(schema.product_subscriptions.id, subscriptionId))
+      .where(eq(table.id, subscriptionId))
 
     const currentCount = subscription?.paymentFailureCount ?? 0
     const newCount = currentCount + 1

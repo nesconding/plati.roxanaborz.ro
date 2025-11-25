@@ -85,7 +85,7 @@ export function ManageLinkedSubscriptionsDialog({
 
     // Determine subscription type based on which array contains it
     const isProductSubscription = availableData?.productSubscriptions.some(
-      (sub) => sub.id === selectedSubscriptionId
+      (sub) => sub.id.toLowerCase() === selectedSubscriptionId.toLowerCase()
     )
     const subscriptionType = isProductSubscription ? 'product' : 'extension'
 
@@ -349,7 +349,9 @@ export function ManageLinkedSubscriptionsDialog({
                     >
                       {selectedSubscriptionId
                         ? allAvailableSubscriptions.find(
-                            (sub) => sub.id === selectedSubscriptionId
+                            (sub) =>
+                              sub.id.toLowerCase() ===
+                              selectedSubscriptionId.toLowerCase()
                           )?.id
                         : t('fields.subscription-search.placeholder')}
                       <ChevronsUpDown className='ml-2 opacity-50' />
@@ -368,9 +370,13 @@ export function ManageLinkedSubscriptionsDialog({
                           {allAvailableSubscriptions.map((subscription) => (
                             <CommandItem
                               key={subscription.id}
-                              onSelect={(value) => {
+                              onSelect={() => {
+                                // Store the original subscription.id (preserving case)
                                 setSelectedSubscriptionId(
-                                  value === selectedSubscriptionId ? '' : value
+                                  selectedSubscriptionId.toLowerCase() ===
+                                    subscription.id.toLowerCase()
+                                    ? ''
+                                    : subscription.id
                                 )
                                 setComboboxOpen(false)
                               }}
@@ -379,7 +385,8 @@ export function ManageLinkedSubscriptionsDialog({
                               <Check
                                 className={cn(
                                   'mr-2',
-                                  selectedSubscriptionId === subscription.id
+                                  selectedSubscriptionId.toLowerCase() ===
+                                    subscription.id.toLowerCase()
                                     ? 'opacity-100'
                                     : 'opacity-0'
                                 )}

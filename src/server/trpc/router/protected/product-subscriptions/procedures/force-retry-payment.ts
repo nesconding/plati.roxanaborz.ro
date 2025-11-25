@@ -37,11 +37,4 @@ export const forceRetryProductPaymentProcedure = protectedProcedure
       message:
         'Manual payment retry not yet implemented. This would require integrating with Stripe to charge the saved payment method.'
     })
-
-    // TODO: Implement manual retry logic
-    // This would involve:
-    // 1. Get the payment method from the original order's Stripe PaymentIntent
-    // 2. Attempt to charge it using StripeService
-    // 3. On success: Reset failure count, set status to Active, activate membership
-    // 4. On failure: Update failure reason and last attempt date
   })
