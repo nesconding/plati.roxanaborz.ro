@@ -10,7 +10,6 @@ export async function createContractsData(): Promise<
 
   for (let i = 0; i < count; i++) {
     data.push({
-      fields: [],
       name: fakerRO.company.name(),
       pathname: fakerRO.system.filePath()
     })

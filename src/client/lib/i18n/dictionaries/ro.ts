@@ -172,6 +172,16 @@ const dictionary = {
       'release-file': 'Eliberează fișierul aici'
     },
 
+    'pdf-dropzone': {
+      'drop-file':
+        'Trage și eliberează fișierul PDF aici sau dă clic pentru a îl selecta',
+      'file-selected': 'Fișier selectat',
+      'invalid-file':
+        'Fișierul este invalid, depășește dimensiunea maximă de {maxSize} Mb sau formatul nu este PDF.',
+      'max-size': 'Dimensiunea maximă a fișierului este de {maxSize} Mb.',
+      'release-file': 'Eliberează fișierul aici'
+    },
+
     'theme-select': {
       title: 'Temă vizuală',
       values: {
@@ -808,6 +818,95 @@ const dictionary = {
               }
             },
             title: 'Setări de plată'
+          },
+
+          'contract-settings': {
+            'add-dialog': {
+              buttons: {
+                cancel: 'Anulează',
+                confirm: {
+                  default: 'Adaugă',
+                  loading: 'Se adaugă contractul...'
+                }
+              },
+              description: 'Încarcă un fișier PDF și adaugă un contract nou.',
+              form: {
+                fields: {
+                  name: {
+                    label: 'Nume contract',
+                    placeholder: 'Introduceți numele contractului'
+                  }
+                }
+              },
+              response: {
+                error: {
+                  description: 'A apărut o eroare la adăugarea contractului.',
+                  title: 'Adăugare eșuată'
+                },
+                success: {
+                  description: 'Contractul a fost adăugat cu succes.',
+                  title: 'Adăugare reușită'
+                }
+              },
+              title: 'Adaugă contract'
+            },
+            buttons: {
+              add: 'Adaugă contract'
+            },
+            'delete-dialog': {
+              buttons: {
+                cancel: 'Anulează',
+                confirm: {
+                  default: 'Șterge',
+                  loading: 'Se șterge contractul...'
+                }
+              },
+              description:
+                'Ești sigur că vrei să ștergi contractul <contract-name>{name}</contract-name>?',
+              response: {
+                error: {
+                  description: 'A apărut o eroare la ștergerea contractului.',
+                  title: 'Ștergere eșuată'
+                },
+                success: {
+                  description: 'Contractul a fost șters cu succes.',
+                  title: 'Ștergere reușită'
+                }
+              },
+              title: 'Șterge contract'
+            },
+            description: 'Gestionează contractele disponibile pentru link-urile de plată.',
+            'edit-dialog': {
+              buttons: {
+                cancel: 'Anulează',
+                confirm: {
+                  default: 'Salvează',
+                  loading: 'Se salvează contractul...'
+                }
+              },
+              description: 'Modifică numele contractului.',
+              form: {
+                fields: {
+                  name: {
+                    label: 'Nume contract',
+                    placeholder: 'Introduceți numele contractului'
+                  }
+                }
+              },
+              response: {
+                error: {
+                  description: 'A apărut o eroare la salvarea contractului.',
+                  title: 'Salvare eșuată'
+                },
+                success: {
+                  description: 'Contractul a fost salvat cu succes.',
+                  title: 'Salvare reușită'
+                }
+              },
+              title: 'Editează contract'
+            },
+            empty: 'Nu există contracte. Adaugă primul contract.',
+            title: 'Contracte'
           }
         },
         users: {

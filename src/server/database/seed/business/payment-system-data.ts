@@ -1,4 +1,4 @@
-import { faker, fakerRO } from '@faker-js/faker'
+import { fakerRO } from '@faker-js/faker'
 import { createId } from '@paralleldrive/cuid2'
 import { eq } from 'drizzle-orm'
 import Stripe from 'stripe'
@@ -110,7 +110,7 @@ export async function createProductPaymentLinksData(dependencies: {
   // For each product, create payment links for each payment type
   for (const product of (products as any[]).slice(0, 3)) {
     const customer = generateCustomer()
-    const contract = faker.helpers.arrayElement(contracts as any[])
+    const contract = fakerRO.helpers.arrayElement(contracts as any[])
 
     // Create Stripe customer
     const stripeCustomer = await createStripeCustomer(
@@ -935,7 +935,7 @@ export async function createExtensionPaymentLinksData(dependencies: {
   )
 
   for (const membership of activeMemberships.slice(0, 2)) {
-    const extension: any = faker.helpers.arrayElement(
+    const extension: any = fakerRO.helpers.arrayElement(
       productsExtensions as any[]
     )
     const customer = generateCustomer()
