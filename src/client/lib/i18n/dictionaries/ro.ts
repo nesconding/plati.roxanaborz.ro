@@ -1650,7 +1650,9 @@ const dictionary = {
                     }
                   },
                   'payment-submit': {
-                    legend: 'Plateste'
+                    legend: 'Plateste',
+                    tbiDescription:
+                      'Plata va fi procesată prin TBI Bank. După confirmare, veți fi redirecționat către platforma TBI pentru a finaliza solicitarea de finanțare.'
                   }
                 },
                 title: 'Modalitate de plată'

@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { integer, numeric, text, timestamp } from 'drizzle-orm/pg-core'
+import { integer, jsonb, numeric, text, timestamp } from 'drizzle-orm/pg-core'
 import { users } from '~/server/database/schema/authentication/models/users'
 import { payment_currency_type } from '~/server/database/schema/business/enums/payment-currency-type'
 import { payment_link_type } from '~/server/database/schema/business/enums/payment-link-type'
@@ -16,6 +16,7 @@ import { PaymentProductType } from '~/shared/enums/payment-product-type'
 
 export const product_payment_links = business.table('product_payment_links', {
   ...id,
+  billingData: jsonb('billing_data'),
   callerEmail: text('caller_email'),
   callerName: text('caller_name'),
   closerEmail: text('closer_email'),
@@ -69,8 +70,9 @@ export const product_payment_links = business.table('product_payment_links', {
   setterEmail: text('setter_email'),
   setterName: text('setter_name'),
   status: payment_status_type('status').notNull(),
-  stripeClientSecret: text('stripe_client_secret').notNull(),
-  stripePaymentIntentId: text('stripe_payment_intent_id').notNull(),
+  stripeClientSecret: text('stripe_client_secret'),
+  stripePaymentIntentId: text('stripe_payment_intent_id'),
+  tbiOrderId: text('tbi_order_id'),
   totalAmountToPay: numeric('total_amount_to_pay').notNull(),
   totalAmountToPayInCents: numeric('total_amount_to_pay_in_cents').notNull(),
   tvaRate: numeric('tva_rate').notNull(),

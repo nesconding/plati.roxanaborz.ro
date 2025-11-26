@@ -379,9 +379,19 @@ export function PaymentLinksTable({
     {
       accessorKey: 'installmentAmountToPay',
       cell: ({ row }) =>
-        (isProductPaymentLink(row.original)
+        isProductPaymentLink(row.original)
           ? row.original.productInstallmentAmountToPay
-          : row.original.extensionInstallmentAmountToPay) ?? '',
+            ? PricingService.formatPrice(
+                row.original.productInstallmentAmountToPay,
+                row.original.currency
+              )
+            : ''
+          : row.original.extensionInstallmentAmountToPay
+            ? PricingService.formatPrice(
+                row.original.extensionInstallmentAmountToPay,
+                row.original.currency
+              )
+            : '',
       header: PaymentLinksTableHeader,
       id: 'installmentAmountToPay'
     },

@@ -545,7 +545,7 @@ export async function createProductOrdersData(
       productName: paymentLink.productName,
       productPaymentLinkId: paymentLink.id,
       status: OrderStatusType.Completed,
-      stripePaymentIntentId: paymentLink.stripePaymentIntentId,
+      stripePaymentIntentId: paymentLink.stripePaymentIntentId!,
       type:
         paymentLink.type === PaymentLinkType.Integral
           ? OrderType.OneTimePaymentOrder
@@ -570,7 +570,7 @@ export async function createProductOrdersData(
       productName: paymentLink.productName,
       productPaymentLinkId: paymentLink.id,
       status: OrderStatusType.PendingCardPayment,
-      stripePaymentIntentId: paymentLink.stripePaymentIntentId,
+      stripePaymentIntentId: paymentLink.stripePaymentIntentId!,
       type: OrderType.ParentOrder
     })
   }
@@ -584,7 +584,7 @@ export async function createProductOrdersData(
       productName: paymentLink.productName,
       productPaymentLinkId: paymentLink.id,
       status: OrderStatusType.Cancelled,
-      stripePaymentIntentId: paymentLink.stripePaymentIntentId,
+      stripePaymentIntentId: paymentLink.stripePaymentIntentId!,
       type: OrderType.ParentOrder
     })
   }
@@ -1070,7 +1070,7 @@ export async function createExtensionOrdersData(
       membershipId: paymentLink.membershipId,
       productName: paymentLink.productName,
       status: OrderStatusType.Completed,
-      stripePaymentIntentId: paymentLink.stripePaymentIntentId,
+      stripePaymentIntentId: paymentLink.stripePaymentIntentId!,
       type:
         paymentLink.type === PaymentLinkType.Integral
           ? OrderType.OneTimePaymentOrder
