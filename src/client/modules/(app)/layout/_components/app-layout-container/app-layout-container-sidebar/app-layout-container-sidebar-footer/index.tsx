@@ -57,7 +57,6 @@ export function AppLayoutContainerSidebarFooter() {
   }
 
   function handleOnCloseAccountManagementDialog() {
-    console.log('handleOnCloseAccountManagementDialog')
     setIsAccountManagementDialogOpen(false)
   }
 

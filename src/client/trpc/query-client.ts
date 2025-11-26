@@ -23,6 +23,7 @@ export function makeQueryClient() {
         // Add this to track queries
         throwOnError: (error, query) => {
           console.log('Query error:', query.queryKey)
+          console.error('Error:', error)
           return true
         }
       }
