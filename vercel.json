@@ -1,18 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "bunVersion": "1.x",
   "crons": [
     {
       "path": "/api/cron/charge-deferred-payments",
-      "schedule": "0 6 * * *"
+      "schedule": "0 7 * * *"
     },
     {
       "path": "/api/cron/cancel-expired-payments",
-      "schedule": "0 * * * *"
+      "schedule": "0 7 * * *"
     },
     {
       "path": "/api/cron/sync-calendly-events",
-      "schedule": "5 * * * *"
+      "schedule": "0 7 * * *"
     }
   ],
   "functions": {
