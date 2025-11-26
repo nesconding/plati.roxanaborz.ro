@@ -194,11 +194,64 @@ class CalendlyServiceImpl {
 
     logger?.log(`Fetching ${description}`, { url })
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${process.env.CALENDLY_TOKEN}`
+    // Add timeout control for serverless environment
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+      controller.abort()
+      logger?.log(`Fetch timeout for ${description} after 25 seconds`)
+    }, 25000) // 25 second timeout
+
+    let response: Response
+    try {
+      response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${process.env.CALENDLY_TOKEN}`,
+          Connection: 'close' // Prevent keep-alive in serverless
+        },
+        signal: controller.signal
+      })
+      clearTimeout(timeout)
+    } catch (error) {
+      clearTimeout(timeout)
+
+      // Handle network errors (socket errors, timeouts, connection resets)
+      const isNetworkError =
+        error instanceof Error &&
+        (error.name === 'AbortError' ||
+          error.message.includes('socket') ||
+          error.message.includes('ECONNRESET') ||
+          error.message.includes('fetch failed'))
+
+      if (isNetworkError && retryCount < maxRetries) {
+        const waitTime = Math.min(1000 * 2 ** retryCount, 10000) // Exponential backoff, max 10s
+        logger?.log(
+          `Network error for ${description}. Retry ${retryCount + 1}/${maxRetries} in ${waitTime / 1000}s...`,
+          {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            errorName: error instanceof Error ? error.name : undefined
+          }
+        )
+        await new Promise((resolve) => setTimeout(resolve, waitTime))
+
+        logger?.log(`Retrying ${description} (attempt ${retryCount + 1})`)
+        return this.fetchCalendly(
+          url,
+          schema,
+          logger,
+          rateLimiter,
+          description,
+          retryCount + 1
+        )
       }
-    })
+
+      // If not a network error or max retries exceeded, throw
+      logger?.error(`Failed to fetch ${description}`, {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        errorName: error instanceof Error ? error.name : undefined,
+        stack: error instanceof Error ? error.stack : undefined
+      })
+      throw error
+    }
 
     rateLimiter.incrementCount()
 

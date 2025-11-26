@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server'
 import z from 'zod'
 import { publicProcedure } from '~/server/trpc/config'
 import {
+  ContractsTableValidators,
   ProductPaymentLinksTableValidators,
   ProductsExtensionsInstallmentsTableValidators,
   ProductsExtensionsTableValidators,
@@ -12,6 +13,11 @@ import {
 const input = z.object({ id: z.string() })
 const output = ProductPaymentLinksTableValidators.select
   .extend({
+    contract: ContractsTableValidators.select.pick({
+      id: true,
+      name: true,
+      pathname: true
+    }),
     product: ProductsTableValidators.select.extend({
       extensions: ProductsExtensionsTableValidators.select
         .extend({
@@ -37,6 +43,13 @@ export const findOnePaymentLinkByIdProcedure = publicProcedure
             gte(product_payment_links.expiresAt, new Date().toISOString())
           ),
         with: {
+          contract: {
+            columns: {
+              id: true,
+              name: true,
+              pathname: true
+            }
+          },
           product: {
             with: {
               extensions: {

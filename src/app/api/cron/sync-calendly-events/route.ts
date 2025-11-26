@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { CalendlyHandlers } from '~/server/handlers/calendly-handlers'
 
+export const dynamic = 'force-dynamic' // Force dynamic (server) route instead of static page
+
 /**
  * Cron Job: Sync Calendly Scheduled Events
  *
@@ -37,18 +39,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Step 2: Execute sync
-
-    triggerHandler()
+    // Step 2: Execute sync - MUST await to prevent serverless function termination
+    const result = await triggerHandler()
 
     return NextResponse.json(
       {
-        started: true
+        success: true,
+        result: {
+          checkedCount: result.checkedCount,
+          deletedCount: result.deletedCount,
+          insertedCount: result.insertedCount,
+          updatedCount: result.updatedCount,
+          errorCount: result.errors.length
+        }
       },
       { status: 200 }
     )
   } catch (error) {
-    console.error('[Cron] Failed to sync Calendly events:', error)
+    console.error('[Cron] Failed to sync Calendly events:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorName: error instanceof Error ? error.name : undefined,
+      stack: error instanceof Error ? error.stack : undefined,
+      code: (error as any)?.code,
+      cause: (error as any)?.cause
+    })
 
     return NextResponse.json(
       {
@@ -87,4 +101,6 @@ async function triggerHandler() {
     insertedCount: result.insertedCount,
     updatedCount: result.updatedCount
   })
+
+  return result
 }

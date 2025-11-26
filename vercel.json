@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "bunVersion": "1.x",
   "crons": [
     {
       "path": "/api/cron/charge-deferred-payments",
@@ -11,7 +12,12 @@
     },
     {
       "path": "/api/cron/sync-calendly-events",
-      "schedule": "* * * * *"
+      "schedule": "5 * * * *"
     }
-  ]
+  ],
+  "functions": {
+    "src/app/api/cron/sync-calendly-events/route.ts": {
+      "maxDuration": 60
+    }
+  }
 }

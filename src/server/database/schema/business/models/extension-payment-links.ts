@@ -7,7 +7,6 @@ import { payment_method_type } from '~/server/database/schema/business/enums/pay
 import { payment_product_type } from '~/server/database/schema/business/enums/payment-product-type'
 import { payment_status_type } from '~/server/database/schema/business/enums/payment-status-type'
 import { extension_orders } from '~/server/database/schema/business/models/extension-orders'
-import { extension_subscriptions } from '~/server/database/schema/business/models/extension-subscriptions'
 import { memberships } from '~/server/database/schema/business/models/membership'
 import { products_extensions } from '~/server/database/schema/product/models/products-extensions'
 import { products_extensions_installments } from '~/server/database/schema/product/models/products-extensions-installments'
@@ -81,8 +80,9 @@ export const extension_payment_links = business.table(
     setterEmail: text('setter_email'),
     setterName: text('setter_name'),
     status: payment_status_type('status').notNull(),
-    stripeClientSecret: text('stripe_client_secret').notNull(),
-    stripePaymentIntentId: text('stripe_payment_intent_id').notNull(),
+    stripeClientSecret: text('stripe_client_secret'),
+    stripePaymentIntentId: text('stripe_payment_intent_id'),
+    tbiOrderId: text('tbi_order_id'),
     totalAmountToPay: numeric('total_amount_to_pay').notNull(),
     totalAmountToPayInCents: numeric('total_amount_to_pay_in_cents').notNull(),
     tvaRate: numeric('tva_rate').notNull(),
@@ -93,7 +93,7 @@ export const extension_payment_links = business.table(
 
 export const extension_payment_linksRelations = relations(
   extension_payment_links,
-  ({ one, many }) => ({
+  ({ one }) => ({
     createdBy: one(users, {
       fields: [extension_payment_links.createdById],
       references: [users.id]
@@ -110,7 +110,6 @@ export const extension_payment_linksRelations = relations(
       fields: [extension_payment_links.id],
       references: [extension_orders.extensionPaymentLinkId]
     }),
-    extensionSubscriptions: many(extension_subscriptions),
     membership: one(memberships, {
       fields: [extension_payment_links.membershipId],
       references: [memberships.id]

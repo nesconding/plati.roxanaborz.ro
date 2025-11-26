@@ -3,7 +3,7 @@ import { authenticationRouter } from '~/server/trpc/router/protected/authenticat
 import { contractsRouter } from '~/server/trpc/router/protected/contracts/router'
 import { extensionOrdersRouter } from '~/server/trpc/router/protected/extension-orders/router'
 import { extensionPaymentLinksRouter } from '~/server/trpc/router/protected/extension-payment-links/router'
-import { extensionsSubscriptionsRouter } from '~/server/trpc/router/protected/extensions-subscriptions /router'
+import { extensionsSubscriptionsRouter } from '~/server/trpc/router/protected/extensions-subscriptions/router'
 import { membershipsRouter } from '~/server/trpc/router/protected/memberships/router'
 import { productOrdersRouter } from '~/server/trpc/router/protected/product-orders/router'
 import { productPaymentLinksRouter } from '~/server/trpc/router/protected/product-payment-links/router'

@@ -6,6 +6,7 @@ import { protectedProcedure } from '~/server/trpc/config'
 import { createProductPaymentLinkInsertData } from '~/server/trpc/router/protected/product-payment-links/procedures/create-one-product-payment-link/create-product-insert-data'
 import { CreateProductPaymentLinkFormParser } from '~/shared/create-product-payment-link-form/create-product-payment-link-form-parser'
 import { CreateProductPaymentLinkFormSchema } from '~/shared/create-product-payment-link-form/create-product-payment-link-form-schema'
+import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { ProductPaymentLinksTableValidators } from '~/shared/validation/tables'
 
 export const createOneProductPaymentLinkProcedure = protectedProcedure
@@ -30,6 +31,25 @@ export const createOneProductPaymentLinkProcedure = protectedProcedure
         user: ctx.session.user
       })
 
+      // For TBI payments, don't create a Stripe PaymentIntent
+      // The TBI loan application will be initiated at checkout time
+      if (data.paymentMethodType === PaymentMethodType.TBI) {
+        const insertData = {
+          id: createdId,
+          ...data,
+          stripeClientSecret: null,
+          stripePaymentIntentId: null
+        } satisfies typeof ProductPaymentLinksTableValidators.$types.insert
+
+        const [paymentLink] = await ctx.db
+          .insert(schema.product_payment_links)
+          .values(insertData)
+          .returning()
+
+        return paymentLink
+      }
+
+      // For Card and BankTransfer payments, create a Stripe PaymentIntent
       const paymentIntent = await StripeService.createPaymentIntent({
         productPaymentLinkId: createdId,
         ...data

@@ -269,8 +269,10 @@ class StripeHandlersImpl {
       for (const link of expiredProductLinks) {
         processedCount++
         try {
-          // Cancel the Stripe payment intent
-          await stripe.paymentIntents.cancel(link.stripePaymentIntentId)
+          // Only cancel Stripe payment intent if it exists (TBI payments don't have one)
+          if (link.stripePaymentIntentId) {
+            await stripe.paymentIntents.cancel(link.stripePaymentIntentId)
+          }
 
           // Update the payment link status to Expired
           await this.db
@@ -301,8 +303,10 @@ class StripeHandlersImpl {
       for (const link of expiredExtensionLinks) {
         processedCount++
         try {
-          // Cancel the Stripe payment intent
-          await stripe.paymentIntents.cancel(link.stripePaymentIntentId)
+          // Only cancel Stripe payment intent if it exists (TBI payments don't have one)
+          if (link.stripePaymentIntentId) {
+            await stripe.paymentIntents.cancel(link.stripePaymentIntentId)
+          }
 
           // Update the payment link status to Expired
           await this.db

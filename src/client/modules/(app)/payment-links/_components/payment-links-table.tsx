@@ -28,10 +28,12 @@ import {
   Plus,
   Search,
   View,
+  X,
   Zap
 } from 'lucide-react'
 import { DynamicIcon } from 'lucide-react/dynamic'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
@@ -52,6 +54,7 @@ import { Field, FieldGroup } from '~/client/components/ui/field'
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput
 } from '~/client/components/ui/input-group'
 import { Label } from '~/client/components/ui/label'
@@ -162,7 +165,7 @@ export function PaymentLinksTable({
   )
 
   const isMobile = useIsMobile()
-
+  const router = useRouter()
   const [sorting, setSorting] = useState<SortingState>([
     { desc: true, id: 'createdAt' }
   ])
@@ -376,9 +379,19 @@ export function PaymentLinksTable({
     {
       accessorKey: 'installmentAmountToPay',
       cell: ({ row }) =>
-        (isProductPaymentLink(row.original)
+        isProductPaymentLink(row.original)
           ? row.original.productInstallmentAmountToPay
-          : row.original.extensionInstallmentAmountToPay) ?? '',
+            ? PricingService.formatPrice(
+                row.original.productInstallmentAmountToPay,
+                row.original.currency
+              )
+            : ''
+          : row.original.extensionInstallmentAmountToPay
+            ? PricingService.formatPrice(
+                row.original.extensionInstallmentAmountToPay,
+                row.original.currency
+              )
+            : '',
       header: PaymentLinksTableHeader,
       id: 'installmentAmountToPay'
     },
@@ -717,6 +730,19 @@ export function PaymentLinksTable({
               placeholder={t('header.input.placeholder')}
               value={searchInput}
             />
+            <InputGroupAddon align='inline-end'>
+              <InputGroupButton
+                className={cn({ hidden: searchInput.length === 0 })}
+                onClick={() => {
+                  setSearchInput('')
+                  setGlobalFilter('')
+                  router.replace('/payment-links')
+                }}
+                size='icon-xs'
+              >
+                <X />
+              </InputGroupButton>
+            </InputGroupAddon>
           </InputGroup>
 
           <DropdownMenu>

@@ -19,20 +19,27 @@ import {
 import { type DateArg, format } from 'date-fns'
 import { ro } from 'date-fns/locale'
 import {
+  AlertCircle,
+  Ban,
+  CalendarClock,
   ChevronLeft,
   ChevronRight,
   Columns2,
   Download,
+  EllipsisVertical,
+  Pause,
   Search,
+  TriangleAlert,
   View,
+  X,
   Zap
 } from 'lucide-react'
 import { DynamicIcon } from 'lucide-react/dynamic'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
-
 import { Badge } from '~/client/components/ui/badge'
 import { Button } from '~/client/components/ui/button'
 import {
@@ -49,6 +56,7 @@ import { Field, FieldGroup } from '~/client/components/ui/field'
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput
 } from '~/client/components/ui/input-group'
 import { Label } from '~/client/components/ui/label'
@@ -70,6 +78,11 @@ import {
   TableHeader,
   TableRow
 } from '~/client/components/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '~/client/components/ui/tooltip'
 import { useIsMobile } from '~/client/hooks/use-mobile'
 import { cn } from '~/client/lib/utils'
 import { createXLSXFile } from '~/client/lib/xlsx'
@@ -79,6 +92,9 @@ import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
 import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
 import { UserRoles } from '~/shared/enums/user-roles'
+import { CancelSubscriptionDialog } from './cancel-subscription-dialog'
+import { ReschedulePaymentDialog } from './reschedule-payment-dialog'
+import { SetOnHoldDialog } from './set-on-hold-dialog'
 
 type ExtensionSubscription =
   TRPCRouterOutput['protected']['extensionsSubscriptions']['findAll'][number]
@@ -124,8 +140,10 @@ const productPaymentTypeFilter = (
   return productType === filterValue
 }
 
-const formatDate = (date: DateArg<Date> & {}) =>
-  format(date, 'PPP - HH:mm', { locale: ro })
+const formatDate = (
+  date: DateArg<Date> & {},
+  { withTime = false }: { withTime?: boolean } = {}
+) => format(date, withTime ? 'PPP - HH:mm' : 'PPP', { locale: ro })
 
 const pageSizeOptions = [10, 25, 50, 75, 100]
 
@@ -155,6 +173,13 @@ export function SubscriptionsTable({
     pageSize: pageSizeOptions[1]
   })
   const [rowSelection, setRowSelection] = useState({})
+  const router = useRouter()
+  // Dialog states
+  const [selectedSubscription, setSelectedSubscription] =
+    useState<Subscription | null>(null)
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+  const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false)
+  const [setOnHoldDialogOpen, setSetOnHoldDialogOpen] = useState(false)
 
   const trpc = useTRPC()
   const getExtensionsSubscriptions = useQuery(
@@ -227,6 +252,83 @@ export function SubscriptionsTable({
       filterFn: statusFilter,
       header: SubscriptionsTableHeader,
       id: 'status'
+    },
+    {
+      cell: ({ row }) => {
+        const hasPaymentFailures = row.original.paymentFailureCount > 0
+        const hasScheduledCancellation =
+          row.original.scheduledCancellationDate !== null
+
+        if (!hasPaymentFailures && !hasScheduledCancellation) return null
+
+        return (
+          <div className='flex items-center gap-2'>
+            {hasPaymentFailures && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className='flex items-center gap-1'>
+                    <AlertCircle className='h-4 w-4 text-destructive' />
+                    <Badge className='text-xs' variant='destructive'>
+                      {t('alerts.payment-failures.badge', {
+                        count: row.original.paymentFailureCount
+                      })}
+                    </Badge>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className='font-semibold'>
+                    {t('alerts.payment-failures.title')}
+                  </p>
+                  {row.original.lastPaymentFailureReason && (
+                    <p className='text-xs text-muted-foreground mt-1'>
+                      {t('alerts.payment-failures.last-reason', {
+                        reason: row.original.lastPaymentFailureReason
+                      })}
+                    </p>
+                  )}
+                  {row.original.lastPaymentAttemptDate && (
+                    <p className='text-xs text-muted-foreground'>
+                      {t('alerts.payment-failures.last-attempt', {
+                        date: formatDate(row.original.lastPaymentAttemptDate)
+                      })}
+                    </p>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {hasScheduledCancellation && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className='flex items-center gap-1'>
+                    <TriangleAlert className='h-4 w-4 text-yellow-600 dark:text-yellow-500' />
+                    <Badge className='text-xs' variant='secondary'>
+                      {t('alerts.scheduled-cancellation.badge')}
+                    </Badge>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className='font-semibold'>
+                    {t('alerts.scheduled-cancellation.title')}
+                  </p>
+                  <p className='text-xs text-muted-foreground mt-1'>
+                    {t('alerts.scheduled-cancellation.message', {
+                      date: formatDate(row.original.scheduledCancellationDate!)
+                    })}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        )
+      },
+      enableHiding: false,
+      enableSorting: false,
+      header: () => (
+        <span className='text-xs text-muted-foreground'>
+          {t('alerts.title')}
+        </span>
+      ),
+      id: 'alerts'
     },
     {
       accessorKey: 'customerName',
@@ -336,7 +438,9 @@ export function SubscriptionsTable({
     {
       accessorKey: 'createdAt',
       cell: ({ row }) => (
-        <span className='capitalize'>{formatDate(row.original.createdAt)}</span>
+        <span className='capitalize'>
+          {formatDate(row.original.createdAt, { withTime: true })}
+        </span>
       ),
       header: SubscriptionsTableHeader,
       id: 'createdAt'
@@ -344,10 +448,74 @@ export function SubscriptionsTable({
     {
       accessorKey: 'updatedAt',
       cell: ({ row }) => (
-        <span className='capitalize'>{formatDate(row.original.updatedAt)}</span>
+        <span className='capitalize'>
+          {formatDate(row.original.updatedAt, { withTime: true })}
+        </span>
       ),
       header: SubscriptionsTableHeader,
       id: 'updatedAt'
+    },
+    {
+      cell: ({ row }) => {
+        const subscription = row.original
+        const isActive = subscription.status === SubscriptionStatusType.Active
+        const isCancelled =
+          subscription.status === SubscriptionStatusType.Cancelled
+        const isCompleted =
+          subscription.status === SubscriptionStatusType.Completed
+
+        const isDisabled = (isCancelled || isCompleted) && !isActive
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild disabled={isDisabled}>
+              <Button size='icon-sm' variant='ghost'>
+                <EllipsisVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>{t('actions.title')}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  disabled={isCancelled || isCompleted}
+                  onSelect={() => {
+                    setSelectedSubscription(subscription)
+                    setCancelDialogOpen(true)
+                  }}
+                >
+                  <Ban />
+                  {t('actions.cancel-subscription')}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={!isActive}
+                  onSelect={() => {
+                    setSelectedSubscription(subscription)
+                    setSetOnHoldDialogOpen(true)
+                  }}
+                >
+                  <Pause />
+                  {t('actions.set-on-hold')}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={isCancelled || isCompleted}
+                  onSelect={() => {
+                    setSelectedSubscription(subscription)
+                    setRescheduleDialogOpen(true)
+                  }}
+                >
+                  <CalendarClock />
+                  {t('actions.reschedule-payment')}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+      enableHiding: false,
+      enableSorting: false,
+      header: () => <span className='sr-only'>Actions</span>,
+      id: 'actions'
     },
     {
       accessorKey: 'searchCreatedAt',
@@ -459,6 +627,20 @@ export function SubscriptionsTable({
               placeholder={t('header.input.placeholder')}
               value={searchInput}
             />
+            <InputGroupAddon align='inline-end'>
+              <InputGroupButton
+                className={cn({ hidden: searchInput.length === 0 })}
+                onClick={() => {
+                  debouncedSetGlobalFilter.cancel()
+                  setGlobalFilter('')
+                  setSearchInput('')
+                  router.replace('/subscriptions')
+                }}
+                size='icon-xs'
+              >
+                <X />
+              </InputGroupButton>
+            </InputGroupAddon>
           </InputGroup>
 
           <DropdownMenu>
@@ -675,26 +857,14 @@ export function SubscriptionsTable({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                className='max-sm:flex-1 sm:max-lg:size-9'
-                variant='outline'
-              >
-                <Zap />
-                <span className='sm:hidden lg:block'>
-                  {t('header.actions.title')}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align='end'>
-              <DropdownMenuItem onClick={handleOnClickDownload}>
-                <Download />
-                {t('header.actions.values.download')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            className='max-sm:flex-1 sm:max-lg:size-9'
+            onClick={handleOnClickDownload}
+            variant='outline'
+          >
+            <Download />
+            {t('header.actions.values.download')}
+          </Button>
         </div>
       </div>
 
@@ -744,10 +914,7 @@ export function SubscriptionsTable({
                             'startDate',
                             'createdAt',
                             'updatedAt'
-                          ].includes(cell.column.id),
-                          'text-right': ['remainingPayments'].includes(
-                            cell.column.id
-                          )
+                          ].includes(cell.column.id)
                         })}
                         key={cell.id}
                       >
@@ -846,6 +1013,66 @@ export function SubscriptionsTable({
           <ChevronRight />
         </Button>
       </div>
+
+      {/* Dialogs */}
+      {selectedSubscription && (
+        <>
+          <CancelSubscriptionDialog
+            customerName={selectedSubscription.customerName ?? undefined}
+            isOpen={cancelDialogOpen}
+            nextPaymentDate={
+              selectedSubscription.nextPaymentDate
+                ? new Date(selectedSubscription.nextPaymentDate)
+                : null
+            }
+            onCloseDialog={() => {
+              setCancelDialogOpen(false)
+              setSelectedSubscription(null)
+            }}
+            subscriptionId={selectedSubscription.id}
+            subscriptionType={
+              isProductSubscription(selectedSubscription)
+                ? 'product'
+                : 'extension'
+            }
+          />
+
+          <SetOnHoldDialog
+            customerName={selectedSubscription.customerName ?? undefined}
+            isOpen={setOnHoldDialogOpen}
+            onCloseDialog={() => {
+              setSetOnHoldDialogOpen(false)
+              setSelectedSubscription(null)
+            }}
+            subscriptionId={selectedSubscription.id}
+            subscriptionType={
+              isProductSubscription(selectedSubscription)
+                ? 'product'
+                : 'extension'
+            }
+          />
+
+          <ReschedulePaymentDialog
+            currentPaymentDate={
+              selectedSubscription.nextPaymentDate
+                ? new Date(selectedSubscription.nextPaymentDate)
+                : null
+            }
+            customerName={selectedSubscription.customerName ?? undefined}
+            isOpen={rescheduleDialogOpen}
+            onCloseDialog={() => {
+              setRescheduleDialogOpen(false)
+              setSelectedSubscription(null)
+            }}
+            subscriptionId={selectedSubscription.id}
+            subscriptionType={
+              isProductSubscription(selectedSubscription)
+                ? 'product'
+                : 'extension'
+            }
+          />
+        </>
+      )}
     </FieldGroup>
   )
 }

@@ -35,17 +35,11 @@ export const memberships = business.table('memberships', {
   ...softDeleteTimestamps
 })
 
-export const membershipsRelations = relations(memberships, ({ one }) => ({
-  extensionSubscription: one(extension_subscriptions, {
-    fields: [memberships.id],
-    references: [extension_subscriptions.membershipId]
-  }),
+export const membershipsRelations = relations(memberships, ({ one, many }) => ({
+  extensionSubscriptions: many(extension_subscriptions),
   parentOrder: one(product_orders, {
     fields: [memberships.parentOrderId],
     references: [product_orders.id]
   }),
-  productSubscription: one(product_subscriptions, {
-    fields: [memberships.id],
-    references: [product_subscriptions.membershipId]
-  })
+  productSubscriptions: many(product_subscriptions)
 }))

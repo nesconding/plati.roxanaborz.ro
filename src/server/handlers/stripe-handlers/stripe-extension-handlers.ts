@@ -7,6 +7,7 @@ import {
   type PaymentIntentExtensionIntegralMetadata,
   StripeService
 } from '~/server/services/stripe'
+import { SubscriptionMembershipSyncService } from '~/server/services/subscription-membership-sync'
 import { MembershipStatusType } from '~/shared/enums/membership-status-type'
 import { OrderStatusType } from '~/shared/enums/order-status-type'
 import { OrderType } from '~/shared/enums/order-type'
@@ -21,7 +22,11 @@ import { SubscriptionStatusType } from '~/shared/enums/subscription-status-type'
  * (Extension Installments and Extension Installments Deposit not yet implemented)
  */
 export class StripeExtensionHandlers {
-  constructor(private readonly db: Database) {}
+  private readonly subscriptionMembershipSyncService: SubscriptionMembershipSyncService
+  constructor(private readonly db: Database) {
+    this.subscriptionMembershipSyncService =
+      new SubscriptionMembershipSyncService(db)
+  }
 
   /**
    * Updates the status of an extension payment link
@@ -156,16 +161,18 @@ export class StripeExtensionHandlers {
                 .where(eq(schema.extension_subscriptions.id, subscription.id))
 
               // Extend membership end date
-              await this.db
-                .update(schema.memberships)
-                .set({
-                  endDate: DatesService.addMonths(
-                    subscription.membership.endDate,
-                    extension.extensionMonths
-                  ).toISOString(),
-                  status: MembershipStatusType.Active
-                })
-                .where(eq(schema.memberships.id, subscription.membershipId))
+              if (subscription.membership && subscription.membershipId) {
+                await this.db
+                  .update(schema.memberships)
+                  .set({
+                    endDate: DatesService.addMonths(
+                      subscription.membership.endDate,
+                      extension.extensionMonths
+                    ).toISOString(),
+                    status: MembershipStatusType.Active
+                  })
+                  .where(eq(schema.memberships.id, subscription.membershipId))
+              }
             } else {
               // More payments remaining - just decrement count
               await this.db
@@ -176,6 +183,14 @@ export class StripeExtensionHandlers {
                 .where(eq(schema.extension_subscriptions.id, subscription.id))
             }
 
+            // Payment succeeded - reset failure count
+            await this.subscriptionMembershipSyncService.handlePaymentSuccess(
+              subscription.id,
+              'extension',
+              newRemainingPayments,
+              null
+            )
+
             return { success: true }
           } catch (error) {
             console.error(
@@ -183,26 +198,19 @@ export class StripeExtensionHandlers {
               error
             )
 
-            if (
-              DatesService.isAfter(
-                endOfDay,
-                new Date(subscription.membership.endDate)
+            // Handle payment failure with retry logic
+            const failureReason =
+              error instanceof Error ? error.message : 'Unknown error'
+            const { shouldRetry, failureCount } =
+              await this.subscriptionMembershipSyncService.handlePaymentFailure(
+                subscription.id,
+                'extension',
+                failureReason
               )
-            ) {
-              await this.db
-                .update(schema.memberships)
-                .set({
-                  status: MembershipStatusType.Paused
-                })
-                .where(eq(schema.memberships.id, subscription.membershipId))
-            }
 
-            await this.db
-              .update(schema.extension_subscriptions)
-              .set({
-                status: SubscriptionStatusType.OnHold
-              })
-              .where(eq(schema.extension_subscriptions.id, subscription.id))
+            console.log(
+              `[Cron] Payment failure for extension subscription ${subscription.id}. Attempt ${failureCount}/${3}. Will retry: ${shouldRetry}`
+            )
 
             return { error, success: false }
           }

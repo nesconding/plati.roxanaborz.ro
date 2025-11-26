@@ -120,7 +120,6 @@ export function ElementsWrapper({
         document.documentElement
       ).getPropertyValue('--input')
 
-      // console.log({ spacing })
       // const fontFamily = getComputedStyle(document.documentElement).getPropertyValue('--font-sans')
       setVariables({
         borderRadius: radius,

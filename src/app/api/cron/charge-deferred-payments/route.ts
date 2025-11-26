@@ -1,5 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { StripeHandlers } from '~/server/handlers/stripe-handlers'
+
+export const dynamic = 'force-dynamic' // Force dynamic (server) route instead of static page
+
 /**
  * Cron job endpoint to charge deferred payments
  *
