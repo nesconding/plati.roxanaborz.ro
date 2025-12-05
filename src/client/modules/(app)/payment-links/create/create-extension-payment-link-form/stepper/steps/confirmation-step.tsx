@@ -53,6 +53,15 @@ export const ConfirmationStep = withForm({
     const participants =
       form.state.values[CreateExtensionPaymentLinkFormSection.Participants]
 
+    const closerName =
+      participants.closerName && participants.closerName !== ''
+        ? participants.closerName
+        : undefined
+    const closerEmail =
+      participants.closerEmail && participants.closerEmail !== ''
+        ? participants.closerEmail
+        : undefined
+
     const callerName =
       participants.callerName && participants.callerName !== ''
         ? participants.callerName
@@ -61,6 +70,7 @@ export const ConfirmationStep = withForm({
       participants.callerEmail && participants.callerEmail !== ''
         ? participants.callerEmail
         : undefined
+
     const setterName =
       participants.setterName && participants.setterName !== ''
         ? participants.setterName
@@ -138,11 +148,19 @@ export const ConfirmationStep = withForm({
           <div className='grid grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 py-4 px-6'>
             <Label className='col-span-full'>{t('participants.title')}</Label>
 
-            <Item className='py-0 col-span-3'>
+            <Item className='py-0 col-span-2'>
               <ItemHeader>{t('participants.items.client')}</ItemHeader>
               <ItemContent>
                 <ItemTitle>{membership?.customerName}</ItemTitle>
                 <ItemDescription>{membership?.customerEmail}</ItemDescription>
+              </ItemContent>
+            </Item>
+
+            <Item className='py-0 col-span-1'>
+              <ItemHeader>{t('participants.items.closer')}</ItemHeader>
+              <ItemContent>
+                <ItemTitle>{closerName ?? '-'}</ItemTitle>
+                <ItemDescription>{closerEmail ?? '-'}</ItemDescription>
               </ItemContent>
             </Item>
 

@@ -439,37 +439,38 @@ export function UsersTable({
                   </span>
                 </DropdownMenuItem>
 
-                {getSession.data?.user.role === UserRoles.SUPER_ADMIN &&
-                row.original.role === UserRoles.USER ? (
-                  <DropdownMenuItem
-                    disabled={
-                      getSession.data?.user.role !== UserRoles.SUPER_ADMIN
-                    }
-                    onClick={() => onPromoteUser?.(row.original)}
-                  >
-                    <ShieldPlus />
-                    <span className='w-full'>
-                      {t(
-                        'modules.(app).(admin).users._components.users-table.row.actions.promote-to-admin'
-                      )}
-                    </span>
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem
-                    disabled={
-                      row.original.role === UserRoles.SUPER_ADMIN ||
-                      getSession.data?.user.role !== UserRoles.SUPER_ADMIN
-                    }
-                    onClick={() => onDemoteUser?.(row.original)}
-                  >
-                    <ShieldX />
-                    <span className='w-full'>
-                      {t(
-                        'modules.(app).(admin).users._components.users-table.row.actions.demote-to-user'
-                      )}
-                    </span>
-                  </DropdownMenuItem>
-                )}
+                {getSession.data?.user.role === UserRoles.SUPER_ADMIN ? (
+                  row.original.role === UserRoles.USER ? (
+                    <DropdownMenuItem
+                      disabled={
+                        getSession.data?.user.role !== UserRoles.SUPER_ADMIN
+                      }
+                      onClick={() => onPromoteUser?.(row.original)}
+                    >
+                      <ShieldPlus />
+                      <span className='w-full'>
+                        {t(
+                          'modules.(app).(admin).users._components.users-table.row.actions.promote-to-admin'
+                        )}
+                      </span>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      disabled={
+                        row.original.role === UserRoles.SUPER_ADMIN ||
+                        getSession.data?.user.role !== UserRoles.SUPER_ADMIN
+                      }
+                      onClick={() => onDemoteUser?.(row.original)}
+                    >
+                      <ShieldX />
+                      <span className='w-full'>
+                        {t(
+                          'modules.(app).(admin).users._components.users-table.row.actions.demote-to-user'
+                        )}
+                      </span>
+                    </DropdownMenuItem>
+                  )
+                ) : null}
               </DropdownMenuGroup>
 
               <DropdownMenuGroup>
