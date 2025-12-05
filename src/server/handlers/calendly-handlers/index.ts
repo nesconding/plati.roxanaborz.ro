@@ -9,6 +9,14 @@ import { CalendlyService } from '~/server/services/calendly'
 import type { CalendlyScheduledEventsStatusType } from '~/shared/enums/calendly-scheduled-events-status-type'
 import { CalendlyWebhookEventsType } from '~/shared/enums/calendly-webhook-events-type'
 
+function chunkArray<T>(array: T[], size: number): T[][] {
+  const result: T[][] = []
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size))
+  }
+  return result
+}
+
 type CalendlyWebhookEvent = {
   event: string
   payload: {
@@ -283,8 +291,17 @@ class CalendlyHandlersImpl {
       )
 
       if (existingEvents.length > 0) {
-        await this.db.insert(calendly_scheduled_events).values(existingEvents)
-        console.log('[CalendlyHandlers] Inserted initial events into database')
+        const BATCH_SIZE = 100 // Safe batch size for 13 columns (1300 params per batch)
+        const chunks = chunkArray(existingEvents, BATCH_SIZE)
+
+        await this.db.transaction(async (tx) => {
+          for (const chunk of chunks) {
+            await tx.insert(calendly_scheduled_events).values(chunk)
+          }
+        })
+        console.log(
+          `[CalendlyHandlers] Inserted ${existingEvents.length} events in ${chunks.length} batches`
+        )
       }
 
       console.log(
