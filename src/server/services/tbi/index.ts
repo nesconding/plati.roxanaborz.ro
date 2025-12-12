@@ -108,7 +108,10 @@ class TbiServiceImpl {
     if (config.environment === 'uat') {
       console.log('[TBI] UAT environment detected')
       console.log('[TBI] Endpoint:', config.endpoints.finalize)
-      console.log('[TBI] TLS options:', JSON.stringify((fetchOptions as any).tls))
+      console.log(
+        '[TBI] TLS options:',
+        JSON.stringify((fetchOptions as any).tls)
+      )
     }
 
     const response = await fetch(config.endpoints.finalize, fetchOptions)

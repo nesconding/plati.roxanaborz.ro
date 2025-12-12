@@ -75,7 +75,6 @@ export const PaymentInfoFormSection = withForm({
           >
             {(field) => (
               <field.Select
-                disabled={[{ value: PaymentMethodType.BankTransfer }]}
                 icon={Wallet}
                 isRequired
                 label={t('fields.paymentMethodType.title')}

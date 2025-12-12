@@ -142,6 +142,7 @@ function CreateExtensionPaymentLinkFormInner() {
     <div className='flex flex-col gap-4 w-full'>
       <StepperContent
         className='col-span-3'
+        contracts={findAllContracts.data}
         createOnePaymentLinkResponse={createOnePaymentLinkResponse}
         eurToRonRate={getEURToRONRate.data}
         firstPaymentDateAfterDepositOptions={

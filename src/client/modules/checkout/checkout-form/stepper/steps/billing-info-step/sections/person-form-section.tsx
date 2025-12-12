@@ -18,6 +18,7 @@ import { useTranslations } from 'next-intl'
 
 import { withForm } from '~/client/components/form/config'
 import { FieldGroup, FieldLegend, FieldSet } from '~/client/components/ui/field'
+import { ROMANIAN_COUNTIES } from '~/client/constants'
 import {
   CheckoutFormSection,
   CheckoutFormDefaultValues as defaultValues
@@ -43,6 +44,7 @@ export const PersonFormSection = withForm({
               {(field) => (
                 <field.Text
                   addons={[{ icon: User }]}
+                  isRequired
                   label={t('fields.surname.title')}
                   placeholder={t('fields.surname.placeholder')}
                 />
@@ -53,6 +55,7 @@ export const PersonFormSection = withForm({
               {(field) => (
                 <field.Text
                   addons={[{ icon: User }]}
+                  isRequired
                   label={t('fields.name.title')}
                   placeholder={t('fields.name.placeholder')}
                 />
@@ -66,6 +69,7 @@ export const PersonFormSection = withForm({
               {(field) => (
                 <field.Text
                   addons={[{ icon: Mail }]}
+                  isRequired
                   label={t('fields.email.title')}
                   placeholder={t('fields.email.placeholder')}
                 />
@@ -77,6 +81,7 @@ export const PersonFormSection = withForm({
             >
               {(field) => (
                 <field.Phone
+                  isRequired
                   label={t('fields.phoneNumber.title')}
                   placeholder={t('fields.phoneNumber.placeholder')}
                 />
@@ -89,9 +94,9 @@ export const PersonFormSection = withForm({
             {(field) => (
               <field.Text
                 addons={[{ icon: CreditCard }]}
+                isRequired
                 label={t('fields.cnp.title')}
                 placeholder={t('fields.cnp.placeholder')}
-                isRequired
               />
             )}
           </form.AppField>
@@ -109,6 +114,7 @@ export const PersonFormSection = withForm({
               {(field) => (
                 <field.Text
                   addons={[{ icon: Route }]}
+                  isRequired
                   label={t('fields.address.street.title')}
                   placeholder={t('fields.address.street.placeholder')}
                 />
@@ -121,6 +127,7 @@ export const PersonFormSection = withForm({
               {(field) => (
                 <field.Text
                   addons={[{ icon: Signpost }]}
+                  isRequired
                   label={t('fields.address.streetNumber.title')}
                   placeholder={t('fields.address.streetNumber.placeholder')}
                 />
@@ -187,6 +194,7 @@ export const PersonFormSection = withForm({
               {(field) => (
                 <field.Text
                   addons={[{ icon: Building2 }]}
+                  isRequired
                   label={t('fields.address.city.title')}
                   placeholder={t('fields.address.city.placeholder')}
                 />
@@ -197,10 +205,15 @@ export const PersonFormSection = withForm({
               name={`${CheckoutFormSection.BillingData}.address.county`}
             >
               {(field) => (
-                <field.Text
-                  addons={[{ icon: MapPin }]}
+                <field.Select
+                  isRequired
                   label={t('fields.address.county.title')}
+                  options={ROMANIAN_COUNTIES.map((county) => ({
+                    label: county,
+                    value: county
+                  }))}
                   placeholder={t('fields.address.county.placeholder')}
+                  valueKey='value'
                 />
               )}
             </form.AppField>
@@ -214,6 +227,7 @@ export const PersonFormSection = withForm({
               {(field) => (
                 <field.Text
                   addons={[{ icon: MapPin }]}
+                  isRequired
                   label={t('fields.address.postalCode.title')}
                   placeholder={t('fields.address.postalCode.placeholder')}
                 />
@@ -226,6 +240,7 @@ export const PersonFormSection = withForm({
               {(field) => (
                 <field.Text
                   addons={[{ icon: Globe }]}
+                  isRequired
                   label={t('fields.address.country.title')}
                   placeholder={t('fields.address.country.placeholder')}
                 />

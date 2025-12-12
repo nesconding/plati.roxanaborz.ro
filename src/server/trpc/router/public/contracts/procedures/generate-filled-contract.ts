@@ -8,6 +8,7 @@ import {
   fillContractPdf
 } from '~/server/services/contract-pdf'
 import { publicProcedure } from '~/server/trpc/config'
+import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 
 const addressSchema = z.object({
   apartment: z.string().optional(),
@@ -58,6 +59,13 @@ const output = z.object({
   pdfBase64: z.string()
 })
 
+const paymentLinkNameMap = {
+  [PaymentLinkType.Integral]: 'Integral',
+  [PaymentLinkType.Deposit]: 'Avans + Diferența',
+  [PaymentLinkType.Installments]: 'Rate',
+  [PaymentLinkType.InstallmentsDeposit]: 'Avans + Rate'
+}
+
 export const generateFilledContractProcedure = publicProcedure
   .input(input)
   .output(output)
@@ -96,7 +104,7 @@ export const generateFilledContractProcedure = publicProcedure
           paymentLink.totalAmountToPay,
           paymentLink.currency
         ),
-        paymentType: paymentLink.type
+        paymentType: paymentLinkNameMap[paymentLink.type]
       }
 
       // Fill the contract

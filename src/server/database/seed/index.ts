@@ -107,7 +107,8 @@ export async function seed() {
           productsExtensions,
           memberships,
           paymentsSettings,
-          productsExtensionsInstallments
+          productsExtensionsInstallments,
+          contracts
         })
     )
 

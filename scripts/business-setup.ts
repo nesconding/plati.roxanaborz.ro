@@ -2,6 +2,7 @@ import { createId } from '@paralleldrive/cuid2'
 import { getTableUniqueName } from 'drizzle-orm'
 import { database } from '~/server/database/drizzle'
 import * as schema from '~/server/database/schema'
+import type { bank_details } from '~/server/database/schema/business/models/bank-details'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 
 const CONSTANTS = [{ eurToRonRate: '5.05' }]
@@ -39,6 +40,28 @@ const PAYMENTS_SETTINGS = [
     tvaRate: '0'
   }
 ]
+
+const BANK_DETAILS = {
+  address: {
+    apartment: '',
+    building: '',
+    city: '',
+    country: '',
+    county: '',
+    entrance: '',
+    floor: '',
+    postalCode: '',
+    street: '',
+    streetNumber: ''
+  },
+  bank: '',
+  bic: '',
+  cui: '',
+  iban: '',
+  registrationNumber: '',
+  representativeLegal: ''
+}
+
 export const HARDCODED_PRODUCTS = [
   {
     extensions: [
@@ -197,6 +220,13 @@ async function main() {
 
     // Wave 1: Insert independent tables (no foreign key dependencies)
     await Promise.all([
+      (async () => {
+        const BankDetailsTableName = getTableUniqueName(schema.bank_details)
+        console.group(BankDetailsTableName)
+        console.log(`Processing ${BankDetailsTableName} data...`)
+        await database.insert(schema.bank_details).values(BANK_DETAILS)
+        console.groupEnd()
+      })(),
       (async () => {
         const ConstantsTableName = getTableUniqueName(schema.constants)
         console.group(ConstantsTableName)

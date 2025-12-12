@@ -40,18 +40,21 @@ export class TbiExtensionHandlers {
   async handleExtensionApproval(tbiOrderId: string) {
     try {
       // Find the payment link by TBI order ID
-      const paymentLink =
-        await this.db.query.extension_payment_links.findFirst({
+      const paymentLink = await this.db.query.extension_payment_links.findFirst(
+        {
           where: (extension_payment_links, { eq }) =>
             eq(extension_payment_links.tbiOrderId, tbiOrderId),
           with: {
             extension: true,
             membership: true
           }
-        })
+        }
+      )
 
       if (!paymentLink) {
-        throw new Error(`Payment link not found for TBI order ID: ${tbiOrderId}`)
+        throw new Error(
+          `Payment link not found for TBI order ID: ${tbiOrderId}`
+        )
       }
 
       if (!paymentLink.membership) {
@@ -121,14 +124,17 @@ export class TbiExtensionHandlers {
   async handleExtensionRejection(tbiOrderId: string, reason: string) {
     try {
       // Find the payment link by TBI order ID
-      const paymentLink =
-        await this.db.query.extension_payment_links.findFirst({
+      const paymentLink = await this.db.query.extension_payment_links.findFirst(
+        {
           where: (extension_payment_links, { eq }) =>
             eq(extension_payment_links.tbiOrderId, tbiOrderId)
-        })
+        }
+      )
 
       if (!paymentLink) {
-        throw new Error(`Payment link not found for TBI order ID: ${tbiOrderId}`)
+        throw new Error(
+          `Payment link not found for TBI order ID: ${tbiOrderId}`
+        )
       }
 
       // Determine status based on trimmed reason
@@ -157,14 +163,17 @@ export class TbiExtensionHandlers {
   async handleExtensionPending(tbiOrderId: string, intermediateStatus: string) {
     try {
       // Find the payment link by TBI order ID
-      const paymentLink =
-        await this.db.query.extension_payment_links.findFirst({
+      const paymentLink = await this.db.query.extension_payment_links.findFirst(
+        {
           where: (extension_payment_links, { eq }) =>
             eq(extension_payment_links.tbiOrderId, tbiOrderId)
-        })
+        }
+      )
 
       if (!paymentLink) {
-        throw new Error(`Payment link not found for TBI order ID: ${tbiOrderId}`)
+        throw new Error(
+          `Payment link not found for TBI order ID: ${tbiOrderId}`
+        )
       }
 
       await this.updateExtensionPaymentLinkStatus(

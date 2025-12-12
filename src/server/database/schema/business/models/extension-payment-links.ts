@@ -1,11 +1,12 @@
 import { relations } from 'drizzle-orm'
-import { integer, numeric, text, timestamp } from 'drizzle-orm/pg-core'
+import { integer, jsonb, numeric, text, timestamp } from 'drizzle-orm/pg-core'
 import { users } from '~/server/database/schema/authentication/models/users'
 import { payment_currency_type } from '~/server/database/schema/business/enums/payment-currency-type'
 import { payment_link_type } from '~/server/database/schema/business/enums/payment-link-type'
 import { payment_method_type } from '~/server/database/schema/business/enums/payment-method-type'
 import { payment_product_type } from '~/server/database/schema/business/enums/payment-product-type'
 import { payment_status_type } from '~/server/database/schema/business/enums/payment-status-type'
+import { contracts } from '~/server/database/schema/business/models/contracts'
 import { extension_orders } from '~/server/database/schema/business/models/extension-orders'
 import { memberships } from '~/server/database/schema/business/models/membership'
 import { products_extensions } from '~/server/database/schema/product/models/products-extensions'
@@ -18,10 +19,14 @@ export const extension_payment_links = business.table(
   'extension_payment_links',
   {
     ...id,
+    billingData: jsonb('billing_data'),
     callerEmail: text('caller_email'),
     callerName: text('caller_name'),
     closerEmail: text('closer_email'),
     closerName: text('closer_name'),
+    contractId: text('contract_id')
+      .notNull()
+      .references(() => contracts.id, { onDelete: 'no action' }),
     createdById: text('created_by_id')
       .notNull()
       .references(() => users.id, { onDelete: 'no action' }),
@@ -94,6 +99,10 @@ export const extension_payment_links = business.table(
 export const extension_payment_linksRelations = relations(
   extension_payment_links,
   ({ one }) => ({
+    contract: one(contracts, {
+      fields: [extension_payment_links.contractId],
+      references: [contracts.id]
+    }),
     createdBy: one(users, {
       fields: [extension_payment_links.createdById],
       references: [users.id]

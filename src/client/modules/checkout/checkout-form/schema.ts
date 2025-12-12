@@ -31,10 +31,9 @@ export const personSchema = z.object({
   name: z.string().min(1),
   phoneNumber: z
     .string()
-    .refine(
-      (phoneNumber) => phoneNumber === '' || isValidPhoneNumber(phoneNumber),
-      { message: 'Invalid phone number' }
-    ),
+    .refine((phoneNumber) => isValidPhoneNumber(phoneNumber), {
+      message: 'Invalid phone number'
+    }),
   surname: z.string().min(1),
   type: z.literal(BillingType.PERSON)
 })

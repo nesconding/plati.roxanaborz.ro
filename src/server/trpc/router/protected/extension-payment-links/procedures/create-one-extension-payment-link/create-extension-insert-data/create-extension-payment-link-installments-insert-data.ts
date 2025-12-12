@@ -1,6 +1,6 @@
 import { PricingService } from '~/lib/pricing'
 import type { CreateExtensionPaymentLinkInstallmentsFormData } from '~/shared/create-extension-payment-link-form/data'
-import type { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
+import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import type { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
@@ -12,6 +12,7 @@ import type {
 } from '~/shared/validation/tables'
 
 export type ExtensionPaymentLinkInstallmentsInsertData = {
+  contractId: string
   createdById: string
   currency: PaymentCurrencyType
   customerEmail: string
@@ -56,11 +57,20 @@ export function createExtensionPaymentLinkInstallmentsInsertData({
   user: typeof UsersTableValidators.$types.select
   productName: string
 }): ExtensionPaymentLinkInstallmentsInsertData {
+  // Convert EUR price to RON if needed (extensions store prices in EUR)
+  const pricePerInstallment =
+    setting.currency === PaymentCurrencyType.EUR
+      ? extensionInstallment.pricePerInstallment
+      : PricingService.convertEURtoRON(
+          extensionInstallment.pricePerInstallment,
+          eurToRonRate
+        )
+
   const { installmentAmountToPay, totalAmountToPay } =
     PricingService.calculateInstallmentsAmountToPay({
       extraTaxRate: setting.extraTaxRate,
       installmentsCount: extensionInstallment.count,
-      pricePerInstallment: extensionInstallment.pricePerInstallment,
+      pricePerInstallment: pricePerInstallment,
       tvaRate: setting.tvaRate
     })
   const installmentAmountToPayInCents = PricingService.convertToCents(
@@ -70,6 +80,7 @@ export function createExtensionPaymentLinkInstallmentsInsertData({
     PricingService.convertToCents(totalAmountToPay)
 
   return {
+    contractId: data.contractId,
     createdById: user.id,
     currency: setting.currency,
     customerEmail: customerEmail,

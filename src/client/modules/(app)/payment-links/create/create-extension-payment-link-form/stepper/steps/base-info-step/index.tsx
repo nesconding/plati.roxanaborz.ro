@@ -7,12 +7,14 @@ import { ParticipantsFormSection } from '~/client/modules/(app)/payment-links/cr
 import type { TRPCRouterOutput } from '~/client/trpc/react'
 import { CreateExtensionPaymentLinkFormDefaultValues } from '~/shared/create-extension-payment-link-form/create-extension-payment-link-form-schema'
 
+type Contracts = TRPCRouterOutput['protected']['contracts']['findAll']
 type Memberships = TRPCRouterOutput['protected']['memberships']['findAll']
 type Products = TRPCRouterOutput['protected']['products']['findAll']
 
 export const BaseInfoStep = withForm({
   defaultValues: CreateExtensionPaymentLinkFormDefaultValues,
   props: {
+    contracts: [] as Contracts,
     memberships: [] as Memberships,
     products: [] as Products
   },

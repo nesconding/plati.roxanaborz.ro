@@ -8,6 +8,7 @@ export * from '~/server/database/schema/business/enums/payment-product-type'
 export * from '~/server/database/schema/business/enums/payment-status-type'
 export * from '~/server/database/schema/business/enums/subscription-status-type'
 
+export * from '~/server/database/schema/business/models/bank-details'
 export * from '~/server/database/schema/business/models/constants'
 export * from '~/server/database/schema/business/models/contracts'
 export * from '~/server/database/schema/business/models/extension-orders'

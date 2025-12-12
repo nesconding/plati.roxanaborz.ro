@@ -12,6 +12,7 @@ export const updateExtensionOrderStatusProcedure = protectedProcedure
       status: z.union([
         z.literal(OrderStatusType.Cancelled),
         z.literal(OrderStatusType.Completed),
+        z.literal(OrderStatusType.PendingBankTransferPayment),
         z.literal(OrderStatusType.ProcessingBankTransferPayment)
       ])
     })

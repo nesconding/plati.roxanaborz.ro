@@ -19,6 +19,7 @@ import { useTranslations } from 'next-intl'
 
 import { withForm } from '~/client/components/form/config'
 import { FieldGroup, FieldLegend, FieldSet } from '~/client/components/ui/field'
+import { ROMANIAN_COUNTIES } from '~/client/constants'
 import {
   CheckoutFormSection,
   CheckoutFormDefaultValues as defaultValues
@@ -99,7 +100,9 @@ export const CompanyFormSection = withForm({
               )}
             </form.AppField>
 
-            <form.AppField name={`${CheckoutFormSection.BillingData}.bankAccount`}>
+            <form.AppField
+              name={`${CheckoutFormSection.BillingData}.bankAccount`}
+            >
               {(field) => (
                 <field.Text
                   addons={[{ icon: CreditCard }]}
@@ -223,12 +226,16 @@ export const CompanyFormSection = withForm({
               name={`${CheckoutFormSection.BillingData}.socialHeadquarters.county`}
             >
               {(field) => (
-                <field.Text
-                  addons={[{ icon: MapPin }]}
+                <field.Select
                   label={t('fields.socialHeadquarters.county.title')}
+                  options={ROMANIAN_COUNTIES.map((county) => ({
+                    label: county,
+                    value: county
+                  }))}
                   placeholder={t(
                     'fields.socialHeadquarters.county.placeholder'
                   )}
+                  valueKey='value'
                 />
               )}
             </form.AppField>

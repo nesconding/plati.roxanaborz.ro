@@ -1,7 +1,7 @@
 import { PricingService } from '~/lib/pricing'
 import { DatesService } from '~/server/services/dates'
 import type { CreateExtensionPaymentLinkInstallmentsDataDepositFormData } from '~/shared/create-extension-payment-link-form/data'
-import type { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
+import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import type { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
@@ -14,6 +14,7 @@ import type {
 } from '~/shared/validation/tables'
 
 export type ExtensionPaymentLinkInstallmentsDepositInsertData = {
+  contractId: string
   createdById: string
   currency: PaymentCurrencyType
   customerEmail: string
@@ -74,6 +75,15 @@ export function createExtensionPaymentLinkInstallmentsDepositInsertData({
 
   const depositAmountInCents = PricingService.convertToCents(data.depositAmount)
 
+  // Convert EUR price to RON if needed (extensions store prices in EUR)
+  const pricePerInstallment =
+    setting.currency === PaymentCurrencyType.EUR
+      ? extensionInstallment.pricePerInstallment
+      : PricingService.convertEURtoRON(
+          extensionInstallment.pricePerInstallment,
+          eurToRonRate
+        )
+
   const {
     remainingAmountToPay,
     totalAmountToPay,
@@ -83,7 +93,7 @@ export function createExtensionPaymentLinkInstallmentsDepositInsertData({
     depositAmount: data.depositAmount,
     extraTaxRate: setting.extraTaxRate,
     installmentsCount: extensionInstallment.count,
-    pricePerInstallment: extensionInstallment.pricePerInstallment,
+    pricePerInstallment: pricePerInstallment,
     tvaRate: setting.tvaRate
   })
   const installmentAmountToPayInCents = PricingService.convertToCents(
@@ -98,6 +108,7 @@ export function createExtensionPaymentLinkInstallmentsDepositInsertData({
   )
 
   return {
+    contractId: data.contractId,
     createdById: user.id,
     currency: setting.currency,
     customerEmail: customerEmail,

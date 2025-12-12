@@ -2,6 +2,7 @@ import { createTRPCRouter } from '~/server/trpc/config'
 import { cancelProductSubscriptionProcedure } from '~/server/trpc/router/protected/product-subscriptions/procedures/cancel-subscription'
 import { findAllProductSubscriptionsProcedure } from '~/server/trpc/router/protected/product-subscriptions/procedures/find-all-subscriptions'
 import { forceRetryProductPaymentProcedure } from '~/server/trpc/router/protected/product-subscriptions/procedures/force-retry-payment'
+import { generateProductUpdatePaymentTokenProcedure } from '~/server/trpc/router/protected/product-subscriptions/procedures/generate-update-payment-token'
 import { rescheduleProductPaymentProcedure } from '~/server/trpc/router/protected/product-subscriptions/procedures/reschedule-payment'
 import { retryFailedProductPaymentProcedure } from '~/server/trpc/router/protected/product-subscriptions/procedures/retry-failed-payment'
 import { setProductSubscriptionOnHoldProcedure } from '~/server/trpc/router/protected/product-subscriptions/procedures/set-on-hold'
@@ -11,6 +12,7 @@ export const productSubscriptionsRouter = createTRPCRouter({
   cancel: cancelProductSubscriptionProcedure,
   findAll: findAllProductSubscriptionsProcedure,
   forceRetryPayment: forceRetryProductPaymentProcedure,
+  generateUpdatePaymentToken: generateProductUpdatePaymentTokenProcedure,
   reschedulePayment: rescheduleProductPaymentProcedure,
   retryPayment: retryFailedProductPaymentProcedure,
   setOnHold: setProductSubscriptionOnHoldProcedure,

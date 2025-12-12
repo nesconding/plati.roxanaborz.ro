@@ -1,5 +1,5 @@
 export enum PaymentMethodType {
-  BankTransfer = 'bank_transfer',
   Card = 'card',
-  TBI = 'tbi'
+  TBI = 'tbi',
+  BankTransfer = 'bank_transfer'
 }

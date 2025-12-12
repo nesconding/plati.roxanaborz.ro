@@ -5,6 +5,7 @@ import { useStore } from '@tanstack/react-form'
 import { useMutation } from '@tanstack/react-query'
 import { BookUser, CreditCard, FileSignature, View } from 'lucide-react'
 import { forwardRef, useImperativeHandle, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { useAppForm } from '~/client/components/form/config'
 import {
@@ -127,11 +128,14 @@ const StripePaymentHandler = forwardRef<StripePaymentHandlerRef>(
 )
 
 function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
+  const router = useRouter()
   const stepper = useStepper()
   const { isExtension, hasContract } = useCheckout()
   const trpc = useTRPC()
 
   const isTbiPayment = paymentLink.paymentMethodType === PaymentMethodType.TBI
+  const isBankTransferPayment =
+    paymentLink.paymentMethodType === PaymentMethodType.BankTransfer
 
   // Ref for Stripe payment handler (only used for Stripe payments)
   const stripeHandlerRef = useRef<StripePaymentHandlerRef>(null)
@@ -139,6 +143,11 @@ function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
   // TBI payment mutation
   const tbiMutation = useMutation(
     trpc.public.paymentLinks.initiateTbiPayment.mutationOptions()
+  )
+
+  // Bank transfer payment mutation
+  const bankTransferMutation = useMutation(
+    trpc.public.paymentLinks.initiateBankTransferPayment.mutationOptions()
   )
 
   // Determine if we should show the contract signing step
@@ -174,6 +183,20 @@ function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
         return
       }
 
+      // Handle Bank Transfer payments
+      if (isBankTransferPayment) {
+        const result = await bankTransferMutation.mutateAsync({
+          billingData,
+          paymentLinkId: paymentLink.id
+        })
+
+        // Redirect to bank transfer success page
+        router.push(
+          `/checkout/${paymentLink.id}/bank-transfer-success?orderId=${result.orderId}`
+        )
+        return
+      }
+
       // Handle Stripe payments via the handler ref
       await stripeHandlerRef.current?.submit(billingData, paymentLink.id)
     },
@@ -184,12 +207,15 @@ function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
 
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting)
 
-  const isLoading = isSubmitting || tbiMutation.isPending
+  const isLoading =
+    isSubmitting || tbiMutation.isPending || bankTransferMutation.isPending
 
   return (
     <div className='flex flex-col gap-4 w-full px-4 pb-4'>
-      {/* Only render Stripe handler for Stripe payments */}
-      {!isTbiPayment && <StripePaymentHandler ref={stripeHandlerRef} />}
+      {/* Only render Stripe handler for Stripe payments (not TBI or Bank Transfer) */}
+      {!isTbiPayment && !isBankTransferPayment && (
+        <StripePaymentHandler ref={stripeHandlerRef} />
+      )}
 
       <Stepper.Navigation>
         {visibleSteps.map((step) => (
@@ -206,6 +232,7 @@ function CheckoutFormInner({ paymentLink }: CheckoutFormProps) {
         form={form}
         isLoading={isLoading}
         paymentLinkId={paymentLink.id}
+        paymentMethodType={paymentLink.paymentMethodType}
       />
     </div>
   )

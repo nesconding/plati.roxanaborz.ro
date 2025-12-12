@@ -345,6 +345,8 @@ export function PaymentLinksTable({
     },
     {
       accessorKey: 'paymentMethodType',
+      cell: ({ row }) =>
+        t(`columns.paymentMethodTypeValues.${row.original.paymentMethodType}`),
       header: PaymentLinksTableHeader,
       id: 'paymentMethodType'
     },

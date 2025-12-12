@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import {
+  Banknote,
   CalendarSync,
   ClipboardList,
   Cog,
@@ -219,6 +220,35 @@ export function AppLayoutContainerSidebarContent() {
                     <Link href='/memberships' passHref>
                       <IdCardLanyard />
                       <span>{t('memberships.title')}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <SidebarSeparator className='mx-0' />
+
+          <SidebarGroup>
+            <SidebarGroupLabel
+              className={cn({
+                'select-none pointer-events-none': sidebar.state === 'collapsed'
+              })}
+            >
+              {t('update-bank-transfer.groupTitle')}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === '/update-bank-transfer'}
+                    onClick={handleClose}
+                    tooltip={t('update-bank-transfer.title')}
+                  >
+                    <Link href='/update-bank-transfer' passHref>
+                      <Banknote />
+                      <span>{t('update-bank-transfer.title')}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

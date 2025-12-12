@@ -37,6 +37,7 @@ import { BillingInfoStep } from '~/client/modules/checkout/checkout-form/stepper
 import { ConfirmationStep } from '~/client/modules/checkout/checkout-form/stepper/steps/confirmation-step'
 import { ContractSigningStep } from '~/client/modules/checkout/checkout-form/stepper/steps/contract-signing-step'
 import { PaymentMethodStep } from '~/client/modules/checkout/checkout-form/stepper/steps/payment-method-step'
+import { PaymentMethodType } from '~/shared/enums/payment-method-type'
 
 // Map form sections to validate for each step
 const STEPS_FORM_SECTIONS = {
@@ -49,18 +50,20 @@ export const StepperContent = withForm({
   props: {
     className: '' as string | undefined,
     isLoading: false,
-    paymentLinkId: ''
+    paymentLinkId: '',
+    paymentMethodType: undefined as PaymentMethodType | undefined
   },
   render: function Render(props) {
     const stepper = useStepper()
-    const { isExtension, hasContract } = useCheckout()
+    const { hasContract } = useCheckout()
     const t = useTranslations(
       'modules.(app).checkout._components.checkout-form'
     )
     type Step = (typeof stepper.all)[number]
 
     // Determine if we should show the contract signing step
-    const shouldShowContractStep = !isExtension && hasContract
+    // Extensions now have contracts too, so we only check hasContract
+    const shouldShowContractStep = hasContract
 
     function makeStepperContent(): Stepperize.Get.Switch<
       Step[],
@@ -96,9 +99,10 @@ export const StepperContent = withForm({
 
     async function validateCurrentStep() {
       // Get form sections to validate for current step
-      const sectionsToValidate = STEPS_FORM_SECTIONS[
-        stepper.current.id as keyof typeof STEPS_FORM_SECTIONS
-      ]
+      const sectionsToValidate =
+        STEPS_FORM_SECTIONS[
+          stepper.current.id as keyof typeof STEPS_FORM_SECTIONS
+        ]
 
       if (!sectionsToValidate) return true
 
@@ -157,7 +161,10 @@ export const StepperContent = withForm({
           await Promise.all(
             fieldsToValidate.map((fieldPath) =>
               // biome-ignore lint/suspicious/noExplicitAny: form field path
-              props.form.validateField(`${section}.${fieldPath}` as any, 'submit')
+              props.form.validateField(
+                `${section}.${fieldPath}` as any,
+                'submit'
+              )
             )
           )
         } else {
@@ -277,7 +284,9 @@ export const StepperContent = withForm({
                   {props.isLoading ? <Spinner /> : <CreditCard />}
                   {props.isLoading
                     ? t('buttons.submit.loading')
-                    : t('buttons.submit.default')}
+                    : props.paymentMethodType === PaymentMethodType.BankTransfer
+                      ? t('buttons.submit.bankTransfer')
+                      : t('buttons.submit.default')}
                 </Button>
               )}
             </CardFooter>

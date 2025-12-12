@@ -1,5 +1,6 @@
 import { createTRPCRouter } from '~/server/trpc/config'
 import { authenticationRouter } from '~/server/trpc/router/protected/authentication/router'
+import { bankTransfersRouter } from '~/server/trpc/router/protected/bank-transfers/router'
 import { contractsRouter } from '~/server/trpc/router/protected/contracts/router'
 import { extensionOrdersRouter } from '~/server/trpc/router/protected/extension-orders/router'
 import { extensionPaymentLinksRouter } from '~/server/trpc/router/protected/extension-payment-links/router'
@@ -14,6 +15,7 @@ import { settingsRouter } from '~/server/trpc/router/protected/settings/router'
 
 export const protectedRouter = createTRPCRouter({
   authentication: authenticationRouter,
+  bankTransfers: bankTransfersRouter,
   contracts: contractsRouter,
   extensionOrders: extensionOrdersRouter,
   extensionPaymentLinks: extensionPaymentLinksRouter,

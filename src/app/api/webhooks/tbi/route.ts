@@ -68,7 +68,10 @@ export async function POST(req: Request) {
     // Step 3: Validate the status update structure
     // Note: status_id can be 0 (Rejected/Canceled), so we check for null/undefined explicitly
     if (!statusUpdate.order_id || statusUpdate.status_id == null) {
-      console.error('[TBI Webhook] Invalid status update structure:', statusUpdate)
+      console.error(
+        '[TBI Webhook] Invalid status update structure:',
+        statusUpdate
+      )
       return NextResponse.json(
         { error: 'Invalid status update structure' },
         { status: 400 }

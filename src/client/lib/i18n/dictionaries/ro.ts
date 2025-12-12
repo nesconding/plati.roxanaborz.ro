@@ -1,6 +1,5 @@
 import { CreateExtensionPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-extension-payment-link-form/stepper/config'
 import { CreateProductPaymentLinkFormStep } from '~/client/modules/(app)/payment-links/create/create-product-payment-link-form/stepper/config'
-import { CheckoutFormSection } from '~/client/modules/checkout/checkout-form/schema'
 import { CheckoutFormStep } from '~/client/modules/checkout/checkout-form/stepper/config'
 import { CreateExtensionPaymentLinkFormSection } from '~/shared/create-extension-payment-link-form/enums/create-extension-payment-link-form-sections'
 import { CreateProductPaymentLinkFormSection } from '~/shared/create-product-payment-link-form/enums/create-product-payment-link-form-sections'
@@ -590,135 +589,116 @@ const dictionary = {
               }
             }
           }
-
-          // 'create-product-dialog': {
-          //   title: 'Adaugă produs',
-          //   description: 'Adaugă un produs nou.',
-          //   form: {
-          //     fields: {
-          //       name: {
-          //         title: 'Nume produs',
-          //         placeholder: 'Introduceți numele produsului'
-          //       },
-          //       'membership-duration-months': {
-          //         title: 'Durata subscripției (în luni)',
-          //         placeholder: 'Introduceți durata subscripției',
-          //         addon: 'luni'
-          //       },
-          //       price: {
-          //         title: 'Preț (în euro)',
-          //         placeholder: 'Introduceți prețul produsului'
-          //       },
-          //       'min-deposit-amount': {
-          //         title: 'Avans minim (în euro)',
-          //         placeholder: 'Introduceți avansul minim'
-          //       },
-          //       'installments-options': {
-          //         title: 'Opțiuni de rate',
-          //         description: 'Opțiuni de rate pentru produs.',
-          //         fields: {
-          //           installments: {
-          //             title: 'Rate',
-          //             placeholder: 'Introduceți numărul de rate'
-          //           },
-          //           'price-per-installment': {
-          //             title: 'Preț per rată (în euro)',
-          //             placeholder: 'Introduceți prețul per rată'
-          //           }
-          //         },
-          //         'add-installment': 'Adaugă o rată'
-          //       }
-          //     }
-          //   },
-          //   response: {
-          //     success: {
-          //       title: 'Adaugare reușită',
-          //       description: 'Produsul a fost adaugat cu succes.'
-          //     },
-          //     error: {
-          //       title: 'Adaugare eșuată',
-          //       description: 'A apărut o eroare la adaugarea produsului.'
-          //     }
-          //   },
-          //   buttons: {
-          //     cancel: 'Anulează',
-          //     submit: { default: 'Adaugă', loading: 'Se adaugă produsul...' }
-          //   }
-          // },
-          // 'delete-product-dialog': {
-          //   title: 'Șterge {name}',
-          //   description: 'Ești sigur/ă că vrei să ștergi <product-name>{name}</product-name>?',
-          //   response: {
-          //     success: {
-          //       title: 'Ștergere reușită',
-          //       description: 'Produsul a fost șters cu succes.'
-          //     },
-          //     error: {
-          //       title: 'Ștergere eșuată',
-          //       description: 'A apărut o eroare la ștergerea produsului.'
-          //     }
-          //   },
-          //   buttons: {
-          //     cancel: 'Anulează',
-          //     confirm: { default: 'Șterge', loading: 'Se șterge produsul...' }
-          //   }
-          // },
-          // 'update-product-dialog': {
-          //   title: 'Modifică produsul',
-          //   form: {
-          //     fields: {
-          //       name: {
-          //         title: 'Nume produs',
-          //         placeholder: 'Introduceți numele produsului'
-          //       },
-          //       'membership-duration-months': {
-          //         title: 'Durata subscripției (în luni)',
-          //         placeholder: 'Introduceți durata subscripției',
-          //         addon: 'luni'
-          //       },
-          //       price: {
-          //         title: 'Preț (în euro)',
-          //         placeholder: 'Introduceți prețul produsului'
-          //       },
-          //       'min-deposit-amount': {
-          //         title: 'Avans minim (în euro)',
-          //         placeholder: 'Introduceți avansul minim'
-          //       },
-          //       'installments-options': {
-          //         title: 'Opțiuni de rate',
-          //         description: 'Opțiuni de rate pentru produs.',
-          //         fields: {
-          //           installments: {
-          //             title: 'Rate',
-          //             placeholder: 'Introduceți numărul de rate'
-          //           },
-          //           'price-per-installment': {
-          //             title: 'Preț per rată (în euro)',
-          //             placeholder: 'Introduceți prețul per rată'
-          //           }
-          //         },
-          //         'add-installment': 'Adaugă o rată'
-          //       }
-          //     }
-          //   },
-          //   response: {
-          //     success: {
-          //       title: 'Modificare reușită',
-          //       description: 'Produsul a fost modificat cu succes.'
-          //     },
-          //     error: {
-          //       title: 'Modificare eșuată',
-          //       description: 'A apărut o eroare la modificarea produsului.'
-          //     }
-          //   },
-          //   buttons: {
-          //     cancel: 'Anulează',
-          //     submit: { default: 'Modifică', loading: 'Se modifică produsul...' }
-          //   }
-          // }
         },
 
         settings: {
+          'bank-details': {
+            buttons: {
+              submit: {
+                default: 'Modifică detaliile bancare',
+                loading: 'Se modifică detaliile bancare...'
+              }
+            },
+            description: 'Modifică detaliile bancare pentru facturare.',
+
+            fields: {
+              address: {
+                apartment: {
+                  placeholder: 'Ap.',
+                  title: 'Apartament'
+                },
+                building: {
+                  placeholder: 'Bl.',
+                  title: 'Bloc'
+                },
+                city: {
+                  placeholder: 'Introduceți orașul',
+                  title: 'Oraș'
+                },
+                country: {
+                  placeholder: 'România',
+                  title: 'Țară'
+                },
+                county: {
+                  placeholder: 'Selectați județul',
+                  title: 'Județ'
+                },
+                entrance: {
+                  placeholder: 'Sc.',
+                  title: 'Scară'
+                },
+                floor: {
+                  placeholder: 'Et.',
+                  title: 'Etaj'
+                },
+                legend: 'Adresa',
+                postalCode: {
+                  placeholder: 'Introduceți codul poștal',
+                  title: 'Cod poștal'
+                },
+                street: {
+                  placeholder: 'Introduceți strada',
+                  title: 'Stradă'
+                },
+                streetNumber: {
+                  placeholder: 'Nr.',
+                  title: 'Număr'
+                }
+              },
+              details: {
+                bank: {
+                  placeholder: 'Introduceți banca',
+                  title: 'Banca'
+                },
+                bankAccount: {
+                  placeholder: 'Introduceți contul bancar (IBAN)',
+                  title: 'Cont bancar (IBAN)'
+                },
+                bic: {
+                  placeholder: 'Introduceți codul BIC/SWIFT',
+                  title: 'Cod BIC/SWIFT'
+                },
+                cui: {
+                  placeholder: 'Introduceți CUI-ul',
+                  title: 'CUI'
+                },
+                iban: {
+                  placeholder: 'Introduceți IBAN-ul',
+                  title: 'IBAN'
+                },
+                legend: 'Detalii bancare',
+                name: {
+                  placeholder: 'Introduceți denumirea companiei',
+                  title: 'Denumire companie'
+                },
+                registrationNumber: {
+                  placeholder: 'Introduceți numărul de înregistrare',
+                  title: 'Număr de înregistrare (ex: J40/1234/2025)'
+                },
+                representativeLegal: {
+                  placeholder: 'Introduceți reprezentantul legal',
+                  title: 'Reprezentant legal'
+                }
+              }
+            },
+
+            response: {
+              submit: {
+                error: {
+                  description:
+                    'A apărut o eroare la modificarea cursului Euro la RON.',
+                  title: 'Modificarea cursului Euro la RON este eșuată'
+                },
+                success: {
+                  description: 'Cursul Euro la RON a fost modificat cu succes.',
+                  title: 'Modificarea cursului Euro la RON este reușită'
+                }
+              }
+            },
+
+            title: 'Modifică detaliile bancare'
+          },
+
           'contract-settings': {
             'add-dialog': {
               buttons: {
@@ -1356,6 +1336,7 @@ const dictionary = {
               'next-step': 'Pasul următor',
               'previous-step': 'Pasul anterior',
               submit: {
+                bankTransfer: 'Comandǎ',
                 default: 'Platește',
                 loading: 'Se plătește...'
               }
@@ -1397,7 +1378,7 @@ const dictionary = {
                       },
                       registrationNumber: {
                         placeholder: 'Introduceți numărul de înregistrare',
-                        title: 'Număr de înregistrare'
+                        title: 'Număr de înregistrare (ex: J40/1234/2025)'
                       },
                       representativeLegal: {
                         placeholder: 'Introduceți reprezentantul legal',
@@ -1421,7 +1402,7 @@ const dictionary = {
                           title: 'Țară'
                         },
                         county: {
-                          placeholder: 'Introduceți județul',
+                          placeholder: 'Selectați județul',
                           title: 'Județ'
                         },
                         entrance: {
@@ -1474,7 +1455,7 @@ const dictionary = {
                           title: 'Țară'
                         },
                         county: {
-                          placeholder: 'Introduceți județul',
+                          placeholder: 'Selectați județul',
                           title: 'Județ'
                         },
                         entrance: {
@@ -1540,7 +1521,8 @@ const dictionary = {
                           bankAccount: 'Cont bancar',
                           cui: 'CUI',
                           name: 'Denumire',
-                          registrationNumber: 'Nr. înregistrare',
+                          registrationNumber:
+                            'Număr de înregistrare (ex: J40/1234/2025)',
                           representative: 'Reprezentant legal',
                           title: 'Date companie'
                         },
@@ -1649,6 +1631,9 @@ const dictionary = {
                     }
                   },
                   'payment-submit': {
+                    bankTransferDescription:
+                      'După finalizarea comenzii, veți primi detaliile bancare pentru efectuarea plății.',
+                    bankTransferTitle: 'Transfer Bancar',
                     legend: 'Plateste',
                     tbiDescription:
                       'Plata va fi procesată prin TBI Bank. După confirmare, veți fi redirecționat către platforma TBI pentru a finaliza solicitarea de finanțare.'
@@ -1657,6 +1642,54 @@ const dictionary = {
                 title: 'Modalitate de plată'
               }
             }
+          }
+        },
+        'bank-transfer-success': {
+          'bank-details': {
+            bank: 'Bancă',
+            beneficiary: 'Beneficiar',
+            bic: 'BIC/SWIFT',
+            cui: 'CUI',
+            iban: 'IBAN',
+            'registration-number': 'Nr. Reg. Com.',
+            title: 'Detalii Bancare'
+          },
+          buttons: {
+            'download-pdf': 'Descarcă Detaliile (PDF)'
+          },
+          close: 'Puteți închide această fereastră în siguranță.',
+          description:
+            'Mulțumim! Finalizați plata prin transfer bancar folosind datele de mai jos.',
+          instructions: {
+            step1: 'Efectuați transferul bancar către contul de mai sus',
+            step2: 'Includeți referința de plată în descrierea transferului',
+            step3: 'Comanda va fi procesată după confirmarea plății',
+            title: 'Instrucțiuni'
+          },
+          'payment-info': {
+            amount: 'Sumă de plătit',
+            product: 'Produs',
+            reference: 'Referință Plată',
+            'reference-hint': 'folosiți în descrierea transferului',
+            title: 'Detalii Plată'
+          },
+          'payment-schedule': {
+            labels: {
+              deposit: 'Avans',
+              installment: 'Rata',
+              now: 'Acum',
+              remaining: 'Rest de plată'
+            },
+            status: {
+              paid: 'Plătit',
+              pending: 'De plătit',
+              upcoming: 'În așteptare'
+            },
+            title: 'Grafic de Plăți'
+          },
+          title: 'Comandă Înregistrată',
+          toast: {
+            copied: 'Copiat în clipboard!'
           }
         },
         callback: {
@@ -1734,6 +1767,10 @@ const dictionary = {
                 },
                 subscriptions: {
                   title: 'Subscripții'
+                },
+                'update-bank-transfer': {
+                  groupTitle: 'Transfer Bancar',
+                  title: 'Confirmare transfer bancar'
                 }
               }
             },
@@ -2317,8 +2354,22 @@ const dictionary = {
                     },
                     title: 'Anulează comandă'
                   },
+                  'download-pdf': {
+                    response: {
+                      error: {
+                        title: 'Eroare la descărcarea PDF-ului'
+                      },
+                      success: {
+                        title: 'PDF descărcat cu succes'
+                      }
+                    },
+                    title: 'Descarcă Detalii Plată (PDF)'
+                  },
                   'process-bank-transfer-payment': {
                     title: 'Procesează transfer bancar'
+                  },
+                  'update-status': {
+                    title: 'Actualizează status'
                   }
                 }
               },
@@ -2338,6 +2389,43 @@ const dictionary = {
                 [OrderType.ParentOrder]: 'Comandă principalǎ',
                 [OrderType.OneTimePaymentOrder]: 'Comandǎ integralǎ',
                 [OrderType.RenewalOrder]: 'Comandǎ de reînnoire'
+              }
+            }
+          },
+          'update-order-status-dialog': {
+            buttons: {
+              cancel: 'Anulează',
+              submit: {
+                default: 'Actualizează',
+                loading: 'Se actualizează...'
+              }
+            },
+            description: {
+              default: 'Selectează noul status pentru această comandă.',
+              'with-customer':
+                'Selectează noul status pentru comanda clientului {customerName}.'
+            },
+            fields: {
+              status: {
+                label: 'Status',
+                options: {
+                  cancelled: 'Anulată',
+                  completed: 'Finalizată',
+                  pending: 'În așteptarea plății',
+                  processing: 'Plată în procesare'
+                },
+                placeholder: 'Selectează un status'
+              }
+            },
+            title: 'Actualizare Status Comandă',
+            toast: {
+              error: {
+                description: 'Nu s-a putut actualiza statusul comenzii.',
+                title: 'Eroare'
+              },
+              success: {
+                description: 'Statusul comenzii a fost actualizat la {status}.',
+                title: 'Status actualizat'
               }
             }
           }
@@ -2372,6 +2460,10 @@ const dictionary = {
                     description:
                       'Alege o prelungire pentru care se va crea link-ul de plată.',
                     fields: {
+                      contractId: {
+                        placeholder: 'Selecteazǎ un contract',
+                        title: 'Alege un contract'
+                      },
                       extensionId: {
                         item: {
                           extensionMonths:
@@ -3281,7 +3373,8 @@ const dictionary = {
               'cancel-subscription': 'Anulează subscripție',
               'reschedule-payment': 'Reprogramează plată',
               'set-on-hold': 'Pune în așteptare',
-              title: 'Acțiuni'
+              title: 'Acțiuni',
+              'update-payment-method': 'Actualizează metoda de plată'
             },
             alerts: {
               'payment-failures': {
@@ -3390,8 +3483,143 @@ const dictionary = {
               'previous-page': 'Pagina anterioară',
               'rows-per-page': 'Rânduri pe pagină'
             }
+          },
+          'update-payment-method-dialog': {
+            buttons: {
+              close: 'Închide',
+              generate: {
+                default: 'Generează link',
+                loading: 'Se generează...'
+              }
+            },
+            description: {
+              default:
+                'Generează un link securizat pentru actualizarea metodei de plată.',
+              'with-customer':
+                'Generează un link securizat pentru actualizarea metodei de plată pentru {customerName}.'
+            },
+            info: {
+              description:
+                'Link-ul va fi valabil 24 de ore. Clientul va putea introduce noile date ale cardului.',
+              title: 'Generare link actualizare'
+            },
+            link: {
+              expires: 'Link-ul expiră la: {date}',
+              label: 'Link actualizare'
+            },
+            title: 'Actualizare metodă de plată',
+            toast: {
+              copied: {
+                title: 'Link copiat în clipboard'
+              },
+              'copy-error': {
+                title: 'Eroare la copierea link-ului'
+              },
+              error: {
+                description: 'A apărut o eroare la generarea link-ului.',
+                title: 'Eroare'
+              },
+              success: {
+                description: 'Link-ul a fost generat cu succes.',
+                title: 'Link generat'
+              }
+            }
           }
         }
+      },
+      'update-bank-transfer': {
+        confirmButton: 'Confirmă Plata',
+        confirmDialog: {
+          buttons: {
+            cancel: 'Anulează',
+            confirm: 'Confirmă Plata'
+          },
+          description:
+            'Sunteți sigur că doriți să confirmați această plată prin transfer bancar?',
+          title: 'Confirmare Transfer Bancar',
+          toast: {
+            error: {
+              description: 'A apărut o eroare la confirmarea plății.',
+              title: 'Confirmare eșuată'
+            },
+            success: {
+              description: 'Plata a fost confirmată cu succes.',
+              title: 'Plată confirmată'
+            }
+          }
+        },
+        orderSelector: {
+          emptyText: 'Nu există comenzi în așteptare',
+          label: 'Selectează comanda',
+          placeholder: 'Selectează o comandă...',
+          searchPlaceholder: 'Caută după client sau produs...'
+        },
+        orderSummary: {
+          customer: {
+            email: 'Email',
+            name: 'Nume',
+            title: 'Informații Client'
+          },
+          description: 'Detaliile comenzii selectate',
+          membership: {
+            endDate: 'Data sfârșit',
+            startDate: 'Data început',
+            status: 'Status',
+            statuses: {
+              active: 'Activ',
+              cancelled: 'Anulat',
+              delayed: 'Amânat',
+              paused: 'Suspendat'
+            },
+            title: 'Membership'
+          },
+          payment: {
+            depositAmount: 'Sumă avans',
+            linkType: 'Tip plată',
+            title: 'Detalii Plată',
+            totalAmount: 'Sumă totală'
+          },
+          paymentTypes: {
+            deposit: 'Avans',
+            installments: 'Rate',
+            installmentsDeposit: 'Avans + Rate',
+            integral: 'Integral'
+          },
+          product: {
+            name: 'Nume',
+            title: 'Produs',
+            type: 'Tip'
+          },
+          subscription: {
+            nextPaymentDate: 'Următoarea plată',
+            remainingPayments: 'Plăți rămase',
+            status: 'Status',
+            statuses: {
+              active: 'Activă',
+              cancelled: 'Anulată',
+              completed: 'Finalizată',
+              on_hold: 'În așteptare'
+            },
+            title: 'Subscripție'
+          },
+          title: 'Detalii Comandă'
+        },
+        paymentPlan: {
+          currentPayment: 'De confirmat',
+          description: 'Planul de plată pentru această comandă',
+          dueDate: 'Scadență',
+          expectedPayment: 'Suma de încasat',
+          rows: {
+            deposit: 'Avans',
+            dueDate: 'Data scadenta: {date}',
+            fullPayment: 'Plată integrală',
+            installment: 'Rata {number}',
+            remainingPayment: 'Restul de plată'
+          },
+          title: 'Plan de Plată'
+        },
+        subtitle: 'Confirmați plățile primite prin transfer bancar',
+        title: 'Confirmare Transfer Bancar'
       }
     },
     '(auth)': {
@@ -3427,6 +3655,37 @@ const dictionary = {
         },
         title: 'Autentificare'
       }
+    },
+    'update-payment': {
+      callback: {
+        closeWindow: 'Închideți fereastra',
+        content: {
+          error:
+            'Vă rugăm să contactați reprezentantul de vânzări pentru asistență sau încercați din nou cu un link nou de actualizare.',
+          success:
+            'Plățile viitoare ale subscripției vor utiliza noua metodă de plată pe care tocmai ați adăugat-o.'
+        },
+        error: {
+          defaultMessage: 'A apărut o eroare la actualizarea metodei de plată',
+          title: 'Actualizare eșuată'
+        },
+        success: {
+          description:
+            'Metoda de plată a subscripției dvs. a fost actualizată cu succes',
+          title: 'Metodă de plată actualizată'
+        }
+      },
+      customer: 'Client',
+      description:
+        'Introduceți noile date ale cardului pentru subscripția dvs.',
+      email: 'Email',
+      errorGeneric: 'A apărut o eroare. Vă rugăm să încercați din nou.',
+      loading: 'Se încarcă...',
+      product: 'Produs',
+      securityNote: 'Plățile sunt procesate în siguranță de Stripe',
+      submit: 'Actualizează metoda de plată',
+      submitting: 'Se procesează...',
+      title: 'Actualizare metodă de plată'
     }
   },
 

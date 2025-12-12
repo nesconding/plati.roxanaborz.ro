@@ -13,6 +13,7 @@ export const CreateExtensionPaymentLinkFormSchema = z.object({
     setterName: z.string()
   }),
   [CreateExtensionPaymentLinkFormSection.Extension]: z.object({
+    contractId: z.string().nonempty(),
     extensionId: z.string().nonempty(),
     membershipId: z.string().nonempty()
   }),
@@ -45,6 +46,7 @@ export const CreateExtensionPaymentLinkFormDefaultValues: CreateExtensionPayment
       setterName: ''
     },
     [CreateExtensionPaymentLinkFormSection.Extension]: {
+      contractId: '',
       extensionId: '',
       membershipId: ''
     },

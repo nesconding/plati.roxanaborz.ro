@@ -24,6 +24,8 @@ import {
   Columns2,
   Download,
   EllipsisVertical,
+  FileDown,
+  Loader2,
   Pencil,
   Search,
   View,
@@ -76,9 +78,12 @@ import {
   TableRow
 } from '~/client/components/ui/table'
 import { useIsMobile } from '~/client/hooks/use-mobile'
+import { generateBankTransferPdf } from '~/client/lib/pdf/generate-bank-transfer-pdf'
 import { cn } from '~/client/lib/utils'
 import { createXLSXFile } from '~/client/lib/xlsx'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
+import { calculatePaymentSchedule } from '~/lib/payment-schedule'
+import { PricingService } from '~/lib/pricing'
 import { DatesService } from '~/server/services/dates'
 import { OrderStatusType } from '~/shared/enums/order-status-type'
 import { OrderType } from '~/shared/enums/order-type'
@@ -152,7 +157,7 @@ export function OrdersTable({ className, search }: OrdersTableProps) {
     pageSize: pageSizeOptions[1]
   })
   const [rowSelection, setRowSelection] = useState({})
-
+  const [downloadingPdf, setDownloadingPdf] = useState<string | null>(null)
   const trpc = useTRPC()
   const getExtensionOrders = useQuery(
     trpc.protected.extensionOrders.findAll.queryOptions(undefined, {
@@ -313,120 +318,64 @@ export function OrdersTable({ className, search }: OrdersTableProps) {
     }
   }
 
-  const handleOnClickUpdateOrderStatusProcessBankTransferPayment = async (
-    id: string,
-    status: OrderStatusType,
-    paymentProductType: PaymentProductType
-  ) => {
-    if (
-      status !== OrderStatusType.PendingCardPayment &&
-      status !== OrderStatusType.PendingBankTransferPayment
-    ) {
-      return
-    }
+  const handleDownloadBankTransferPdf = async (orderId: string) => {
+    // Only for product orders
+    setDownloadingPdf(orderId)
+    try {
+      const [paymentLink, bankDetails] = await Promise.all([
+        queryClient.fetchQuery(
+          trpc.protected.productOrders.getPaymentLinkByOrder.queryOptions({
+            orderId
+          })
+        ),
+        queryClient.fetchQuery(
+          trpc.public.settings.getBankDetails.queryOptions()
+        )
+      ])
 
-    if (paymentProductType === PaymentProductType.Product) {
-      await updateProductOrderStatus.mutateAsync(
-        {
-          id,
-          status: OrderStatusType.ProcessingBankTransferPayment
-        },
-        {
-          onError: (error) => {
-            toast.error(
-              t(
-                'row.actions.process-bank-transfer-payment.product.response.error.title'
-              ),
-              {
-                className: '!text-destructive-foreground',
-                classNames: {
-                  description: '!text-muted-foreground',
-                  icon: 'text-destructive',
-                  title: '!text-destructive'
-                },
-                description:
-                  error instanceof Error
-                    ? error.message
-                    : t(
-                        'row.actions.process-bank-transfer-payment.product.response.error.description'
-                      )
-              }
-            )
-            console.error(error)
-          },
-          onSuccess: async () => {
-            await queryClient.invalidateQueries({
-              queryKey: trpc.protected.productOrders.findAll.queryKey()
-            })
-            toast.success(
-              t(
-                'row.actions.process-bank-transfer-payment.product.response.success.title'
-              ),
-              {
-                classNames: {
-                  description: '!text-muted-foreground',
-                  icon: 'text-primary'
-                },
-                description: t(
-                  'row.actions.process-bank-transfer-payment.product.response.success.description'
-                )
-              }
-            )
-          }
-        }
-      )
-    }
+      if (!paymentLink || !bankDetails) {
+        toast.error(t('row.actions.values.download-pdf.response.error.title'))
+        return
+      }
 
-    if (paymentProductType === PaymentProductType.Extension) {
-      await updateExtensionOrderStatus.mutateAsync(
-        {
-          id,
-          status: OrderStatusType.ProcessingBankTransferPayment
+      const schedule = calculatePaymentSchedule({
+        currency: paymentLink.currency,
+        depositAmount: paymentLink.depositAmount,
+        firstPaymentDateAfterDeposit: paymentLink.firstPaymentDateAfterDeposit,
+        productInstallmentAmountToPay:
+          paymentLink.productInstallmentAmountToPay,
+        productInstallmentsCount: paymentLink.productInstallmentsCount,
+        remainingAmountToPay: paymentLink.remainingAmountToPay,
+        remainingInstallmentAmountToPay:
+          paymentLink.remainingInstallmentAmountToPay,
+        totalAmountToPay: paymentLink.totalAmountToPay,
+        type: paymentLink.type
+      })
+
+      generateBankTransferPdf({
+        bankDetails: {
+          bank: bankDetails.bank,
+          bic: bankDetails.bic,
+          cui: bankDetails.cui,
+          iban: bankDetails.iban,
+          name: bankDetails.name,
+          registrationNumber: bankDetails.registrationNumber
         },
-        {
-          onError: (error) => {
-            toast.error(
-              t(
-                'row.actions.process-bank-transfer-payment.extension.response.error.title'
-              ),
-              {
-                className: '!text-destructive-foreground',
-                classNames: {
-                  description: '!text-muted-foreground',
-                  icon: 'text-destructive',
-                  title: '!text-destructive'
-                },
-                description:
-                  error instanceof Error
-                    ? error.message
-                    : t(
-                        'row.actions.process-bank-transfer-payment.extension.response.error.description'
-                      )
-              }
-            )
-            console.error(error)
-          },
-          onSuccess: async () => {
-            await queryClient.invalidateQueries({
-              queryKey: trpc.protected.extensionOrders.findAll.queryKey()
-            })
-            toast.success(
-              t(
-                'row.actions.process-bank-transfer-payment.extension.response.success.title'
-              ),
-              {
-                classNames: {
-                  description: '!text-muted-foreground',
-                  icon: 'text-primary'
-                },
-                description: t(
-                  'row.actions.process-bank-transfer-payment.extension.response.success.description'
-                )
-              }
-            )
-          }
-        }
-      )
+        formattedAmount: PricingService.formatPrice(
+          paymentLink.totalAmountToPay,
+          paymentLink.currency
+        ),
+        orderId,
+        paymentSchedule: schedule,
+        productName: paymentLink.productName
+      })
+
+      toast.success(t('row.actions.values.download-pdf.response.success.title'))
+    } catch (error) {
+      console.error('Failed to download PDF:', error)
+      toast.error(t('row.actions.values.download-pdf.response.error.title'))
+    } finally {
+      setDownloadingPdf(null)
     }
   }
 
@@ -539,52 +488,73 @@ export function OrdersTable({ className, search }: OrdersTableProps) {
     {
       accessorKey: 'actions',
       cell: ({ row }) => {
+        // Check if this is a bank transfer order (works for both products and extensions)
+        // Bank transfer orders have empty stripePaymentIntentId or bank transfer status
+        const isBankTransferOrder =
+          row.original.stripePaymentIntentId === '' ||
+          row.original.status === OrderStatusType.PendingBankTransferPayment ||
+          row.original.status === OrderStatusType.ProcessingBankTransferPayment
+
+        // Check if any actions are available
+        const hasPendingActions =
+          row.original.status === OrderStatusType.PendingCardPayment ||
+          row.original.status === OrderStatusType.PendingBankTransferPayment ||
+          row.original.status === OrderStatusType.ProcessingBankTransferPayment
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 className='relative'
-                disabled={
-                  row.original.status !== OrderStatusType.PendingCardPayment &&
-                  row.original.status !==
-                    OrderStatusType.PendingBankTransferPayment
-                }
+                disabled={!hasPendingActions}
                 size='icon'
                 variant='ghost'
               >
-                <EllipsisVertical />
+                {downloadingPdf === row.original.id ? (
+                  <Loader2 className='animate-spin' />
+                ) : (
+                  <EllipsisVertical />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              {row.original.status ===
-                OrderStatusType.PendingBankTransferPayment && (
-                <DropdownMenuItem
-                  onClick={() => {
-                    handleOnClickUpdateOrderStatusProcessBankTransferPayment(
-                      row.original.id,
-                      row.original.status,
-                      row.original.paymentProductType
-                    )
-                  }}
-                >
-                  <Pencil />
-                  {t('row.actions.values.process-bank-transfer-payment.title')}
-                </DropdownMenuItem>
+              {isBankTransferOrder && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    disabled={downloadingPdf === row.original.id}
+                    onClick={() =>
+                      handleDownloadBankTransferPdf(row.original.id)
+                    }
+                  >
+                    {downloadingPdf === row.original.id ? (
+                      <Loader2 className='animate-spin' />
+                    ) : (
+                      <FileDown />
+                    )}
+                    {t('row.actions.values.download-pdf.title')}
+                  </DropdownMenuItem>
+                </>
               )}
 
-              <DropdownMenuItem
-                onClick={() =>
-                  handleOnClickUpdateOrderStatusCancel(
-                    row.original.id,
-                    row.original.status,
-                    row.original.paymentProductType
-                  )
-                }
-                variant='destructive'
-              >
-                <XCircle />
-                {t('row.actions.values.cancel-order.title')}
-              </DropdownMenuItem>
+              {hasPendingActions && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleOnClickUpdateOrderStatusCancel(
+                        row.original.id,
+                        row.original.status,
+                        row.original.paymentProductType
+                      )
+                    }
+                    variant='destructive'
+                  >
+                    <XCircle />
+                    {t('row.actions.values.cancel-order.title')}
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )

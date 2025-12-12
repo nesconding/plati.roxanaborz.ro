@@ -6,6 +6,7 @@ export type CreateExtensionPaymentLinkIntegralFormData = {
   callerName: string
   closerEmail: string
   closerName: string
+  contractId: string
   setterEmail: string
   setterName: string
   extensionId: string
@@ -20,6 +21,7 @@ export type CreateExtensionPaymentLinkDepositFormData = {
   callerName: string
   closerEmail: string
   closerName: string
+  contractId: string
   setterEmail: string
   setterName: string
   depositAmount: string
@@ -37,6 +39,7 @@ export type CreateExtensionPaymentLinkInstallmentsFormData = {
   callerName: string
   closerEmail: string
   closerName: string
+  contractId: string
   setterEmail: string
   setterName: string
   extensionId: string
@@ -53,6 +56,7 @@ export type CreateExtensionPaymentLinkInstallmentsDataDepositFormData = {
   callerName: string
   closerEmail: string
   closerName: string
+  contractId: string
   setterEmail: string
   setterName: string
   depositAmount: string

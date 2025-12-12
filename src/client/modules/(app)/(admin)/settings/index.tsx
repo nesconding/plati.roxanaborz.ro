@@ -1,3 +1,4 @@
+import { BankDetailsSettings } from '~/client/modules/(app)/(admin)/settings/bank-details'
 import { ContractSettings } from '~/client/modules/(app)/(admin)/settings/contract-settings'
 import { EURToRONRate } from '~/client/modules/(app)/(admin)/settings/eur-to-ron-rate'
 import { FirstPaymentDateAfterDepositOptions } from '~/client/modules/(app)/(admin)/settings/first-payment-date-after-deposit-options'
@@ -9,6 +10,7 @@ export function SettingsPageModule() {
       <EURToRONRate />
       <FirstPaymentDateAfterDepositOptions />
       <PaymentSettings />
+      <BankDetailsSettings />
       <ContractSettings />
     </div>
   )

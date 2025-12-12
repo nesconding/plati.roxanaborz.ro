@@ -22,14 +22,20 @@ function getPublicKeySize(publicKeyPem: string): number {
   const keyDetails = publicKey.export({ type: 'spki', format: 'der' })
   // RSA keys are typically 2048 bits (256 bytes)
   // The actual size can be determined from the key
-  return crypto.createPublicKey(publicKeyPem).asymmetricKeyDetails?.modulusLength ?? 2048
+  return (
+    crypto.createPublicKey(publicKeyPem).asymmetricKeyDetails?.modulusLength ??
+    2048
+  )
 }
 
 /**
  * Get the key size in bits from a PEM-encoded private key
  */
 function getPrivateKeySize(privateKeyPem: string): number {
-  return crypto.createPrivateKey(privateKeyPem).asymmetricKeyDetails?.modulusLength ?? 2048
+  return (
+    crypto.createPrivateKey(privateKeyPem).asymmetricKeyDetails
+      ?.modulusLength ?? 2048
+  )
 }
 
 /**
@@ -79,7 +85,10 @@ export function encryptData(plaintext: string, publicKeyPem: string): string {
  * Node.js v22+ blocks RSA_PKCS1_PADDING for private decryption.
  * TBI Bank encrypts webhook data with PKCS#1 padding, which we cannot change.
  */
-export function decryptData(encryptedBase64: string, privateKeyPem: string): string {
+export function decryptData(
+  encryptedBase64: string,
+  privateKeyPem: string
+): string {
   const keySize = getPrivateKeySize(privateKeyPem)
   const chunkSize = Math.floor(keySize / 8)
   const encryptedBuffer = Buffer.from(encryptedBase64, 'base64')

@@ -2,7 +2,13 @@
 
 import { format } from 'date-fns'
 import { ro } from 'date-fns/locale'
-import { ArrowRight, CalendarClock, Check, ChevronDown } from 'lucide-react'
+import {
+  ArrowRight,
+  CalendarClock,
+  Check,
+  ChevronDown,
+  ScrollText
+} from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { withForm } from '~/client/components/form/config'
@@ -47,16 +53,18 @@ import { CreateExtensionPaymentLinkFormSection } from '~/shared/create-extension
 import { MembershipStatusType } from '~/shared/enums/membership-status-type'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 
+type Contracts = TRPCRouterOutput['protected']['contracts']['findAll']
 type Products = TRPCRouterOutput['protected']['products']['findAll']
 type Memberships = TRPCRouterOutput['protected']['memberships']['findAll']
 
 export const ExtensionFormSection = withForm({
   defaultValues: CreateExtensionPaymentLinkFormDefaultValues,
   props: {
+    contracts: [] as Contracts,
     memberships: [] as Memberships,
     products: [] as Products
   },
-  render: function Render({ form, memberships, products }) {
+  render: function Render({ contracts, form, memberships, products }) {
     const [isOpen, setIsOpen] = useState(false)
     const t = useTranslations(
       `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateExtensionPaymentLinkFormStep.BaseInfo}.forms.${CreateExtensionPaymentLinkFormSection.Extension}`
@@ -238,6 +246,24 @@ export const ExtensionFormSection = withForm({
             }}
           </form.AppField>
 
+          <form.AppField
+            name={`${CreateExtensionPaymentLinkFormSection.Extension}.contractId`}
+          >
+            {(field) => (
+              <field.Select
+                icon={ScrollText}
+                isRequired
+                label={t('fields.contractId.title')}
+                options={contracts}
+                placeholder={t('fields.contractId.placeholder')}
+                renderItem={(contract) => (
+                  <p className='font-medium'>{contract.name}</p>
+                )}
+                valueKey='id'
+              />
+            )}
+          </form.AppField>
+
           <form.Subscribe
             selector={({ values }) => {
               const membershipId =
@@ -271,9 +297,12 @@ export const ExtensionFormSection = withForm({
                     renderItem={({ extensionMonths, price }) => (
                       <div className='flex justify-between gap-2 w-full items-center'>
                         <p className='font-medium'>
-                          {t('fields.extensionId.item.extensionMonths', {
-                            extensionMonths
-                          })}
+                          {`${product?.name} - ${t(
+                            'fields.extensionId.item.extensionMonths',
+                            {
+                              extensionMonths
+                            }
+                          )}`}
                         </p>
 
                         <p className='text-muted-foreground  group-data-[slot=select-trigger]/select-trigger:hidden'>

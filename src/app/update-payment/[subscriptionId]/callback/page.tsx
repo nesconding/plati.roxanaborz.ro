@@ -1,17 +1,8 @@
-import { CheckCircle2, XCircle } from 'lucide-react'
-
 import { ThemeSelect } from '~/client/components/theme-select'
-import { Button } from '~/client/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '~/client/components/ui/card'
-
-// import { updateSubscriptionPaymentMethod } from '~/server/application/use-cases'
+import { UpdatePaymentCallbackModule } from '~/client/modules/update-payment/callback'
+import { createTRPCContext } from '~/server/trpc/config'
+import { appRouter } from '~/server/trpc/router'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
 
 interface UpdatePaymentCallbackPageProps {
   params: Promise<{ subscriptionId: string }>
@@ -20,6 +11,7 @@ interface UpdatePaymentCallbackPageProps {
     setup_intent_client_secret?: string
     redirect_status?: string
     token?: string
+    type?: string
   }>
 }
 
@@ -27,15 +19,22 @@ export default async function UpdatePaymentCallbackPage({
   params,
   searchParams
 }: UpdatePaymentCallbackPageProps) {
-  // const { subscriptionId } = await params
+  const { subscriptionId } = await params
   const {
     setup_intent: setupIntentId,
     redirect_status: redirectStatus,
-    token
+    token,
+    type: typeParam
   } = await searchParams
 
   let success = false
   let error: string | null = null
+
+  // Default to Product type if not specified
+  const type =
+    typeParam === PaymentProductType.Extension
+      ? PaymentProductType.Extension
+      : PaymentProductType.Product
 
   if (!setupIntentId || !token) {
     error = 'Missing required parameters'
@@ -43,11 +42,17 @@ export default async function UpdatePaymentCallbackPage({
     error = 'Payment method setup was not successful'
   } else {
     try {
-      // await updateSubscriptionPaymentMethod.execute({
-      //   subscriptionId,
-      //   token,
-      //   setupIntentId
-      // })
+      // Create tRPC caller for server-side mutation
+      const ctx = await createTRPCContext({ headers: new Headers() })
+      const caller = appRouter.createCaller(ctx)
+
+      await caller.public.subscriptions.updatePaymentMethod({
+        setupIntentId,
+        subscriptionId,
+        token,
+        type
+      })
+
       success = true
     } catch (err) {
       error =
@@ -62,60 +67,7 @@ export default async function UpdatePaymentCallbackPage({
       </div>
 
       <div className='flex h-[calc(100vh-theme(spacing.16)-theme(spacing.1))] w-full items-center justify-center p-6'>
-        <Card className='w-full md:max-w-md'>
-          <CardHeader className='text-center'>
-            {success ? (
-              <>
-                <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900'>
-                  <CheckCircle2 className='h-10 w-10 text-green-600 dark:text-green-400' />
-                </div>
-                <CardTitle>Payment Method Updated</CardTitle>
-                <CardDescription>
-                  Your subscription payment method has been successfully updated
-                </CardDescription>
-              </>
-            ) : (
-              <>
-                <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900'>
-                  <XCircle className='h-10 w-10 text-red-600 dark:text-red-400' />
-                </div>
-                <CardTitle>Update Failed</CardTitle>
-                <CardDescription>
-                  {error ||
-                    'An error occurred while updating your payment method'}
-                </CardDescription>
-              </>
-            )}
-          </CardHeader>
-
-          <CardContent>
-            {success ? (
-              <p className='text-muted-foreground text-center text-sm'>
-                Future subscription payments will use the new payment method you
-                just added.
-              </p>
-            ) : (
-              <p className='text-muted-foreground text-center text-sm'>
-                Please contact your sales representative for assistance or try
-                again with a new update link.
-              </p>
-            )}
-          </CardContent>
-
-          <CardFooter className='flex justify-center'>
-            <form
-            // action={() => {}}
-            // method='get'
-            >
-              <Button
-                type='button'
-                //  onClick={() => window.close()}
-              >
-                Close Window
-              </Button>
-            </form>
-          </CardFooter>
-        </Card>
+        <UpdatePaymentCallbackModule success={success} error={error} />
       </div>
     </div>
   )

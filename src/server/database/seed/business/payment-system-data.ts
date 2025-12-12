@@ -901,12 +901,15 @@ export async function createExtensionPaymentLinksData(dependencies: {
   memberships: (typeof memberships.$inferSelect)[]
   paymentsSettings: unknown[]
   productsExtensionsInstallments: unknown[]
+  contracts: unknown[]
 }) {
-  const { productsExtensions, memberships, paymentsSettings } = dependencies
+  const { productsExtensions, memberships, paymentsSettings, contracts } =
+    dependencies
 
   const ronSetting = (paymentsSettings as any[]).find(
     (s: any) => s.currency === 'RON'
   )!
+  const defaultContract = (contracts as any[])[0]
   const extensionPaymentLinks: (typeof extension_payment_links.$inferInsert)[] =
     []
 
@@ -969,6 +972,7 @@ export async function createExtensionPaymentLinksData(dependencies: {
     )
 
     extensionPaymentLinks.push({
+      contractId: defaultContract.id,
       createdById: adminUser.id,
       currency: ronSetting.currency,
       customerEmail: customer.customerEmail,
@@ -1022,6 +1026,7 @@ export async function createExtensionPaymentLinksData(dependencies: {
     )
 
     extensionPaymentLinks.push({
+      contractId: defaultContract.id,
       createdById: adminUser.id,
       currency: ronSetting.currency,
       customerEmail: customer.customerEmail,

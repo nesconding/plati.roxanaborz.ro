@@ -1,11 +1,13 @@
 import { notFound } from 'next/navigation'
 
-// import { UpdatePaymentModule } from '~/client/modules/update-payment'
-// import { getQueryClient, trpc } from '~/client/trpc/server'
+import { ThemeSelect } from '~/client/components/theme-select'
+import { UpdatePaymentModule } from '~/client/modules/update-payment'
+import { getQueryClient, trpc } from '~/client/trpc/server'
+import { PaymentProductType } from '~/shared/enums/payment-product-type'
 
 interface UpdatePaymentPageProps {
   params: Promise<{ subscriptionId: string }>
-  searchParams: Promise<{ token?: string }>
+  searchParams: Promise<{ token?: string; type?: string }>
 }
 
 export default async function UpdatePaymentPage({
@@ -13,21 +15,44 @@ export default async function UpdatePaymentPage({
   searchParams
 }: UpdatePaymentPageProps) {
   const { subscriptionId } = await params
-  const { token } = await searchParams
+  const { token, type: typeParam } = await searchParams
 
   if (!token) notFound()
 
-  // const queryClient = getQueryClient()
+  // Default to Product type if not specified
+  const type =
+    typeParam === PaymentProductType.Extension
+      ? PaymentProductType.Extension
+      : PaymentProductType.Product
 
-  // const data = await queryClient.ensureQueryData(
-  //   trpc.public.business.getSubscriptionForUpdate.queryOptions({
-  //     subscriptionId,
-  //     token
-  //   })
-  // )
+  const queryClient = getQueryClient()
 
-  // if (!data) notFound()
+  try {
+    const subscriptionData = await queryClient.ensureQueryData(
+      trpc.public.subscriptions.validateUpdateToken.queryOptions({
+        subscriptionId,
+        token,
+        type
+      })
+    )
 
-  // return <UpdatePaymentModule data={data} subscriptionId={subscriptionId} token={token} />
-  return <div>Update Payment Page</div>
+    if (!subscriptionData) notFound()
+
+    return (
+      <div className='h-screen w-screen pt-17'>
+        <div className='fixed inset-x-0 top-0 grid w-full grid-cols-[1fr_auto_1fr] p-4'>
+          <ThemeSelect className='col-start-3 justify-self-end' />
+        </div>
+
+        <UpdatePaymentModule
+          subscriptionData={subscriptionData}
+          subscriptionId={subscriptionId}
+          token={token}
+          type={type}
+        />
+      </div>
+    )
+  } catch {
+    notFound()
+  }
 }

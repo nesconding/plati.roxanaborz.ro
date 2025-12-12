@@ -51,7 +51,10 @@ function testDecryption() {
 
   try {
     console.log('[TEST] Runtime environment:', process.version)
-    console.log('[TEST] Bun version:', process.versions.bun || 'Not running on Bun')
+    console.log(
+      '[TEST] Bun version:',
+      process.versions.bun || 'Not running on Bun'
+    )
     console.log('')
 
     // Decode base64 to check data size
@@ -75,7 +78,9 @@ function testDecryption() {
     console.log('[TEST] Result length:', result.length, 'characters')
     console.log('')
     console.log('='.repeat(70))
-    console.log('[CONCLUSION] node-forge successfully bypasses Node.js v22 restriction!')
+    console.log(
+      '[CONCLUSION] node-forge successfully bypasses Node.js v22 restriction!'
+    )
     console.log('[CONCLUSION] TBI webhook decryption will work correctly.')
     console.log('='.repeat(70))
 

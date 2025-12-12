@@ -50,7 +50,9 @@ export class TbiProductHandlers {
       })
 
       if (!paymentLink) {
-        throw new Error(`Payment link not found for TBI order ID: ${tbiOrderId}`)
+        throw new Error(
+          `Payment link not found for TBI order ID: ${tbiOrderId}`
+        )
       }
 
       // Update payment link status to succeeded
@@ -121,7 +123,9 @@ export class TbiProductHandlers {
       })
 
       if (!paymentLink) {
-        throw new Error(`Payment link not found for TBI order ID: ${tbiOrderId}`)
+        throw new Error(
+          `Payment link not found for TBI order ID: ${tbiOrderId}`
+        )
       }
 
       // Determine status based on trimmed reason
@@ -156,7 +160,9 @@ export class TbiProductHandlers {
       })
 
       if (!paymentLink) {
-        throw new Error(`Payment link not found for TBI order ID: ${tbiOrderId}`)
+        throw new Error(
+          `Payment link not found for TBI order ID: ${tbiOrderId}`
+        )
       }
 
       await this.updateProductPaymentLinkStatus(

@@ -76,7 +76,9 @@ export const BillingTypeSelector = withForm({
         <FieldGroup>
           <RadioGroup
             className='grid grid-cols-2 gap-4'
-            onValueChange={(value) => handleBillingTypeChange(value as BillingType)}
+            onValueChange={(value) =>
+              handleBillingTypeChange(value as BillingType)
+            }
             value={currentBillingType}
           >
             <div>

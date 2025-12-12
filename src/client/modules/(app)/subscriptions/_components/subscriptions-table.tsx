@@ -25,6 +25,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Columns2,
+  CreditCard,
   Download,
   EllipsisVertical,
   Pause,
@@ -95,6 +96,7 @@ import { UserRoles } from '~/shared/enums/user-roles'
 import { CancelSubscriptionDialog } from './cancel-subscription-dialog'
 import { ReschedulePaymentDialog } from './reschedule-payment-dialog'
 import { SetOnHoldDialog } from './set-on-hold-dialog'
+import { UpdatePaymentMethodDialog } from './update-payment-method-dialog'
 
 type ExtensionSubscription =
   TRPCRouterOutput['protected']['extensionsSubscriptions']['findAll'][number]
@@ -180,6 +182,8 @@ export function SubscriptionsTable({
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false)
   const [setOnHoldDialogOpen, setSetOnHoldDialogOpen] = useState(false)
+  const [updatePaymentMethodDialogOpen, setUpdatePaymentMethodDialogOpen] =
+    useState(false)
 
   const trpc = useTRPC()
   const getExtensionsSubscriptions = useQuery(
@@ -506,6 +510,20 @@ export function SubscriptionsTable({
                 >
                   <CalendarClock />
                   {t('actions.reschedule-payment')}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={
+                    isCancelled ||
+                    isCompleted ||
+                    subscription.paymentMethod !== PaymentMethodType.Card
+                  }
+                  onSelect={() => {
+                    setSelectedSubscription(subscription)
+                    setUpdatePaymentMethodDialogOpen(true)
+                  }}
+                >
+                  <CreditCard />
+                  {t('actions.update-payment-method')}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
@@ -1062,6 +1080,21 @@ export function SubscriptionsTable({
             isOpen={rescheduleDialogOpen}
             onCloseDialog={() => {
               setRescheduleDialogOpen(false)
+              setSelectedSubscription(null)
+            }}
+            subscriptionId={selectedSubscription.id}
+            subscriptionType={
+              isProductSubscription(selectedSubscription)
+                ? 'product'
+                : 'extension'
+            }
+          />
+
+          <UpdatePaymentMethodDialog
+            customerName={selectedSubscription.customerName ?? undefined}
+            isOpen={updatePaymentMethodDialogOpen}
+            onCloseDialog={() => {
+              setUpdatePaymentMethodDialogOpen(false)
               setSelectedSubscription(null)
             }}
             subscriptionId={selectedSubscription.id}

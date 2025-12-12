@@ -18,6 +18,8 @@ interface CheckoutModuleProps {
 
 export function CheckoutModule({ paymentLink }: CheckoutModuleProps) {
   const isTbiPayment = paymentLink.paymentMethodType === PaymentMethodType.TBI
+  const isBankTransferPayment =
+    paymentLink.paymentMethodType === PaymentMethodType.BankTransfer
 
   const content = (
     <div className='flex flex-col gap-4 items-center '>
@@ -32,8 +34,8 @@ export function CheckoutModule({ paymentLink }: CheckoutModuleProps) {
     </div>
   )
 
-  // TBI payments don't need Stripe Elements wrapper
-  if (isTbiPayment) {
+  // TBI and Bank Transfer payments don't need Stripe Elements wrapper
+  if (isTbiPayment || isBankTransferPayment) {
     return content
   }
 

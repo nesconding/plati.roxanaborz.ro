@@ -35,7 +35,7 @@ import { useIsMac } from '~/client/hooks/use-is-mac'
 import { cn } from '~/client/lib/utils'
 import { useTRPC } from '~/client/trpc/react'
 
-type Breadcrumb = {
+type BreadcrumbItemConfig = {
   route: string
 
   segment: string
@@ -65,7 +65,7 @@ export function AppLayoutContainerHeader() {
   function generateBreadcrumbs(
     segments: string[],
     config?: BreadcrumbConfig
-  ): Breadcrumb[] {
+  ): BreadcrumbItemConfig[] {
     const baseTranslationPath =
       'modules.(app).layout.container.sidebar.content.navigation'
     const isLayoutGroup = (s: string) => s.startsWith('(') && s.endsWith(')')
@@ -143,7 +143,7 @@ export function AppLayoutContainerHeader() {
 
         return { label, route, segment }
       })
-      .filter((item): item is Breadcrumb => item !== null)
+      .filter((item): item is BreadcrumbItemConfig => item !== null)
   }
 
   const breadcrumbs = generateBreadcrumbs(selectedLayoutSegments, {

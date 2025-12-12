@@ -19,6 +19,7 @@ const paymentInfo = z.object({
 
 // Extension
 const extension = z.object({
+  contractId: z.cuid2(),
   extensionId: z.cuid2(),
   membershipId: z.cuid2()
 })
@@ -36,14 +37,12 @@ const participants = z.object({
 // Installments
 const isNotRecurring = z.object({
   extensionInstallmentId: z.literal(''),
-  hasInstallments: z.literal(false),
-  productInstallmentId: z.literal('')
+  hasInstallments: z.literal(false)
 })
 
 const hasInstallments = z.object({
   extensionInstallmentId: z.cuid2(),
-  hasInstallments: z.literal(true),
-  productInstallmentId: z.literal('')
+  hasInstallments: z.literal(true)
 })
 
 // Deposit
@@ -131,18 +130,12 @@ export namespace CreateExtensionPaymentLinkFormParser {
 
     function checkExtensionProductHasInstallments({
       extensionInstallmentId,
-      hasInstallments,
-      productInstallmentId
+      hasInstallments
     }: {
       extensionInstallmentId: string
       hasInstallments: boolean
-      productInstallmentId: string
     }) {
-      return (
-        extensionInstallmentId !== '' &&
-        hasInstallments === true &&
-        productInstallmentId === ''
-      )
+      return extensionInstallmentId !== '' && hasInstallments === true
     }
 
     function checkDoesNotHaveDeposit({
@@ -253,6 +246,9 @@ export namespace CreateExtensionPaymentLinkFormParser {
           closerName:
             result.data[CreateExtensionPaymentLinkFormSection.Participants]
               .closerName,
+          contractId:
+            result.data[CreateExtensionPaymentLinkFormSection.Extension]
+              .contractId,
           extensionId:
             result.data[CreateExtensionPaymentLinkFormSection.Extension]
               .extensionId,
@@ -293,6 +289,9 @@ export namespace CreateExtensionPaymentLinkFormParser {
           closerName:
             result.data[CreateExtensionPaymentLinkFormSection.Participants]
               .closerName,
+          contractId:
+            result.data[CreateExtensionPaymentLinkFormSection.Extension]
+              .contractId,
           depositAmount:
             result.data[CreateExtensionPaymentLinkFormSection.Deposit]
               .depositAmount,
@@ -342,6 +341,9 @@ export namespace CreateExtensionPaymentLinkFormParser {
           closerName:
             result.data[CreateExtensionPaymentLinkFormSection.Participants]
               .closerName,
+          contractId:
+            result.data[CreateExtensionPaymentLinkFormSection.Extension]
+              .contractId,
           extensionId:
             result.data[CreateExtensionPaymentLinkFormSection.Extension]
               .extensionId,
@@ -388,6 +390,9 @@ export namespace CreateExtensionPaymentLinkFormParser {
           closerName:
             result.data[CreateExtensionPaymentLinkFormSection.Participants]
               .closerName,
+          contractId:
+            result.data[CreateExtensionPaymentLinkFormSection.Extension]
+              .contractId,
           depositAmount:
             result.data[CreateExtensionPaymentLinkFormSection.Deposit]
               .depositAmount,

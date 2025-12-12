@@ -37,6 +37,7 @@ export default async function AppLayoutModule({
   queryClient.prefetchQuery(
     trpc.protected.settings.getEURToRONRate.queryOptions()
   )
+  queryClient.prefetchQuery(trpc.public.settings.getBankDetails.queryOptions())
   queryClient.prefetchQuery(
     trpc.protected.scheduledEvents.findAll.queryOptions()
   )

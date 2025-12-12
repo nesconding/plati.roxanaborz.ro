@@ -14,6 +14,9 @@ export const VerificationsTableValidators = new TableValidatorFactory(
 )
 
 // Business
+export const BankDetailsTableValidators = new TableValidatorFactory(
+  schema.bank_details
+)
 export const ContractsTableValidators = new TableValidatorFactory(
   schema.contracts
 )

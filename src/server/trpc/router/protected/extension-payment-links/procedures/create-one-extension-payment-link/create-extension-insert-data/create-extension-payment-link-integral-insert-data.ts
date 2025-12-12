@@ -1,6 +1,6 @@
 import { PricingService } from '~/lib/pricing'
 import type { CreateExtensionPaymentLinkIntegralFormData } from '~/shared/create-extension-payment-link-form/data'
-import type { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
+import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 import type { PaymentMethodType } from '~/shared/enums/payment-method-type'
 import { PaymentProductType } from '~/shared/enums/payment-product-type'
@@ -12,6 +12,7 @@ import type {
 } from '~/shared/validation/tables'
 
 export type ExtensionPaymentLinkIntegralInsertData = {
+  contractId: string
   createdById: string
   currency: PaymentCurrencyType
   customerEmail: string
@@ -52,14 +53,21 @@ export function createExtensionPaymentLinkIntegralInsertData({
   user: typeof UsersTableValidators.$types.select
   productName: string
 }): ExtensionPaymentLinkIntegralInsertData {
+  // Convert EUR price to RON if needed (extensions store prices in EUR)
+  const price =
+    setting.currency === PaymentCurrencyType.EUR
+      ? extension.price
+      : PricingService.convertEURtoRON(extension.price, eurToRonRate)
+
   const totalAmountToPay = PricingService.calculateTotalAmountToPay({
     extraTaxRate: setting.extraTaxRate,
-    price: extension.price,
+    price: price,
     tvaRate: setting.tvaRate
   })
   const totalAmountToPayInCents =
     PricingService.convertToCents(totalAmountToPay)
   return {
+    contractId: data.contractId,
     createdById: user.id,
     currency: setting.currency,
     customerEmail: customerEmail,

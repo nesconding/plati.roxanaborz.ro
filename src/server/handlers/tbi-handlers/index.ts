@@ -100,7 +100,10 @@ class TbiHandlersImpl {
       if (paymentLinkType === 'product') {
         await this.productHandlers.handleProductRejection(tbiOrderId, reason)
       } else {
-        await this.extensionHandlers.handleExtensionRejection(tbiOrderId, reason)
+        await this.extensionHandlers.handleExtensionRejection(
+          tbiOrderId,
+          reason
+        )
       }
     } catch (cause) {
       throw new Error('TbiHandlers handleRejection error', { cause })

@@ -55,22 +55,42 @@ export function PaymentOverviewSection() {
     totalAmountToPay,
     depositAmount,
     remainingAmountToPay,
-    productInstallmentAmountToPay,
-    productInstallmentsCount,
     remainingInstallmentAmountToPay,
     firstPaymentDateAfterDeposit,
-    product,
     paymentProductType
   } = paymentLink
+
+  // Handle product vs extension installment fields
+  const installmentAmountToPay = isExtension
+    ? ('extensionInstallmentAmountToPay' in paymentLink
+        ? paymentLink.extensionInstallmentAmountToPay
+        : null)
+    : ('productInstallmentAmountToPay' in paymentLink
+        ? paymentLink.productInstallmentAmountToPay
+        : null)
+
+  const installmentsCount = isExtension
+    ? ('extensionInstallmentsCount' in paymentLink
+        ? paymentLink.extensionInstallmentsCount
+        : null)
+    : ('productInstallmentsCount' in paymentLink
+        ? paymentLink.productInstallmentsCount
+        : null)
 
   // Get duration based on product type
   const getDuration = () => {
     if (paymentProductType === PaymentProductType.Extension) {
-      // For extensions, try to find extension months from product.extensions
-      // This might need adjustment based on how extension data is passed
-      return null // Extension months not available in current query
+      // For extensions, get extension months from the extension field
+      if ('extension' in paymentLink && paymentLink.extension) {
+        return paymentLink.extension.extensionMonths
+      }
+      return null
     }
-    return product?.membershipDurationMonths
+    // For products, get membership duration from product
+    if ('product' in paymentLink && paymentLink.product) {
+      return paymentLink.product.membershipDurationMonths
+    }
+    return null
   }
 
   const duration = getDuration()
@@ -95,35 +115,35 @@ export function PaymentOverviewSection() {
       case PaymentLinkType.Installments:
         return {
           payLater:
-            productInstallmentsCount && productInstallmentAmountToPay
+            installmentsCount && installmentAmountToPay
               ? String(
-                  Number(productInstallmentAmountToPay) *
-                    (productInstallmentsCount - 1)
+                  Number(installmentAmountToPay) *
+                    (installmentsCount - 1)
                 )
               : null,
           payLaterDescription:
-            productInstallmentsCount && productInstallmentAmountToPay
+            installmentsCount && installmentAmountToPay
               ? t('sections.summary.installmentsRemaining', {
                   amount: PricingService.formatPrice(
-                    productInstallmentAmountToPay,
+                    installmentAmountToPay,
                     currency
                   ),
-                  count: productInstallmentsCount - 1
+                  count: installmentsCount - 1
                 })
               : null,
-          payNow: productInstallmentAmountToPay
+          payNow: installmentAmountToPay
         }
       case PaymentLinkType.InstallmentsDeposit:
         return {
           payLater: remainingAmountToPay,
           payLaterDescription:
-            productInstallmentsCount && remainingInstallmentAmountToPay
+            installmentsCount && remainingInstallmentAmountToPay
               ? t('sections.summary.installmentsRemaining', {
                   amount: PricingService.formatPrice(
                     remainingInstallmentAmountToPay,
                     currency
                   ),
-                  count: productInstallmentsCount
+                  count: installmentsCount
                 })
               : null,
           payNow: depositAmount
@@ -199,18 +219,18 @@ export function PaymentOverviewSection() {
                     )}
                   {(type === PaymentLinkType.Installments ||
                     type === PaymentLinkType.InstallmentsDeposit) &&
-                    productInstallmentsCount && (
+                    installmentsCount && (
                       <DetailRow
                         label={t('sections.plan.installmentsCount')}
-                        value={String(productInstallmentsCount)}
+                        value={String(installmentsCount)}
                       />
                     )}
                   {type === PaymentLinkType.Installments &&
-                    productInstallmentAmountToPay && (
+                    installmentAmountToPay && (
                       <DetailRow
                         label={t('sections.plan.perInstallment')}
                         value={PricingService.formatPrice(
-                          productInstallmentAmountToPay,
+                          installmentAmountToPay,
                           currency
                         )}
                       />

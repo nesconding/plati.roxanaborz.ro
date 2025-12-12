@@ -27,11 +27,19 @@ function getPaidAmount(paymentLink: PaymentLink) {
         paymentLink.depositAmount ?? 0,
         paymentLink.currency
       )
-    case PaymentLinkType.Installments:
+    case PaymentLinkType.Installments: {
+      // Handle both product and extension payment links
+      const installmentAmount =
+        'productInstallmentAmountToPay' in paymentLink
+          ? paymentLink.productInstallmentAmountToPay
+          : 'extensionInstallmentAmountToPay' in paymentLink
+            ? paymentLink.extensionInstallmentAmountToPay
+            : null
       return PricingService.formatPrice(
-        paymentLink.productInstallmentAmountToPay ?? 0,
+        installmentAmount ?? 0,
         paymentLink.currency
       )
+    }
     case PaymentLinkType.InstallmentsDeposit:
       return PricingService.formatPrice(
         paymentLink.depositAmount ?? 0,

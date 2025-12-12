@@ -53,6 +53,7 @@ const STEPS_ICONS = {
   [CreateExtensionPaymentLinkFormStep.Success]: <CheckCircle />
 } as const
 
+type Contracts = TRPCRouterOutput['protected']['contracts']['findAll']
 type CreateOneExtensionPaymentLink =
   TRPCRouterOutput['protected']['extensionPaymentLinks']['createOne']
 type FirstPaymentDateAfterDepositOptions =
@@ -66,6 +67,7 @@ export const StepperContent = withForm({
   defaultValues: CreateExtensionPaymentLinkFormDefaultValues,
   props: {
     className: '',
+    contracts: [] as Contracts,
     createOnePaymentLinkResponse: undefined as
       | CreateOneExtensionPaymentLink
       | undefined,

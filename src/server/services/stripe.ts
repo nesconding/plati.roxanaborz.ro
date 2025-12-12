@@ -241,6 +241,74 @@ class StripeServiceImpl {
       })
     }
   }
+
+  async createSetupIntent({
+    customerId,
+    metadata
+  }: {
+    customerId: string
+    metadata?: Record<string, string>
+  }): Promise<{ clientSecret: string; setupIntentId: string }> {
+    try {
+      const setupIntent = await stripe.setupIntents.create({
+        customer: customerId,
+        metadata,
+        payment_method_types: ['card'],
+        usage: 'off_session'
+      })
+
+      if (!setupIntent.client_secret)
+        throw new Error('Failed to retrieve client secret from setup intent')
+
+      return {
+        clientSecret: setupIntent.client_secret,
+        setupIntentId: setupIntent.id
+      }
+    } catch (cause) {
+      throw new Error('Failed to create setup intent', {
+        cause
+      })
+    }
+  }
+
+  async getPaymentMethodFromSetupIntent(
+    setupIntentId: string
+  ): Promise<string> {
+    try {
+      const setupIntent = await stripe.setupIntents.retrieve(setupIntentId)
+
+      if (!setupIntent.payment_method)
+        throw new Error('No payment method attached to setup intent')
+
+      return typeof setupIntent.payment_method === 'string'
+        ? setupIntent.payment_method
+        : setupIntent.payment_method.id
+    } catch (cause) {
+      throw new Error('Failed to get payment method from setup intent', {
+        cause
+      })
+    }
+  }
+
+  async updateCustomerDefaultPaymentMethod({
+    customerId,
+    paymentMethodId
+  }: {
+    customerId: string
+    paymentMethodId: string
+  }): Promise<void> {
+    try {
+      await stripe.customers.update(customerId, {
+        invoice_settings: {
+          default_payment_method: paymentMethodId
+        }
+      })
+    } catch (cause) {
+      throw new Error('Failed to update customer default payment method', {
+        cause
+      })
+    }
+  }
 }
 
 export const StripeService = new StripeServiceImpl()

@@ -1,6 +1,7 @@
 'use client'
 
 import { PaymentElement } from '@stripe/react-stripe-js'
+import { Landmark } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { withForm } from '~/client/components/form/config'
 import {
@@ -22,6 +23,8 @@ export const PaymentSubmitSection = withForm({
     )
     const { paymentLink } = useCheckout()
     const isTbiPayment = paymentLink.paymentMethodType === PaymentMethodType.TBI
+    const isBankTransferPayment =
+      paymentLink.paymentMethodType === PaymentMethodType.BankTransfer
 
     return (
       <FieldSet>
@@ -30,13 +33,29 @@ export const PaymentSubmitSection = withForm({
         <FieldGroup>
           <Field>
             {isTbiPayment ? (
-              <div className='p-4 border rounded-lg bg-muted/50'>
+              <div className='rounded-lg border bg-card p-4'>
                 <div className='flex items-center gap-3 mb-3'>
                   <div className='font-semibold text-lg'>TBI Bank</div>
                 </div>
                 <p className='text-sm text-muted-foreground'>
                   {t('tbiDescription')}
                 </p>
+              </div>
+            ) : isBankTransferPayment ? (
+              <div className='rounded-lg border bg-card p-4'>
+                <div className='flex items-center gap-3'>
+                  <div className='rounded-full bg-muted p-2'>
+                    <Landmark className='size-5 text-muted-foreground' />
+                  </div>
+                  <div>
+                    <div className='font-semibold text-lg'>
+                      {t('bankTransferTitle')}
+                    </div>
+                    <p className='text-sm text-muted-foreground'>
+                      {t('bankTransferDescription')}
+                    </p>
+                  </div>
+                </div>
               </div>
             ) : (
               <PaymentElement
