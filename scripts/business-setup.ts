@@ -58,6 +58,7 @@ const BANK_DETAILS = {
   bic: '',
   cui: '',
   iban: '',
+  name: '',
   registrationNumber: '',
   representativeLegal: ''
 }
