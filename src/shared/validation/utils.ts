@@ -26,3 +26,12 @@ export function NumericString() {
     .pipe(z.number().positive())
     .transform(String)
 }
+
+export function NonNegativeNumericString() {
+  return z
+    .string()
+    .nonempty()
+    .transform(Number)
+    .pipe(z.number().nonnegative())
+    .transform(String)
+}

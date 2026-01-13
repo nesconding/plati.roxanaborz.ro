@@ -1,4 +1,7 @@
-import { PDFDocument } from 'pdf-lib'
+import fontkit from '@pdf-lib/fontkit'
+import { readFile } from 'fs/promises'
+import { join } from 'path'
+import { type PDFFont, type PDFForm, PDFDocument } from 'pdf-lib'
 
 import { CONTRACT_FIELDS_MAP } from '~/shared/validation/schemas/contract-fields'
 
@@ -91,120 +94,99 @@ export function formatAddressForContract(address: ContractAddressData): string {
   return parts.join(', ')
 }
 
+function setTextFieldWithFont(
+  form: PDFForm,
+  fieldName: string,
+  value: string,
+  font: PDFFont
+): void {
+  try {
+    const field = form.getTextField(fieldName)
+    field.setText(value)
+    field.updateAppearances(font)
+  } catch {
+    // Field may not exist in template
+  }
+}
+
 export async function fillContractPdf(
   pdfBytes: Uint8Array,
   data: ContractFieldsData
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.load(pdfBytes)
+
+  // Register fontkit to enable custom font embedding
+  pdfDoc.registerFontkit(fontkit)
+
+  // Load and embed Montserrat font with Romanian character support
+  const fontPath = join(
+    process.cwd(),
+    'src/client/assets/font/Montserrat-VariableFont_wght.ttf'
+  )
+  const fontBytes = await readFile(fontPath)
+  const customFont = await pdfDoc.embedFont(fontBytes)
+
   const form = pdfDoc.getForm()
 
   // Fill payment fields
-  try {
-    const paymentTotalField = form.getTextField(
-      CONTRACT_FIELDS_MAP.paymentTotal
-    )
-    paymentTotalField.setText(data.paymentTotal)
-  } catch {
-    // Field may not exist in template
-  }
-
-  try {
-    const paymentTypeField = form.getTextField(CONTRACT_FIELDS_MAP.paymentType)
-    paymentTypeField.setText(data.paymentType)
-  } catch {
-    // Field may not exist in template
-  }
+  setTextFieldWithFont(
+    form,
+    CONTRACT_FIELDS_MAP.paymentTotal,
+    data.paymentTotal,
+    customFont
+  )
+  setTextFieldWithFont(
+    form,
+    CONTRACT_FIELDS_MAP.paymentType,
+    data.paymentType,
+    customFont
+  )
 
   if (data.type === 'PERSON') {
     // Fill PF (Person) fields
     const pfFields = CONTRACT_FIELDS_MAP.PF
 
-    try {
-      const nameField = form.getTextField(pfFields.name)
-      nameField.setText(`${data.name} ${data.surname}`)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const cnpField = form.getTextField(pfFields.cnp)
-      cnpField.setText(data.cnp)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const emailField = form.getTextField(pfFields.email)
-      emailField.setText(data.email)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const phoneField = form.getTextField(pfFields.phoneNumber)
-      phoneField.setText(data.phoneNumber)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const addressField = form.getTextField(pfFields.address)
-      addressField.setText(formatAddressForContract(data.address))
-    } catch {
-      // Field may not exist
-    }
+    setTextFieldWithFont(
+      form,
+      pfFields.name,
+      `${data.name} ${data.surname}`,
+      customFont
+    )
+    setTextFieldWithFont(form, pfFields.cnp, data.cnp, customFont)
+    setTextFieldWithFont(form, pfFields.email, data.email, customFont)
+    setTextFieldWithFont(form, pfFields.phoneNumber, data.phoneNumber, customFont)
+    setTextFieldWithFont(
+      form,
+      pfFields.address,
+      formatAddressForContract(data.address),
+      customFont
+    )
   } else {
     // Fill PJ (Company) fields
     const pjFields = CONTRACT_FIELDS_MAP.PJ
 
-    try {
-      const nameField = form.getTextField(pjFields.name)
-      nameField.setText(data.name)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const cuiField = form.getTextField(pjFields.cui)
-      cuiField.setText(data.cui)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const regNumField = form.getTextField(pjFields.registrationNumber)
-      regNumField.setText(data.registrationNumber)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const repLegalField = form.getTextField(pjFields.representativeLegal)
-      repLegalField.setText(data.representativeLegal)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const bankField = form.getTextField(pjFields.bank)
-      bankField.setText(data.bank)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const bankAccountField = form.getTextField(pjFields.bankAccount)
-      bankAccountField.setText(data.bankAccount)
-    } catch {
-      // Field may not exist
-    }
-
-    try {
-      const hqField = form.getTextField(pjFields.socialHeadquarters)
-      hqField.setText(formatAddressForContract(data.socialHeadquarters))
-    } catch {
-      // Field may not exist
-    }
+    setTextFieldWithFont(form, pjFields.name, data.name, customFont)
+    setTextFieldWithFont(form, pjFields.cui, data.cui, customFont)
+    setTextFieldWithFont(
+      form,
+      pjFields.registrationNumber,
+      data.registrationNumber,
+      customFont
+    )
+    setTextFieldWithFont(
+      form,
+      pjFields.representativeLegal,
+      data.representativeLegal,
+      customFont
+    )
+    setTextFieldWithFont(form, pjFields.bank, data.bank, customFont)
+    setTextFieldWithFont(form, pjFields.bankAccount, data.bankAccount, customFont)
+    setTextFieldWithFont(
+      form,
+      pjFields.socialHeadquarters,
+      formatAddressForContract(data.socialHeadquarters),
+      customFont
+    )
   }
 
   // Flatten the form to make it non-editable

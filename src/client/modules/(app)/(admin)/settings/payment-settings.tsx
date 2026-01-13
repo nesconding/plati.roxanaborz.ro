@@ -54,15 +54,15 @@ import { cn } from '~/client/lib/utils'
 import { useTRPC } from '~/client/trpc/react'
 import { PaymentCurrencyType } from '~/shared/enums/payment-currency-type'
 import { PaymentsSettingsTableValidators } from '~/shared/validation/tables'
-import { NumericString } from '~/shared/validation/utils'
+import { NonNegativeNumericString } from '~/shared/validation/utils'
 
 const schema = z.object({
   data: PaymentsSettingsTableValidators.insert
     .extend({
       currency: z.enum(PaymentCurrencyType),
-      extraTaxRate: NumericString(),
+      extraTaxRate: NonNegativeNumericString(),
       label: z.string().nonempty(),
-      tvaRate: NumericString()
+      tvaRate: NonNegativeNumericString()
     })
     .array()
 })
