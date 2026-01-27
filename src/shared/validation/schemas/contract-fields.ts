@@ -21,7 +21,8 @@ export const CONTRACT_FIELDS_MAP = {
     socialHeadquarters: 'PJ_SEDIU_SOCIAL'
   },
   paymentTotal: 'PRET_TOTAL',
-  paymentType: 'TIP_PLATA'
+  paymentType: 'TIP_PLATA',
+  programName: 'PROGRAM'
 } as const
 
 export const contractAddressSchema = z.object({

@@ -104,7 +104,8 @@ export const generateFilledContractProcedure = publicProcedure
           paymentLink.totalAmountToPay,
           paymentLink.currency
         ),
-        paymentType: paymentLinkNameMap[paymentLink.type]
+        paymentType: paymentLinkNameMap[paymentLink.type],
+        programName: paymentLink.productName
       }
 
       // Fill the contract
