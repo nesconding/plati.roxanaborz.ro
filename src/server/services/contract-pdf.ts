@@ -1,7 +1,7 @@
 import fontkit from '@pdf-lib/fontkit'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { type PDFFont, type PDFForm, PDFDocument } from 'pdf-lib'
+import { PDFDocument, type PDFFont, type PDFForm } from 'pdf-lib'
 
 import { CONTRACT_FIELDS_MAP } from '~/shared/validation/schemas/contract-fields'
 
@@ -44,6 +44,7 @@ export type ContractBillingData = ContractPersonData | ContractCompanyData
 export interface ContractPaymentData {
   paymentTotal: string
   paymentType: string
+  programName: string
 }
 
 export type ContractFieldsData = ContractBillingData & ContractPaymentData
@@ -121,7 +122,7 @@ export async function fillContractPdf(
   // Load and embed Montserrat font with Romanian character support
   const fontPath = join(
     process.cwd(),
-    'src/client/assets/font/Montserrat-VariableFont_wght.ttf'
+    'src/client/assets/font/Roboto-VariableFont_wdth,wght.ttf'
   )
   const fontBytes = await readFile(fontPath)
   const customFont = await pdfDoc.embedFont(fontBytes)
@@ -141,6 +142,12 @@ export async function fillContractPdf(
     data.paymentType,
     customFont
   )
+  setTextFieldWithFont(
+    form,
+    CONTRACT_FIELDS_MAP.programName,
+    data.name,
+    customFont
+  )
 
   if (data.type === 'PERSON') {
     // Fill PF (Person) fields
@@ -154,7 +161,12 @@ export async function fillContractPdf(
     )
     setTextFieldWithFont(form, pfFields.cnp, data.cnp, customFont)
     setTextFieldWithFont(form, pfFields.email, data.email, customFont)
-    setTextFieldWithFont(form, pfFields.phoneNumber, data.phoneNumber, customFont)
+    setTextFieldWithFont(
+      form,
+      pfFields.phoneNumber,
+      data.phoneNumber,
+      customFont
+    )
     setTextFieldWithFont(
       form,
       pfFields.address,
@@ -180,7 +192,12 @@ export async function fillContractPdf(
       customFont
     )
     setTextFieldWithFont(form, pjFields.bank, data.bank, customFont)
-    setTextFieldWithFont(form, pjFields.bankAccount, data.bankAccount, customFont)
+    setTextFieldWithFont(
+      form,
+      pjFields.bankAccount,
+      data.bankAccount,
+      customFont
+    )
     setTextFieldWithFont(
       form,
       pjFields.socialHeadquarters,
