@@ -71,7 +71,10 @@ function calculateIntegralSchedule(
 ): PaymentScheduleItem[] {
   return [
     {
-      amount: PricingService.formatPrice(paymentLink.totalAmountToPay, currency),
+      amount: PricingService.formatPrice(
+        paymentLink.totalAmountToPay,
+        currency
+      ),
       date: null,
       description: 'Plată integrală',
       isPaid: false

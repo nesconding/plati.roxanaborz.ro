@@ -24,10 +24,7 @@ export const validateUpdateTokenProcedure = publicProcedure
     const { subscriptionId, token, type } = input
 
     // Hash the input token to compare with stored hash
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex')
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
 
     const now = new Date().toISOString()
 
@@ -55,14 +52,16 @@ export const validateUpdateTokenProcedure = publicProcedure
         productName: subscription.productName
       }
     } else {
-      const subscription = await ctx.db.query.extension_subscriptions.findFirst({
-        where: (extension_subscriptions, { and, eq, gt }) =>
-          and(
-            eq(extension_subscriptions.id, subscriptionId),
-            eq(extension_subscriptions.updatePaymentToken, hashedToken),
-            gt(extension_subscriptions.updatePaymentTokenExpiresAt, now)
-          )
-      })
+      const subscription = await ctx.db.query.extension_subscriptions.findFirst(
+        {
+          where: (extension_subscriptions, { and, eq, gt }) =>
+            and(
+              eq(extension_subscriptions.id, subscriptionId),
+              eq(extension_subscriptions.updatePaymentToken, hashedToken),
+              gt(extension_subscriptions.updatePaymentTokenExpiresAt, now)
+            )
+        }
+      )
 
       if (!subscription) {
         throw new TRPCError({

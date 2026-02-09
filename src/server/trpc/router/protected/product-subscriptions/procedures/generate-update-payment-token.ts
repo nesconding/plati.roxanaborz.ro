@@ -30,7 +30,8 @@ export const generateProductUpdatePaymentTokenProcedure = protectedProcedure
     if (subscription.paymentMethod !== PaymentMethodType.Card) {
       throw new TRPCError({
         code: 'BAD_REQUEST',
-        message: 'Payment method update is only available for card subscriptions'
+        message:
+          'Payment method update is only available for card subscriptions'
       })
     }
 
@@ -40,7 +41,8 @@ export const generateProductUpdatePaymentTokenProcedure = protectedProcedure
     ) {
       throw new TRPCError({
         code: 'BAD_REQUEST',
-        message: 'Cannot update payment method for cancelled or completed subscriptions'
+        message:
+          'Cannot update payment method for cancelled or completed subscriptions'
       })
     }
 

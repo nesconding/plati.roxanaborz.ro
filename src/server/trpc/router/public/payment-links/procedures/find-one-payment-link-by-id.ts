@@ -20,8 +20,8 @@ const contractSchema = ContractsTableValidators.select.pick({
   pathname: true
 })
 
-const productPaymentLinkOutput = ProductPaymentLinksTableValidators.select
-  .extend({
+const productPaymentLinkOutput =
+  ProductPaymentLinksTableValidators.select.extend({
     contract: contractSchema,
     product: ProductsTableValidators.select.extend({
       extensions: ProductsExtensionsTableValidators.select
@@ -34,8 +34,8 @@ const productPaymentLinkOutput = ProductPaymentLinksTableValidators.select
     })
   })
 
-const extensionPaymentLinkOutput = ExtensionPaymentLinksTableValidators.select
-  .extend({
+const extensionPaymentLinkOutput =
+  ExtensionPaymentLinksTableValidators.select.extend({
     contract: contractSchema,
     extension: ProductsExtensionsTableValidators.select.extend({
       installments: ProductsExtensionsInstallmentsTableValidators.select.array()
@@ -48,7 +48,9 @@ const extensionPaymentLinkOutput = ExtensionPaymentLinksTableValidators.select
     })
   })
 
-const output = z.union([productPaymentLinkOutput, extensionPaymentLinkOutput]).nullable()
+const output = z
+  .union([productPaymentLinkOutput, extensionPaymentLinkOutput])
+  .nullable()
 
 export const findOnePaymentLinkByIdProcedure = publicProcedure
   .input(input)

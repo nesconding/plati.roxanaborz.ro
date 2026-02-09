@@ -22,9 +22,9 @@ export const memberships = business.table('memberships', {
     withTimezone: true
   }).notNull(),
 
-  parentOrderId: text('parent_order_id')
-    .notNull()
-    .references(() => product_orders.id, { onDelete: 'no action' }),
+  parentOrderId: text('parent_order_id').references(() => product_orders.id, {
+    onDelete: 'no action'
+  }),
   productName: text('product_name').notNull(),
   startDate: timestamp('start_date', {
     mode: 'string',

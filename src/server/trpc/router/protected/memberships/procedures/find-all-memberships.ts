@@ -11,11 +11,14 @@ export const findAllMembershipsProcedure = protectedProcedure
   .output(
     MembershipsTableValidators.select
       .extend({
-        parentOrder: ProductOrdersTableValidators.select.extend({
-          productPaymentLink: ProductPaymentLinksTableValidators.select.extend({
-            product: ProductsTableValidators.select
+        parentOrder: ProductOrdersTableValidators.select
+          .extend({
+            productPaymentLink:
+              ProductPaymentLinksTableValidators.select.extend({
+                product: ProductsTableValidators.select
+              })
           })
-        })
+          .nullable()
       })
       .array()
   )
@@ -43,10 +46,15 @@ export const findAllMembershipsProcedure = protectedProcedure
         ...extensionPaymentLinks.map(({ id }) => id)
       ]
 
+      if (paymentLinkIds.length === 0) {
+        return []
+      }
+
       return await ctx.db.query.memberships.findMany({
         orderBy: (memberships, { asc }) => asc(memberships.createdAt),
-        where: (memberships, { and, inArray, isNull }) =>
+        where: (memberships, { and, inArray, isNull, isNotNull }) =>
           and(
+            isNotNull(memberships.parentOrderId),
             inArray(memberships.parentOrderId, paymentLinkIds),
             isNull(memberships.deletedAt)
           ),

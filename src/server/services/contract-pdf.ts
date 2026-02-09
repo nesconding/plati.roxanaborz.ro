@@ -119,10 +119,10 @@ export async function fillContractPdf(
   // Register fontkit to enable custom font embedding
   pdfDoc.registerFontkit(fontkit)
 
-  // Load and embed Montserrat font with Romanian character support
+  // Load and embed Roboto font with Romanian character support
   const fontPath = join(
     process.cwd(),
-    'src/client/assets/font/Montserrat-VariableFont_wght.ttf'
+    'src/client/assets/font/Roboto-VariableFont_wdth,wght.ttf'
   )
   const fontBytes = await readFile(fontPath)
   const customFont = await pdfDoc.embedFont(fontBytes)
