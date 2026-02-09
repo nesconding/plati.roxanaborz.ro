@@ -145,7 +145,7 @@ export async function fillContractPdf(
   setTextFieldWithFont(
     form,
     CONTRACT_FIELDS_MAP.programName,
-    data.name,
+    data.programName,
     customFont
   )
 
