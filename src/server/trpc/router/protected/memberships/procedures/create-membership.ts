@@ -6,16 +6,21 @@ import { memberships } from '~/server/database/schema/business/models/membership
 import { protectedProcedure } from '~/server/trpc/config'
 import { MembershipStatusType } from '~/shared/enums/membership-status-type'
 
-const inputSchema = z.object({
-  customerEmail: z.string().email('Must be a valid email address'),
-  customerName: z.string().optional(),
-  delayedStartDate: z.string().nullable().optional(),
-  endDate: z.string(),
-  parentOrderId: z.string().nullable().optional(),
-  productName: z.string().min(1, 'Product name is required'),
-  startDate: z.string(),
-  status: z.nativeEnum(MembershipStatusType)
-})
+const inputSchema = z
+  .object({
+    customerEmail: z.string().email('Must be a valid email address'),
+    customerName: z.string().optional(),
+    delayedStartDate: z.string().datetime().nullable().optional(),
+    endDate: z.string().datetime(),
+    parentOrderId: z.string().nullable().optional(),
+    productName: z.string().min(1, 'Product name is required'),
+    startDate: z.string().datetime(),
+    status: z.nativeEnum(MembershipStatusType)
+  })
+  .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
+    message: 'End date must be after start date',
+    path: ['endDate']
+  })
 
 export const createMembershipProcedure = protectedProcedure
   .input(inputSchema)

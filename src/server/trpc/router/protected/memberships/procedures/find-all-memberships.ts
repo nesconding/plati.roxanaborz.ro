@@ -46,10 +46,15 @@ export const findAllMembershipsProcedure = protectedProcedure
         ...extensionPaymentLinks.map(({ id }) => id)
       ]
 
+      if (paymentLinkIds.length === 0) {
+        return []
+      }
+
       return await ctx.db.query.memberships.findMany({
         orderBy: (memberships, { asc }) => asc(memberships.createdAt),
-        where: (memberships, { and, inArray, isNull }) =>
+        where: (memberships, { and, inArray, isNull, isNotNull }) =>
           and(
+            isNotNull(memberships.parentOrderId),
             inArray(memberships.parentOrderId, paymentLinkIds),
             isNull(memberships.deletedAt)
           ),
