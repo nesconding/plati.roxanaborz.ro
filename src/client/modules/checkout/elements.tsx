@@ -35,7 +35,7 @@ export function ElementsWrapper({
       const stripeClient = await loadStripe(
         process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!,
         {
-          developerTools: { assistant: { enabled: true } },
+          // developerTools: { assistant: { enabled: true } },
           locale: 'ro'
         }
       )
