@@ -57,6 +57,11 @@ type Contracts = TRPCRouterOutput['protected']['contracts']['findAll']
 type Products = TRPCRouterOutput['protected']['products']['findAll']
 type Memberships = TRPCRouterOutput['protected']['memberships']['findAll']
 
+// Filter memberships to only include those with a parent order
+type MembershipWithParentOrder = Memberships[number] & {
+  parentOrder: NonNullable<Memberships[number]['parentOrder']>
+}
+
 export const ExtensionFormSection = withForm({
   defaultValues: CreateExtensionPaymentLinkFormDefaultValues,
   props: {
@@ -64,10 +69,21 @@ export const ExtensionFormSection = withForm({
     memberships: [] as Memberships,
     products: [] as Products
   },
-  render: function Render({ contracts, form, memberships, products }) {
+  render: function Render({
+    contracts,
+    form,
+    memberships: allMemberships,
+    products
+  }) {
     const [isOpen, setIsOpen] = useState(false)
     const t = useTranslations(
       `modules.(app).payment-links._components.create-extension-payment-link-form.steps.${CreateExtensionPaymentLinkFormStep.BaseInfo}.forms.${CreateExtensionPaymentLinkFormSection.Extension}`
+    )
+
+    // Filter memberships to only include those with a parent order
+    const memberships = allMemberships.filter(
+      (membership): membership is MembershipWithParentOrder =>
+        membership.parentOrder !== null
     )
 
     return (

@@ -27,6 +27,7 @@ import {
   Download,
   EllipsisVertical,
   Link2,
+  Plus,
   RefreshCw,
   Search,
   View,
@@ -82,6 +83,7 @@ import { cn } from '~/client/lib/utils'
 import { createXLSXFile } from '~/client/lib/xlsx'
 import { type TRPCRouterOutput, useTRPC } from '~/client/trpc/react'
 import { MembershipStatusType } from '~/shared/enums/membership-status-type'
+import { CreateMembershipDialog } from './_components/create-membership-dialog'
 import { ManageLinkedSubscriptionsDialog } from './_components/manage-linked-subscriptions-dialog'
 import { TransferMembershipDialog } from './_components/transfer-membership-dialog'
 import { UpdateDatesDialog } from './_components/update-dates-dialog'
@@ -134,6 +136,7 @@ export function MembershipsTable({ className, search }: MembershipsTableProps) {
   // Dialog states
   const [selectedMembership, setSelectedMembership] =
     useState<Membership | null>(null)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [updateStatusDialogOpen, setUpdateStatusDialogOpen] = useState(false)
   const [updateDatesDialogOpen, setUpdateDatesDialogOpen] = useState(false)
   const [transferDialogOpen, setTransferDialogOpen] = useState(false)
@@ -238,20 +241,21 @@ export function MembershipsTable({ className, search }: MembershipsTableProps) {
     },
     {
       accessorKey: 'parentOrderId',
-      cell: ({ row }) => (
-        <Button asChild className='cursor-pointer' variant='link'>
-          <Link
-            href={{
-              pathname: '/orders',
-              query: {
-                search: row.original.parentOrderId
-              }
-            }}
-          >
-            {row.original.parentOrderId}
-          </Link>
-        </Button>
-      ),
+      cell: ({ row }) =>
+        row.original.parentOrderId ? (
+          <Button asChild className='cursor-pointer' variant='link'>
+            <Link
+              href={{
+                pathname: '/orders',
+                query: {
+                  search: row.original.parentOrderId
+                }
+              }}
+            >
+              {row.original.parentOrderId}
+            </Link>
+          </Button>
+        ) : null,
       header: MembershipsTableHeader,
       id: 'parentOrderId'
     },
@@ -437,7 +441,7 @@ export function MembershipsTable({ className, search }: MembershipsTableProps) {
       )]: row.endDate ?? '',
       [t(
         'modules.(app).memberships._components.memberships-table.columns.parentOrderId'
-      )]: row.parentOrderId,
+      )]: row.parentOrderId ?? '',
       [t(
         'modules.(app).memberships._components.memberships-table.columns.createdAt'
       )]: formatDate(row.createdAt),
@@ -585,16 +589,35 @@ export function MembershipsTable({ className, search }: MembershipsTableProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button
-            className='max-sm:flex-1 sm:max-lg:size-9'
-            onClick={handleOnClickDownload}
-            variant='outline'
-          >
-            <Download />
-            {t(
-              'modules.(app).memberships._components.memberships-table.header.actions.values.download'
-            )}
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className='max-sm:flex-1 sm:max-lg:size-9'
+                variant='outline'
+              >
+                <Zap />
+                <span className='sm:hidden lg:block'>
+                  {t(
+                    'modules.(app).memberships._components.memberships-table.header.actions.title'
+                  )}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuItem onSelect={() => setCreateDialogOpen(true)}>
+                <Plus />
+                {t(
+                  'modules.(app).memberships._components.memberships-table.header.actions.values.create'
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={handleOnClickDownload}>
+                <Download />
+                {t(
+                  'modules.(app).memberships._components.memberships-table.header.actions.values.download'
+                )}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -805,6 +828,11 @@ export function MembershipsTable({ className, search }: MembershipsTableProps) {
           />
         </>
       )}
+
+      <CreateMembershipDialog
+        isOpen={createDialogOpen}
+        onCloseDialog={() => setCreateDialogOpen(false)}
+      />
     </FieldGroup>
   )
 }

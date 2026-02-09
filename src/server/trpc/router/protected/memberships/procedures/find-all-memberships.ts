@@ -11,11 +11,14 @@ export const findAllMembershipsProcedure = protectedProcedure
   .output(
     MembershipsTableValidators.select
       .extend({
-        parentOrder: ProductOrdersTableValidators.select.extend({
-          productPaymentLink: ProductPaymentLinksTableValidators.select.extend({
-            product: ProductsTableValidators.select
+        parentOrder: ProductOrdersTableValidators.select
+          .extend({
+            productPaymentLink:
+              ProductPaymentLinksTableValidators.select.extend({
+                product: ProductsTableValidators.select
+              })
           })
-        })
+          .nullable()
       })
       .array()
   )

@@ -62,20 +62,20 @@ export function PaymentOverviewSection() {
 
   // Handle product vs extension installment fields
   const installmentAmountToPay = isExtension
-    ? ('extensionInstallmentAmountToPay' in paymentLink
-        ? paymentLink.extensionInstallmentAmountToPay
-        : null)
-    : ('productInstallmentAmountToPay' in paymentLink
-        ? paymentLink.productInstallmentAmountToPay
-        : null)
+    ? 'extensionInstallmentAmountToPay' in paymentLink
+      ? paymentLink.extensionInstallmentAmountToPay
+      : null
+    : 'productInstallmentAmountToPay' in paymentLink
+      ? paymentLink.productInstallmentAmountToPay
+      : null
 
   const installmentsCount = isExtension
-    ? ('extensionInstallmentsCount' in paymentLink
-        ? paymentLink.extensionInstallmentsCount
-        : null)
-    : ('productInstallmentsCount' in paymentLink
-        ? paymentLink.productInstallmentsCount
-        : null)
+    ? 'extensionInstallmentsCount' in paymentLink
+      ? paymentLink.extensionInstallmentsCount
+      : null
+    : 'productInstallmentsCount' in paymentLink
+      ? paymentLink.productInstallmentsCount
+      : null
 
   // Get duration based on product type
   const getDuration = () => {
@@ -116,10 +116,7 @@ export function PaymentOverviewSection() {
         return {
           payLater:
             installmentsCount && installmentAmountToPay
-              ? String(
-                  Number(installmentAmountToPay) *
-                    (installmentsCount - 1)
-                )
+              ? String(Number(installmentAmountToPay) * (installmentsCount - 1))
               : null,
           payLaterDescription:
             installmentsCount && installmentAmountToPay

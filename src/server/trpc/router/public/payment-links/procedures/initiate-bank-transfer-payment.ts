@@ -180,9 +180,7 @@ export const initiateBankTransferPaymentProcedure = publicProcedure
             billingData: input.billingData,
             status: PaymentStatusType.Processing
           })
-          .where(
-            eq(schema.extension_payment_links.id, extensionPaymentLink.id)
-          )
+          .where(eq(schema.extension_payment_links.id, extensionPaymentLink.id))
 
         return { orderId, success: true }
       }

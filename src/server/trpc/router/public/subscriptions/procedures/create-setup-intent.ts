@@ -22,10 +22,7 @@ export const createSetupIntentProcedure = publicProcedure
     const { subscriptionId, token, type } = input
 
     // Hash the input token to compare with stored hash
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex')
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
 
     const now = new Date().toISOString()
 
@@ -58,21 +55,23 @@ export const createSetupIntentProcedure = publicProcedure
       parentOrderStripePaymentIntentId =
         subscription.parentOrder.stripePaymentIntentId
     } else {
-      const subscription = await ctx.db.query.extension_subscriptions.findFirst({
-        where: (extension_subscriptions, { and, eq, gt }) =>
-          and(
-            eq(extension_subscriptions.id, subscriptionId),
-            eq(extension_subscriptions.updatePaymentToken, hashedToken),
-            gt(extension_subscriptions.updatePaymentTokenExpiresAt, now)
-          ),
-        with: {
-          parentOrder: {
-            columns: {
-              stripePaymentIntentId: true
+      const subscription = await ctx.db.query.extension_subscriptions.findFirst(
+        {
+          where: (extension_subscriptions, { and, eq, gt }) =>
+            and(
+              eq(extension_subscriptions.id, subscriptionId),
+              eq(extension_subscriptions.updatePaymentToken, hashedToken),
+              gt(extension_subscriptions.updatePaymentTokenExpiresAt, now)
+            ),
+          with: {
+            parentOrder: {
+              columns: {
+                stripePaymentIntentId: true
+              }
             }
           }
         }
-      })
+      )
 
       if (!subscription) {
         throw new TRPCError({

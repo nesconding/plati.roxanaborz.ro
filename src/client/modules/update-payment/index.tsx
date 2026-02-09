@@ -164,7 +164,9 @@ function UpdatePaymentForm({
           <div className='rounded-lg border bg-muted/30 p-4 space-y-2'>
             <div className='flex justify-between text-sm'>
               <span className='text-muted-foreground'>{t('product')}</span>
-              <span className='font-medium'>{subscriptionData.productName}</span>
+              <span className='font-medium'>
+                {subscriptionData.productName}
+              </span>
             </div>
             {subscriptionData.customerName && (
               <div className='flex justify-between text-sm'>
@@ -176,7 +178,9 @@ function UpdatePaymentForm({
             )}
             <div className='flex justify-between text-sm'>
               <span className='text-muted-foreground'>{t('email')}</span>
-              <span className='font-medium'>{subscriptionData.customerEmail}</span>
+              <span className='font-medium'>
+                {subscriptionData.customerEmail}
+              </span>
             </div>
           </div>
 

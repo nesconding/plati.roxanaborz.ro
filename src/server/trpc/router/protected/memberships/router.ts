@@ -1,5 +1,6 @@
 import { createTRPCRouter } from '~/server/trpc/config'
 import { bulkUpdateMembershipDatesProcedure } from '~/server/trpc/router/protected/memberships/procedures/bulk-update-dates'
+import { createMembershipProcedure } from '~/server/trpc/router/protected/memberships/procedures/create-membership'
 import { findAllMembershipsProcedure } from '~/server/trpc/router/protected/memberships/procedures/find-all-memberships'
 import { findAvailableSubscriptionsProcedure } from '~/server/trpc/router/protected/memberships/procedures/find-available-subscriptions'
 import { findLinkedSubscriptionsProcedure } from '~/server/trpc/router/protected/memberships/procedures/find-linked-subscriptions'
@@ -11,6 +12,7 @@ import { updateMembershipStatusProcedure } from '~/server/trpc/router/protected/
 
 export const membershipsRouter = createTRPCRouter({
   bulkUpdateDates: bulkUpdateMembershipDatesProcedure,
+  create: createMembershipProcedure,
   findAll: findAllMembershipsProcedure,
   findAvailableSubscriptions: findAvailableSubscriptionsProcedure,
   findLinkedSubscriptions: findLinkedSubscriptionsProcedure,

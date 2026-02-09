@@ -1951,6 +1951,7 @@ const dictionary = {
               actions: {
                 title: 'Acțiuni',
                 values: {
+                  create: 'Creează membership',
                   download: 'Descarcă'
                 }
               },
@@ -1996,6 +1997,69 @@ const dictionary = {
                 cancelled: 'Anulat',
                 delayed: 'Întârziat',
                 paused: 'Pauză'
+              }
+            }
+          },
+          'create-membership-dialog': {
+            buttons: {
+              cancel: 'Anulează',
+              submit: {
+                default: 'Creează membership',
+                loading: 'Se creează...'
+              }
+            },
+            description:
+              'Completează formularul pentru a crea un membership nou.',
+            fields: {
+              'customer-email': {
+                label: 'Email client',
+                placeholder: 'client@example.com'
+              },
+              'customer-name': {
+                label: 'Nume client (opțional)',
+                placeholder: 'Nume Prenume'
+              },
+              'delayed-start-date': {
+                label: 'Data de început întârziată',
+                placeholder: 'Selectează data'
+              },
+              'end-date': {
+                label: 'Data de încheiere',
+                placeholder: 'Selectează data'
+              },
+              'product-name': {
+                label: 'Produs',
+                placeholder: 'Selectează produsul'
+              },
+              'start-date': {
+                label: 'Data de început',
+                placeholder: 'Selectează data'
+              },
+              status: {
+                label: 'Status',
+                options: {
+                  active: 'Activ',
+                  cancelled: 'Anulat',
+                  delayed: 'Întârziat',
+                  paused: 'Pauză'
+                },
+                placeholder: 'Selectează status'
+              }
+            },
+            sections: {
+              customer: 'Informații client',
+              dates: 'Status și date',
+              product: 'Detalii produs'
+            },
+            title: 'Creează Membership Nou',
+            toast: {
+              error: {
+                description: 'A apărut o eroare neașteptată',
+                title: 'Nu s-a putut crea membership-ul'
+              },
+              success: {
+                description: 'Membership-ul a fost creat cu succes',
+                title: 'Membership creat'
               }
             }
           },
