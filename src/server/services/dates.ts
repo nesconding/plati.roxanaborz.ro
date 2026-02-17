@@ -48,6 +48,9 @@ class DatesServiceImpl {
   formatDate(date: DateArg<Date>, formatStr: string = 'PPP - HH:mm'): string {
     return format(date, formatStr, { locale: ro })
   }
+  formatDateForContract(date: DateArg<Date>): string {
+    return format(date, 'dd.MM.yyyy', { locale: ro })
+  }
 }
 
 export const DatesService = new DatesServiceImpl()

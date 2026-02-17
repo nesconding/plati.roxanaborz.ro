@@ -7,6 +7,7 @@ import {
   fetchContractPdf,
   fillContractPdf
 } from '~/server/services/contract-pdf'
+import { DatesService } from '~/server/services/dates'
 import { publicProcedure } from '~/server/trpc/config'
 import { PaymentLinkType } from '~/shared/enums/payment-link-type'
 
@@ -76,7 +77,8 @@ export const generateFilledContractProcedure = publicProcedure
         where: (product_payment_links, { eq }) =>
           eq(product_payment_links.id, input.paymentLinkId),
         with: {
-          contract: true
+          contract: true,
+          product: true
         }
       })
 
@@ -97,14 +99,117 @@ export const generateFilledContractProcedure = publicProcedure
       // Fetch the contract PDF
       const pdfBytes = await fetchContractPdf(paymentLink.contract.pathname)
 
+      // Build payment schedule based on payment link type
+      const { currency } = paymentLink
+      const payments: Array<{ amount: string; deadline: string }> = []
+
+      switch (paymentLink.type) {
+        case PaymentLinkType.Integral: {
+          payments.push({
+            amount: PricingService.formatPrice(
+              paymentLink.totalAmountToPay,
+              currency
+            ),
+            deadline: DatesService.formatDateForContract(
+              new Date(paymentLink.expiresAt)
+            )
+          })
+          break
+        }
+        case PaymentLinkType.Deposit: {
+          payments.push({
+            amount: PricingService.formatPrice(
+              paymentLink.depositAmount ?? '0',
+              currency
+            ),
+            deadline: DatesService.formatDateForContract(
+              new Date(paymentLink.expiresAt)
+            )
+          })
+          if (
+            paymentLink.remainingAmountToPay &&
+            paymentLink.firstPaymentDateAfterDeposit
+          ) {
+            payments.push({
+              amount: PricingService.formatPrice(
+                paymentLink.remainingAmountToPay,
+                currency
+              ),
+              deadline: DatesService.formatDateForContract(
+                new Date(paymentLink.firstPaymentDateAfterDeposit)
+              )
+            })
+          }
+          break
+        }
+        case PaymentLinkType.Installments: {
+          const installmentsCount = paymentLink.productInstallmentsCount ?? 1
+          const installmentAmount =
+            paymentLink.productInstallmentAmountToPay ?? '0'
+          for (let i = 0; i < installmentsCount; i++) {
+            const date =
+              i === 0
+                ? new Date(paymentLink.expiresAt)
+                : DatesService.addMonths(
+                    new Date(paymentLink.createdAt),
+                    i
+                  )
+            payments.push({
+              amount: PricingService.formatPrice(installmentAmount, currency),
+              deadline: DatesService.formatDateForContract(date)
+            })
+          }
+          break
+        }
+        case PaymentLinkType.InstallmentsDeposit: {
+          payments.push({
+            amount: PricingService.formatPrice(
+              paymentLink.depositAmount ?? '0',
+              currency
+            ),
+            deadline: DatesService.formatDateForContract(
+              new Date(paymentLink.expiresAt)
+            )
+          })
+          const count = paymentLink.productInstallmentsCount ?? 1
+          const remainingInstallment =
+            paymentLink.remainingInstallmentAmountToPay ?? '0'
+          const firstDate = paymentLink.firstPaymentDateAfterDeposit
+          if (firstDate) {
+            for (let i = 0; i < count; i++) {
+              payments.push({
+                amount: PricingService.formatPrice(
+                  remainingInstallment,
+                  currency
+                ),
+                deadline: DatesService.formatDateForContract(
+                  DatesService.addMonths(new Date(firstDate), i)
+                )
+              })
+            }
+          }
+          break
+        }
+      }
+
+      const lastPaymentDeadline =
+        payments.length > 0 ? payments[payments.length - 1].deadline : ''
+
+      const programDuration = paymentLink.product
+        ? `${paymentLink.product.membershipDurationMonths} luni`
+        : ''
+
       // Prepare the data for filling
       const contractData: ContractFieldsData = {
         ...input.billingData,
+        paymentDeadline: lastPaymentDeadline,
+        payments,
         paymentTotal: PricingService.formatPrice(
           paymentLink.totalAmountToPay,
-          paymentLink.currency
+          currency
         ),
         paymentType: paymentLinkNameMap[paymentLink.type],
+        programDuration,
         programName: paymentLink.productName
       }
 

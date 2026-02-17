@@ -3,7 +3,10 @@ import { readFile } from 'fs/promises'
 import { join } from 'path'
 import { PDFDocument, type PDFFont, type PDFForm } from 'pdf-lib'
 
-import { CONTRACT_FIELDS_MAP } from '~/shared/validation/schemas/contract-fields'
+import {
+  CONTRACT_FIELDS_MAP,
+  getPaymentFieldNames
+} from '~/shared/validation/schemas/contract-fields'
 
 export interface ContractAddressData {
   apartment?: string
@@ -42,8 +45,14 @@ export interface ContractCompanyData {
 export type ContractBillingData = ContractPersonData | ContractCompanyData
 
 export interface ContractPaymentData {
+  paymentDeadline: string
   paymentTotal: string
   paymentType: string
+  payments: Array<{
+    amount: string
+    deadline: string
+  }>
+  programDuration: string
   programName: string
 }
 
@@ -148,6 +157,31 @@ export async function fillContractPdf(
     data.programName,
     customFont
   )
+  setTextFieldWithFont(
+    form,
+    CONTRACT_FIELDS_MAP.programDuration,
+    data.programDuration,
+    customFont
+  )
+  setTextFieldWithFont(
+    form,
+    CONTRACT_FIELDS_MAP.paymentDeadline,
+    data.paymentDeadline,
+    customFont
+  )
+
+  // Fill per-payment breakdown fields
+  for (let i = 0; i < data.payments.length; i++) {
+    const payment = data.payments[i]
+    const fieldNames = getPaymentFieldNames(i + 1)
+    setTextFieldWithFont(form, fieldNames.amount, payment.amount, customFont)
+    setTextFieldWithFont(
+      form,
+      fieldNames.deadline,
+      payment.deadline,
+      customFont
+    )
+  }
 
   if (data.type === 'PERSON') {
     // Fill PF (Person) fields

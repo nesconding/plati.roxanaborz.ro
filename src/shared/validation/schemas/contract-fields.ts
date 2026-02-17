@@ -20,10 +20,19 @@ export const CONTRACT_FIELDS_MAP = {
     representativeLegal: 'PJ_REPREZENTANT_LEGAL',
     socialHeadquarters: 'PJ_SEDIU_SOCIAL'
   },
+  paymentDeadline: 'DATA_SCADENTA',
   paymentTotal: 'PRET_TOTAL',
   paymentType: 'TIP_PLATA',
+  programDuration: 'DURATA_PROGRAM',
   programName: 'PROGRAM'
 } as const
+
+export function getPaymentFieldNames(index: number) {
+  return {
+    amount: `PLATA_${index}_SUMA`,
+    deadline: `PLATA_${index}_SCADENTA`
+  }
+}
 
 export const contractAddressSchema = z.object({
   apartment: z.string(),
