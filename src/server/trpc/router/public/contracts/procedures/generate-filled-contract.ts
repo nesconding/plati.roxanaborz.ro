@@ -193,7 +193,7 @@ export const generateFilledContractProcedure = publicProcedure
       }
 
       const lastPaymentDeadline =
-        payments.length > 0 ? payments[payments.length - 1].deadline : ''
+        payments.length > 0 ? payments[payments.length - 1].deadline.split('.')[0] : ''
 
       const programDuration = paymentLink.product
         ? String(paymentLink.product.membershipDurationMonths)
