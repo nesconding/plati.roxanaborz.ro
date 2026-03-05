@@ -196,7 +196,7 @@ export const generateFilledContractProcedure = publicProcedure
         payments.length > 0 ? payments[payments.length - 1].deadline : ''
 
       const programDuration = paymentLink.product
-        ? `${paymentLink.product.membershipDurationMonths} luni`
+        ? String(paymentLink.product.membershipDurationMonths)
         : ''
 
       // Prepare the data for filling
